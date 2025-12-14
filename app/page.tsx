@@ -62,19 +62,25 @@ export default function Home() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.08),transparent_30%),linear-gradient(120deg,rgba(255,255,255,0.08),transparent_40%)]" />
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="flex flex-col gap-6">
-                <Badge className="bg-white/20 text-white">Basé à Pont-de-Chéruy</Badge>
+                <Badge className="bg-white/20 text-white">
+                  Basé à Pont-de-Chéruy
+                </Badge>
                 <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
                   Votre développeur web local, pour un site moderne et efficace.
                 </h1>
                 <p className="text-lg text-white/90">
-                  Basé à Pont-de-Chéruy, j’accompagne les écoles, associations, artisans et TPE
-                  dans la création de sites web professionnels, rapides et simples à gérer.
+                  Basé à Pont-de-Chéruy, j’accompagne les écoles, associations,
+                  artisans et TPE dans la création de sites web professionnels,
+                  rapides et simples à gérer.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                   <Button className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]">
                     Prendre un rendez-vous
                   </Button>
-                  <Button variant="ghost" className="border border-white/40 bg-white/10 text-white">
+                  <Button
+                    variant="ghost"
+                    className="border border-white/40 bg-white/10 text-white"
+                  >
                     Voir mes services
                   </Button>
                 </div>
@@ -121,7 +127,9 @@ export default function Home() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
                     {sector.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-[#1b2653]">{sector.title}</h3>
+                  <h3 className="text-xl font-semibold text-[#1b2653]">
+                    {sector.title}
+                  </h3>
                 </div>
                 <p className="text-base text-[#4b5563]">{sector.description}</p>
               </Card>
@@ -148,7 +156,9 @@ export default function Home() {
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{step.icon}</span>
-                  <h3 className="text-lg font-semibold text-[#1b2653]">{step.title}</h3>
+                  <h3 className="text-lg font-semibold text-[#1b2653]">
+                    {step.title}
+                  </h3>
                 </div>
                 <p className="text-sm text-[#374151]">{step.text}</p>
               </Card>
@@ -166,20 +176,24 @@ export default function Home() {
                   Un site moderne et clair pour une école locale
                 </h3>
                 <p className="text-base text-[#374151]">
-                  J’ai accompagné l’École Saint-Augustin dans la refonte complète de son site web.
-                  Navigation simplifiée, design moderne, informations facilement accessibles.
+                  J’ai accompagné l’École Saint-Augustin dans la refonte
+                  complète de son site web. Navigation simplifiée, design
+                  moderne, informations facilement accessibles.
                 </p>
                 <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
-                  {["Navigation claire", "Design moderne", "SEO local", "Mobile first"].map(
-                    (item) => (
-                      <span
-                        key={item}
-                        className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
-                      >
-                        {item}
-                      </span>
-                    ),
-                  )}
+                  {[
+                    "Navigation claire",
+                    "Design moderne",
+                    "SEO local",
+                    "Mobile first",
+                  ].map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+                    >
+                      {item}
+                    </span>
+                  ))}
                 </div>
                 <Button variant="secondary" className="w-fit">
                   Voir la réalisation
@@ -187,10 +201,13 @@ export default function Home() {
               </div>
             </div>
             <Card className="flex flex-col justify-center gap-4 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-              <h4 className="text-lg font-semibold text-[#1b2653]">Mockup du site</h4>
+              <h4 className="text-lg font-semibold text-[#1b2653]">
+                Mockup du site
+              </h4>
               <p className="text-sm text-[#4b5563]">
-                Place ici une capture ou un visuel du site de l’école (mockup desktop ou mobile).
-                Il met en avant le design clair, la navigation simple et les informations parents.
+                Place ici une capture ou un visuel du site de l’école (mockup
+                desktop ou mobile). Il met en avant le design clair, la
+                navigation simple et les informations parents.
               </p>
               <div className="flex h-48 items-center justify-center rounded-[16px] border border-dashed border-[#d0d7ff] bg-[#f7f9fc] text-sm text-[#1b2653]">
                 Espace visuel / capture écran
@@ -232,13 +249,17 @@ export default function Home() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_25%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.08),transparent_35%)]" />
             <div className="relative flex flex-col gap-6">
               <h2 className="text-3xl font-semibold">
-                Vous souhaitez un site moderne, professionnel et simple à gérer ?
+                Vous souhaitez un site moderne, professionnel et simple à gérer
+                ?
               </h2>
               <p className="text-lg text-white/85">
                 Je vous accompagne de A à Z. Réponse garantie sous 24h.
               </p>
               <div className="flex flex-wrap items-center gap-4">
-                <Button variant="secondary" className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]">
+                <Button
+                  variant="secondary"
+                  className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]"
+                >
                   Demander un devis gratuit
                 </Button>
               </div>

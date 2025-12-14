@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "next": "16.0.10",
@@ -20,6 +23,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
+    "prettier": "^3.7.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -24,12 +24,17 @@ export function SiteFooter() {
             </div>
           </div>
           <p className="max-w-xl text-base text-[#374151]">
-            LISAWEB crée et refond des sites vitrines modernes pour les écoles, associations,
-            artisans et TPE de Pont-de-Chéruy, Charvieu, Tignieu et Lyon Est.
+            LISAWEB crée et refond des sites vitrines modernes pour les écoles,
+            associations, artisans et TPE de Pont-de-Chéruy, Charvieu, Tignieu
+            et Lyon Est.
           </p>
           <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
-            <span className="rounded-full bg-[#edf1ff] px-3 py-1">Réponse sous 24h</span>
-            <span className="rounded-full bg-[#edf1ff] px-3 py-1">Accompagnement humain</span>
+            <span className="rounded-full bg-[#edf1ff] px-3 py-1">
+              Réponse sous 24h
+            </span>
+            <span className="rounded-full bg-[#edf1ff] px-3 py-1">
+              Accompagnement humain
+            </span>
           </div>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
@@ -38,7 +43,11 @@ export function SiteFooter() {
               Navigation
             </p>
             {navLinks.map((link) => (
-              <a key={link.label} className="hover:text-[#1b2653]" href={link.href}>
+              <a
+                key={link.label}
+                className="hover:text-[#1b2653]"
+                href={link.href}
+              >
                 {link.label}
               </a>
             ))}
@@ -61,7 +70,9 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-[#6b7280]">
-        <span>© {new Date().getFullYear()} Valery Mbele. Tous droits réservés.</span>
+        <span>
+          © {new Date().getFullYear()} Valery Mbele. Tous droits réservés.
+        </span>
         <div className="flex gap-4">
           <a className="hover:text-[#1b2653]" href="#">
             Mentions légales

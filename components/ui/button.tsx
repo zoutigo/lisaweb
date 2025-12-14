@@ -12,8 +12,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-[#3B5BFF] text-white shadow-[0_12px_30px_rgba(59,91,255,0.25)] hover:bg-[#324edb] focus-visible:outline-[#3B5BFF]",
   secondary:
     "bg-white/90 text-[#1b2653] border border-white/80 shadow-[0_8px_24px_rgba(0,0,0,0.05)] hover:bg-white focus-visible:outline-[#3B5BFF]",
-  ghost:
-    "text-inherit hover:bg-black/5 focus-visible:outline-[#3B5BFF]",
+  ghost: "text-inherit hover:bg-black/5 focus-visible:outline-[#3B5BFF]",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

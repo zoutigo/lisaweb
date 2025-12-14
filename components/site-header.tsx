@@ -32,7 +32,11 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-5 text-sm font-semibold text-[#1b2653] md:flex">
           {links.map((link) => (
-            <a key={link.label} className="hover:text-[#3b5bff]" href={link.href}>
+            <a
+              key={link.label}
+              className="hover:text-[#3b5bff]"
+              href={link.href}
+            >
               {link.label}
             </a>
           ))}

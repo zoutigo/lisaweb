@@ -1,9 +1,7 @@
-import { HTMLAttributes } from "react";
+import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { cn } from "@/lib/utils";
 
-interface SectionProps extends HTMLAttributes<HTMLElement> {
-  as?: keyof JSX.IntrinsicElements;
-}
+type SectionProps = ComponentPropsWithoutRef<"section"> & { as?: ElementType };
 
 export function Section({
   className,
