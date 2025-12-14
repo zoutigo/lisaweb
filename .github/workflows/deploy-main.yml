@@ -1,0 +1,71 @@
+name: Deploy to o2switch
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+
+      # Re-install production deps so the deployed bundle includes runtime deps only
+      - name: Install production dependencies
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          install -m 600 /dev/null ~/.ssh/id_rsa
+          echo "$O2_SSH_KEY" > ~/.ssh/id_rsa
+          ssh-keyscan -p "${O2_SSH_PORT:-22}" "$O2_HOST" >> ~/.ssh/known_hosts
+        env:
+          O2_SSH_KEY: ${{ secrets.O2_SSH_KEY }}
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+
+      - name: Deploy via rsync
+        run: |
+          rsync -az --delete -e "ssh -p ${O2_SSH_PORT:-22}" \
+            .next/standalone/ \
+            .next/static \
+            public \
+            package.json \
+            package-lock.json \
+            $O2_USER@$O2_HOST:$O2_TARGET_DIR/
+        env:
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_USER: ${{ secrets.O2_USER }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+
+      - name: Restart app
+        run: |
+          ssh -p "${O2_SSH_PORT:-22}" $O2_USER@$O2_HOST "cd $O2_TARGET_DIR && mkdir -p tmp && touch tmp/restart.txt"
+        env:
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_USER: ${{ secrets.O2_USER }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
