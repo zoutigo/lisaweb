@@ -1,0 +1,22 @@
+import { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
+
+interface SectionProps extends HTMLAttributes<HTMLElement> {
+  as?: keyof JSX.IntrinsicElements;
+}
+
+export function Section({
+  className,
+  as: Tag = "section",
+  ...props
+}: SectionProps) {
+  return (
+    <Tag
+      className={cn(
+        "relative mx-auto w-full max-w-6xl px-6 py-16 sm:px-8",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
