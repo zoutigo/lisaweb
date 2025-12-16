@@ -48,9 +48,9 @@ jobs:
           if [ -z "${O2_HOST:-}" ] || [ -z "${O2_SSH_KEY:-}" ]; then
             echo "O2_HOST or O2_SSH_KEY is missing"; exit 1;
           fi
-          echo "$O2_SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${O2_SSH_PORT:-22}" "$O2_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${O2_SSH_PORT:-22}" -H "$O2_HOST" >> ~/.ssh/known_hosts
 
       - name: Test SSH
         env:
