@@ -1,0 +1,32 @@
+import { z } from "zod";
+
+const timeRegex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
+
+export const rendezvousSchema = z.object({
+  date: z
+    .string()
+    .min(1, "Choisis une date")
+    .refine(
+      (value) => !Number.isNaN(new Date(value).getTime()),
+      "Date invalide",
+    ),
+  time: z.string().regex(timeRegex, "Heure invalide (HH:MM)"),
+  reason: z
+    .string()
+    .min(3, "Décris brièvement la raison")
+    .max(120, "120 caractères maximum"),
+  content: z
+    .string()
+    .min(10, "Merci de donner quelques détails")
+    .max(2000, "2000 caractères maximum"),
+});
+
+export type RendezvousInput = z.infer<typeof rendezvousSchema>;
+
+export function toScheduledDate(date: string, time: string) {
+  const datetime = new Date(`${date}T${time}`);
+  if (Number.isNaN(datetime.getTime())) {
+    throw new Error("Date ou heure invalide");
+  }
+  return datetime;
+}

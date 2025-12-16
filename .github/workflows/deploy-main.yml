@@ -1,0 +1,90 @@
+name: Deploy to o2switch
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-o2switch
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      # Important: génère le client Prisma côté CI (pas en prod)
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Build (standalone)
+        run: npm run build
+
+      - name: Prepare SSH key
+        env:
+          O2_SSH_KEY: ${{ secrets.O2_SSH_KEY }}
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$O2_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${O2_SSH_PORT:-22}" "$O2_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy via rsync
+        env:
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_USER: ${{ secrets.O2_USER }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+
+          # On déploie uniquement le nécessaire (Next standalone + assets + prisma migrations + server wrapper)
+          rsync -az --delete -e "ssh -p ${O2_SSH_PORT:-22} -i ~/.ssh/id_ed25519" \
+            server.js \
+            package.json \
+            package-lock.json \
+            prisma/ \
+            public/ \
+            .next/standalone/ \
+            .next/static/ \
+            $O2_USER@$O2_HOST:$O2_TARGET_DIR/
+
+      - name: Install deps + run migrations + restart (on server)
+        env:
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_USER: ${{ secrets.O2_USER }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
+        run: |
+          set -euo pipefail
+
+          ssh -p "${O2_SSH_PORT:-22}" -i ~/.ssh/id_ed25519 $O2_USER@$O2_HOST "\
+            set -euo pipefail; \
+            source $O2_NODEENV_ACTIVATE; \
+            cd $O2_TARGET_DIR; \
+            npm ci; \
+            npx prisma migrate deploy; \
+            npm prune --omit=dev; \
+            mkdir -p tmp && touch tmp/restart.txt \
+          "

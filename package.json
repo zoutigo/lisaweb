@@ -9,12 +9,18 @@
     "lint": "eslint",
     "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "next": "16.0.10",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "@hookform/resolvers": "^3.9.0",
+    "@prisma/client": "^5.19.1",
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -24,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
     "prettier": "^3.7.4",
+    "prisma": "^5.19.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
