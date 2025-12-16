@@ -9,7 +9,9 @@
     "lint": "eslint",
     "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,md,json,mjs,cjs}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "next": "16.0.10",
