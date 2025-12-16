@@ -30,6 +30,20 @@ git config core.hooksPath .githooks
 
 If Prettier rewrites files, the commit will stop so you can review and re-stage the changes.
 
+## Prendre rendez-vous
+
+- Page : `/rendezvous` (React Hook Form + Zod).
+- Validation partagée : `lib/validations/rendezvous.ts`.
+- API : `POST /api/rendezvous` écrit en MySQL via Prisma.
+- Composants réutilisables : `components/ui/submit-button.tsx` (submit désactivé si invalide/en cours) et `components/ui/form-status.tsx` (messages succès/erreur).
+
+## Base de données & Prisma
+
+1. Duplique `.env.example` en `.env` et renseigne `DATABASE_URL` (MySQL).
+2. Génère le client et applique le schéma : `npx prisma generate` puis `npx prisma migrate dev --name init` (ou `npx prisma migrate deploy` en CI/production).
+3. En CI (déploiement main), ajoute le secret `DATABASE_URL` pour permettre à `prisma migrate deploy` de s’exécuter.
+4. Lance l’app : `npm run dev` puis `npm run lint && npm run type-check` pour vérifier.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Rendezvous {
+  id          Int      @id @default(autoincrement())
+  scheduledAt DateTime
+  reason      String   @db.VarChar(191)
+  details     String   @db.Text
+  createdAt   DateTime @default(now())
+}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,9 +75,12 @@ export default function Home() {
                   rapides et simples à gérer.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
-                  <Button className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]">
+                  <Link
+                    href="/rendezvous"
+                    className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-white px-5 py-3 text-sm font-semibold text-[#1b2653] shadow-[0_12px_30px_rgba(59,91,255,0.25)] transition hover:bg-[#f2f4ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B5BFF]"
+                  >
                     Prendre un rendez-vous
-                  </Button>
+                  </Link>
                   <Button
                     variant="ghost"
                     className="border border-white/40 bg-white/10 text-white"

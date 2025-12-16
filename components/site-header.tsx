@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ const links = [
 ];
 
 export function SiteHeader() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   return (
@@ -43,7 +45,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden md:block">
-          <Button className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm">
+          <Button
+            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm"
+            onClick={() => router.push("/rendezvous")}
+          >
             Prendre un rendez-vous
           </Button>
         </div>
@@ -75,7 +80,13 @@ export function SiteHeader() {
                   {link.label}
                 </a>
               ))}
-              <Button className="h-9 w-full justify-center px-4 py-0 text-xs">
+              <Button
+                className="h-9 w-full justify-center px-4 py-0 text-xs"
+                onClick={() => {
+                  router.push("/rendezvous");
+                  setOpen(false);
+                }}
+              >
                 Prendre un rendez-vous
               </Button>
             </div>

@@ -26,6 +26,11 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate deploy
+
       - name: Build
         run: npm run build
 
