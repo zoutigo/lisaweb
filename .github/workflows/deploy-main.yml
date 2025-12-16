@@ -52,6 +52,15 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${O2_SSH_PORT:-22}" "$O2_HOST" >> ~/.ssh/known_hosts
 
+      - name: Test SSH
+        env:
+          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_USER: ${{ secrets.O2_USER }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 -p "${O2_SSH_PORT:-22}" -o BatchMode=yes "$O2_USER@$O2_HOST" "echo SSH_OK"
+
       - name: Deploy via rsync
         env:
           O2_HOST: ${{ secrets.O2_HOST }}
