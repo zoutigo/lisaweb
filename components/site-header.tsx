@@ -49,7 +49,7 @@ export function SiteHeader() {
             className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm"
             onClick={() => router.push("/rendezvous")}
           >
-            Prendre un rendez-vous
+            Prendre un rendez-vous !
           </Button>
         </div>
 
