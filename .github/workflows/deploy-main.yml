@@ -135,6 +135,37 @@ jobs:
             sleep 10
           done
 
+      - name: Wait for whitelist to be effective
+        shell: bash
+        env:
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          for i in {1..30}; do
+            echo "SSH check attempt $i..."
+            if ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
+              "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK" >/dev/null 2>&1; then
+              echo "SSH is reachable."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "SSH still not reachable after 5 min."
+          exit 1
+
+      - name: Test SSH connectivity
+        shell: bash
+        env:
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          ssh -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
+            "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK && hostname && whoami"
+
       - name: Deploy via rsync (bundle)
         shell: bash
         env:
