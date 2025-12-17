@@ -50,6 +50,15 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.3
 
+      - name: Debug cPanel host
+        shell: bash
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+        run: |
+          set -e
+          echo "CPANEL_HOST=$CPANEL_HOST"
+          echo | openssl s_client -connect "${CPANEL_HOST}:2083" -servername "${CPANEL_HOST}" 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName | sed -n '1,120p'
+
       - name: Whitelist runner IP on o2switch (cPanel)
         shell: bash
         env:
