@@ -106,12 +106,12 @@ jobs:
 
           echo "Adding RUNNER_IP on port 22 (in/out)..."
           curl -sS -H "Authorization: $AUTH_STR" \
-            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" -d "whitelist[direction]=in" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" | jq || true
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=in&port=22" | jq || true
+
+          sleep 2
 
           curl -sS -H "Authorization: $AUTH_STR" \
-            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" -d "whitelist[direction]=out" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" | jq || true
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=out&port=22" | jq || true
 
       - name: Prepare SSH key
         shell: bash
@@ -125,8 +125,15 @@ jobs:
           printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "Keyscan..."
-          ssh-keyscan -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts
+          echo "Keyscan (with retries)..."
+          for i in {1..12}; do
+            echo "ssh-keyscan attempt $i..."
+            if ssh-keyscan -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
+              break
+            fi
+            cat /tmp/sshkeyscan.err || true
+            sleep 10
+          done
 
       - name: Deploy via rsync (bundle)
         shell: bash
