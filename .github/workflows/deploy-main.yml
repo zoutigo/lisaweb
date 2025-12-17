@@ -1,4 +1,4 @@
-name: Deploy to o2switch
+name: Deploy to o2switch (Next.js standalone + Prisma)
 
 on:
   push:
@@ -7,9 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    concurrency:
-      group: deploy-o2switch
-      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -21,7 +18,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Install deps
         run: npm ci
 
       - name: Lint
@@ -30,76 +27,140 @@ jobs:
       - name: Type check
         run: npm run type-check
 
-      # Important: génère le client Prisma côté CI (pas en prod)
-      - name: Prisma generate
-        run: npx prisma generate
-
       - name: Build (standalone)
         run: npm run build
 
+      - name: Prepare deploy bundle
+        run: |
+          set -euo pipefail
+          rm -rf deploy
+          mkdir -p deploy/.next
+          cp -r .next/standalone/* deploy/
+          cp -r .next/static deploy/.next/static
+          cp -r public deploy/public
+          cp package.json package-lock.json deploy/
+          mkdir -p deploy/prisma
+          cp -r prisma/* deploy/prisma/
+          if [ -f server.js ]; then cp server.js deploy/server.js; fi
+
+      - name: Install tools (jq)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get runner public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: Whitelist runner IP on o2switch (cPanel)
+        shell: bash
+        env:
+          # cPanel API access
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
+
+          # keep your home/static IP
+          IP_TO_KEEP: ${{ secrets.IP_TO_KEEP }}
+
+          # runner IP
+          RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
+        run: |
+          set -euo pipefail
+          ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
+
+          AUTH_STR="Basic $(echo -n "${CPANEL_USER}:${CPANEL_PASSWORD}" | base64 -w0)"
+
+          echo "Runner IP: ${RUNNER_IP}"
+          echo "IP to keep: ${IP_TO_KEEP}"
+          echo "Fetching whitelist..."
+
+          RAW="$(curl -sS -H "Authorization: $AUTH_STR" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
+
+          # Fail if response isn't JSON with expected structure
+          echo "$RAW" | jq -e . >/dev/null
+
+          IPS="$(echo "$RAW" | jq -r '.data.list[]?.address' | sort -u || true)"
+
+          echo "Current whitelist IPs:"
+          echo "$IPS" | sed '/^$/d' || true
+
+          # Remove everything except IP_TO_KEEP and RUNNER_IP
+          for address in $IPS; do
+            if [[ "$address" == "$IP_TO_KEEP" ]]; then
+              echo "Keeping IP_TO_KEEP: $address"
+              continue
+            fi
+            if [[ "$address" == "$RUNNER_IP" ]]; then
+              echo "Keeping RUNNER_IP already present: $address"
+              continue
+            fi
+
+            echo "Removing old IP: $address (in/out)"
+            curl -sS -H "Authorization: $AUTH_STR" \
+              "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=remove&address=${address}&direction=in&port=22" | jq || true
+            sleep 2
+            curl -sS -H "Authorization: $AUTH_STR" \
+              "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=remove&address=${address}&direction=out&port=22" | jq || true
+            sleep 2
+          done
+
+          echo "Adding RUNNER_IP on port 22 (in/out)..."
+          curl -sS -H "Authorization: $AUTH_STR" \
+            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" -d "whitelist[direction]=in" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" | jq || true
+
+          curl -sS -H "Authorization: $AUTH_STR" \
+            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" -d "whitelist[direction]=out" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" | jq || true
+
       - name: Prepare SSH key
+        shell: bash
         env:
           O2_SSH_KEY: ${{ secrets.O2_SSH_KEY }}
-          O2_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          if [ -z "${O2_HOST:-}" ] || [ -z "${O2_SSH_KEY:-}" ]; then
-            echo "O2_HOST or O2_SSH_KEY is missing"; exit 1;
-          fi
-          echo "Using host=$O2_HOST port=${O2_SSH_PORT:-22}"
           printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          if ! ssh-keyscan -p "${O2_SSH_PORT:-22}" -H "$O2_HOST" >> ~/.ssh/known_hosts 2>/tmp/ssh-keyscan.log; then
-            echo "ssh-keyscan failed:"; cat /tmp/ssh-keyscan.log; exit 1;
-          fi
 
-      - name: Test SSH
+          echo "Keyscan..."
+          ssh-keyscan -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Deploy via rsync (bundle)
+        shell: bash
         env:
-          O2_HOST: ${{ secrets.O2_HOST }}
-          O2_USER: ${{ secrets.O2_USER }}
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
-        run: |
-          set -euo pipefail
-          ssh -i ~/.ssh/id_ed25519 -p "${O2_SSH_PORT:-22}" -o BatchMode=yes "$O2_USER@$O2_HOST" "echo SSH_OK"
-
-      - name: Deploy via rsync
-        env:
-          O2_HOST: ${{ secrets.O2_HOST }}
-          O2_USER: ${{ secrets.O2_USER }}
           O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
-          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
+          rsync -az --delete \
+            -e "ssh -p ${O2_SSH_PORT}" \
+            deploy/ \
+            "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
 
-          # On déploie uniquement le nécessaire (Next standalone + assets + prisma migrations + server wrapper)
-          rsync -az --delete -e "ssh -p ${O2_SSH_PORT:-22} -i ~/.ssh/id_ed25519" \
-            server.js \
-            package.json \
-            package-lock.json \
-            prisma/ \
-            public/ \
-            .next/standalone/ \
-            .next/static/ \
-            $O2_USER@$O2_HOST:$O2_TARGET_DIR/
-
-      - name: Install deps + run migrations + restart (on server)
+      - name: Install prod deps + migrate + restart (server)
+        shell: bash
         env:
-          O2_HOST: ${{ secrets.O2_HOST }}
-          O2_USER: ${{ secrets.O2_USER }}
-          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
-          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
+          ssh -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
+          set -e
+          cd "${O2_TARGET_DIR}"
 
-          ssh -p "${O2_SSH_PORT:-22}" -i ~/.ssh/id_ed25519 $O2_USER@$O2_HOST "\
-            set -euo pipefail; \
-            source $O2_NODEENV_ACTIVATE; \
-            cd $O2_TARGET_DIR; \
-            npm ci; \
-            npx prisma migrate deploy; \
-            npm prune --omit=dev; \
-            mkdir -p tmp && touch tmp/restart.txt \
-          "
+          export DATABASE_URL="${DATABASE_URL}"
+
+          npm ci --omit=dev
+          npx prisma migrate deploy
+
+          mkdir -p tmp
+          touch tmp/restart.txt
+          EOF
