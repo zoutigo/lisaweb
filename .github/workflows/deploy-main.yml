@@ -78,6 +78,11 @@ jobs:
 
           AUTH_STR="Basic $(echo -n "${CPANEL_USER}:${CPANEL_PASSWORD}" | base64 -w0)"
 
+          if [ -z "${IP_TO_KEEP:-}" ]; then
+            echo "IP_TO_KEEP is missing (refusing to modify whitelist)."
+            exit 1
+          fi
+
           echo "Runner IP: ${RUNNER_IP}"
           echo "IP to keep: ${IP_TO_KEEP}"
           echo "Fetching whitelist..."
@@ -137,7 +142,7 @@ jobs:
           echo "Keyscan (with retries)..."
           for i in {1..12}; do
             echo "ssh-keyscan attempt $i..."
-            if ssh-keyscan -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
+            if ssh-keyscan -4 -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
               break
             fi
             cat /tmp/sshkeyscan.err || true
@@ -154,7 +159,7 @@ jobs:
           set -euo pipefail
           for i in {1..30}; do
             echo "SSH check attempt $i..."
-            if ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
+            if ssh -4 -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
               "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK" >/dev/null 2>&1; then
               echo "SSH is reachable."
               exit 0
@@ -172,7 +177,7 @@ jobs:
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
-          ssh -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
+          ssh -4 -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
             "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK && hostname && whoami"
 
       - name: Deploy via rsync (bundle)
@@ -185,7 +190,7 @@ jobs:
         run: |
           set -euo pipefail
           rsync -az --delete \
-            -e "ssh -p ${O2_SSH_PORT}" \
+            -e "ssh -4 -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
 
@@ -199,7 +204,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
-          ssh -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
+          ssh -4 -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
           set -e
           cd "${O2_TARGET_DIR}"
 
