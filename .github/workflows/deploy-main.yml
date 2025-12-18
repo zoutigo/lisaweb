@@ -190,9 +190,9 @@ jobs:
           printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "Keyscan (with retries)..."
+          echo "Keyscan (with retries, up to ~5 min)..."
           ok=0
-          for i in {1..12}; do
+          for i in {1..30}; do
             echo "ssh-keyscan attempt $i..."
             if ssh-keyscan -4 -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
               ok=1
