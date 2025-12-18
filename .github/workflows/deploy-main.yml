@@ -165,8 +165,8 @@ jobs:
         run: |
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
-          RAW="$(curl -sS \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
+          RAW="$(curl -4 -sS \
+            "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
           echo "$RAW" | jq -e . >/dev/null
           echo "Whitelist after update:"
           echo "$RAW" | jq -r '.data.list[]?.address'
