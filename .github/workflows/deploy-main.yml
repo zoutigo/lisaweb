@@ -85,8 +85,6 @@ jobs:
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
 
-          AUTH_STR="Basic $(echo -n "${CPANEL_USER}:${CPANEL_PASSWORD}" | base64 -w0)"
-
           if [ -z "${IP_TO_KEEP:-}" ]; then
             echo "IP_TO_KEEP is missing (refusing to modify whitelist)."
             exit 1
