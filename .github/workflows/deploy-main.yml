@@ -119,13 +119,15 @@ jobs:
           done
 
           echo "Adding RUNNER_IP on port 22 (in/out)..."
-          curl -sS -H "Authorization: $AUTH_STR" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=in&port=22" | jq || true
+          echo "[ADD IN]"
+          curl -v -sS -H "Authorization: $AUTH_STR" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=in&port=22" || true
 
           sleep 2
 
-          curl -sS -H "Authorization: $AUTH_STR" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=out&port=22" | jq || true
+          echo "[ADD OUT]"
+          curl -v -sS -H "Authorization: $AUTH_STR" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=out&port=22" || true
 
       - name: Show whitelist after update
         shell: bash
