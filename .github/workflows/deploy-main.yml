@@ -127,6 +127,22 @@ jobs:
           curl -sS -H "Authorization: $AUTH_STR" \
             "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=out&port=22" | jq || true
 
+      - name: Show whitelist after update
+        shell: bash
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
+          AUTH_STR="Basic $(echo -n "${CPANEL_USER}:${CPANEL_PASSWORD}" | base64 -w0)"
+          RAW="$(curl -sS -H "Authorization: $AUTH_STR" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
+          echo "$RAW" | jq -e . >/dev/null
+          echo "Whitelist after update:"
+          echo "$RAW" | jq -r '.data.list[]?.address'
+
       - name: Prepare SSH key
         shell: bash
         env:
@@ -140,14 +156,21 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
 
           echo "Keyscan (with retries)..."
+          ok=0
           for i in {1..12}; do
             echo "ssh-keyscan attempt $i..."
             if ssh-keyscan -4 -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
+              ok=1
               break
             fi
             cat /tmp/sshkeyscan.err || true
             sleep 10
           done
+          if [ "$ok" -ne 1 ]; then
+            echo "ssh-keyscan failed after retries:"
+            cat /tmp/sshkeyscan.err || true
+            exit 1
+          fi
 
       - name: Wait for whitelist to be effective
         shell: bash
