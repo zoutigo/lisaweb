@@ -59,6 +59,15 @@ jobs:
           echo "CPANEL_HOST=$CPANEL_HOST"
           echo | openssl s_client -connect "${CPANEL_HOST}:2083" -servername "${CPANEL_HOST}" 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName | sed -n '1,120p'
 
+      - name: Check cPanel port reachability (2083)
+        shell: bash
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+        run: |
+          set -euo pipefail
+          echo "nc to ${CPANEL_HOST}:2083"
+          nc -vz -w 5 "$CPANEL_HOST" 2083 || true
+
       - name: Whitelist runner IP on o2switch (cPanel)
         shell: bash
         env:
@@ -82,17 +91,31 @@ jobs:
             echo "IP_TO_KEEP is missing (refusing to modify whitelist)."
             exit 1
           fi
+          if [ -z "${RUNNER_IP:-}" ]; then
+            echo "RUNNER_IP is empty (no IPv4 detected)."
+            exit 1
+          fi
 
           echo "Runner IP: ${RUNNER_IP}"
           echo "IP to keep: ${IP_TO_KEEP}"
+          fetch() {
+            curl -4 -sS -v --connect-timeout 10 --max-time 20 -H "Authorization: $AUTH_STR" \
+              "https://${CPANEL_HOST}:2083/${ENDPOINT}?$1"
+          }
+
           echo "Fetching whitelist..."
+          RAW=""
+          for i in 1 2 3; do
+            RAW="$(fetch "r=list")" && break || true
+            echo "Retry list ($i)..."
+            sleep 5
+          done
+          if [ -z "$RAW" ]; then
+            echo "Unable to fetch whitelist after retries"
+            exit 1
+          fi
 
-          RAW="$(curl -sS -H "Authorization: $AUTH_STR" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
-
-          # Fail if response isn't JSON with expected structure
           echo "$RAW" | jq -e . >/dev/null
-
           IPS="$(echo "$RAW" | jq -r '.data.list[]?.address' | sort -u || true)"
 
           echo "Current whitelist IPs:"
@@ -110,24 +133,20 @@ jobs:
             fi
 
             echo "Removing old IP: $address (in/out)"
-            curl -sS -H "Authorization: $AUTH_STR" \
-              "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=remove&address=${address}&direction=in&port=22" | jq || true
+            fetch "r=remove&address=${address}&direction=in&port=22" || true
             sleep 2
-            curl -sS -H "Authorization: $AUTH_STR" \
-              "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=remove&address=${address}&direction=out&port=22" | jq || true
+            fetch "r=remove&address=${address}&direction=out&port=22" || true
             sleep 2
           done
 
           echo "Adding RUNNER_IP on port 22 (in/out)..."
           echo "[ADD IN]"
-          curl -v -sS -H "Authorization: $AUTH_STR" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=in&port=22" || true
+          fetch "r=add&address=${RUNNER_IP}&direction=in&port=22" || true
 
           sleep 2
 
           echo "[ADD OUT]"
-          curl -v -sS -H "Authorization: $AUTH_STR" \
-            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add&address=${RUNNER_IP}&direction=out&port=22" || true
+          fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
 
       - name: Show whitelist after update
         shell: bash
