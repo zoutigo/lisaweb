@@ -74,7 +74,7 @@ jobs:
           # cPanel API access
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
+          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
 
           # keep your home/static IP
           IP_TO_KEEP: ${{ secrets.IP_TO_KEEP }}
@@ -99,8 +99,8 @@ jobs:
           echo "Runner IP: ${RUNNER_IP}"
           echo "IP to keep: ${IP_TO_KEEP}"
           fetch() {
-            curl -4 -sS -v --connect-timeout 10 --max-time 20 -H "Authorization: $AUTH_STR" \
-              "https://${CPANEL_HOST}:2083/${ENDPOINT}?$1"
+            curl -4 -sS -v --connect-timeout 10 --max-time 20 \
+              "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?$1"
           }
 
           echo "Fetching whitelist..."
@@ -148,18 +148,26 @@ jobs:
           echo "[ADD OUT]"
           fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
 
+          echo "Wait for runner IP to appear in whitelist..."
+          for i in {1..12}; do
+            RAW="$(fetch "r=list" || true)"
+            echo "$RAW" | jq -e . >/dev/null || true
+            echo "$RAW" | jq -r '.data.list[]?.address' | grep -q "^${RUNNER_IP}$" && break
+            echo "IP not yet present, retry $i..."
+            sleep 10
+          done
+
       - name: Show whitelist after update
         shell: bash
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
+          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
         run: |
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
-          AUTH_STR="Basic $(echo -n "${CPANEL_USER}:${CPANEL_PASSWORD}" | base64 -w0)"
-          RAW="$(curl -sS -H "Authorization: $AUTH_STR" \
+          RAW="$(curl -sS \
             "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
           echo "$RAW" | jq -e . >/dev/null
           echo "Whitelist after update:"
@@ -194,24 +202,6 @@ jobs:
           printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "Keyscan (with retries, up to ~5 min) to ${O2_SSH_HOST}:${O2_SSH_PORT}..."
-          ok=0
-          for i in {1..30}; do
-            echo "ssh-keyscan attempt $i..."
-            if ssh-keyscan -v -4 -T 10 -p "${O2_SSH_PORT}" "${O2_SSH_HOST}" >> ~/.ssh/known_hosts 2>/tmp/sshkeyscan.err; then
-              ok=1
-              break
-            fi
-            echo "ssh-keyscan stderr:"
-            cat /tmp/sshkeyscan.err || true
-            sleep 10
-          done
-          if [ "$ok" -ne 1 ]; then
-            echo "ssh-keyscan failed after retries:"
-            cat /tmp/sshkeyscan.err || true
-            exit 1
-          fi
-
       - name: Wait for whitelist to be effective
         shell: bash
         env:
@@ -220,9 +210,10 @@ jobs:
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
+          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           for i in {1..30}; do
             echo "SSH check attempt $i..."
-            if ssh -4 -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
+            if ssh $SSH_OPTS -o BatchMode=yes -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
               "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK" >/dev/null 2>&1; then
               echo "SSH is reachable."
               exit 0
@@ -240,7 +231,8 @@ jobs:
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
-          ssh -4 -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
+          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          ssh $SSH_OPTS -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
             "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK && hostname && whoami"
 
       - name: Deploy via rsync (bundle)
@@ -252,8 +244,9 @@ jobs:
           O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
         run: |
           set -euo pipefail
+          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           rsync -az --delete \
-            -e "ssh -4 -p ${O2_SSH_PORT}" \
+            -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
 
@@ -267,7 +260,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
-          ssh -4 -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
+          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          ssh $SSH_OPTS -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
           set -e
           cd "${O2_TARGET_DIR}"
 
