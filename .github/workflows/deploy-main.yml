@@ -143,6 +143,20 @@ jobs:
           echo "Whitelist after update:"
           echo "$RAW" | jq -r '.data.list[]?.address'
 
+      - name: Diagnose SSH reachability
+        shell: bash
+        env:
+          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          echo "Resolving host..."
+          getent hosts "$O2_SSH_HOST" || true
+          echo "nslookup:"
+          nslookup "$O2_SSH_HOST" || true
+          echo "nc probe:"
+          nc -vz -w 5 "$O2_SSH_HOST" "$O2_SSH_PORT" || true
+
       - name: Prepare SSH key
         shell: bash
         env:
