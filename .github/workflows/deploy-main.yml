@@ -41,7 +41,6 @@ jobs:
           cp package.json package-lock.json deploy/
           mkdir -p deploy/prisma
           cp -r prisma/* deploy/prisma/
-          if [ -f server.js ]; then cp server.js deploy/server.js; fi
 
       - name: Install tools (jq)
         run: sudo apt-get update && sudo apt-get install -y jq
