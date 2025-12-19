@@ -276,7 +276,7 @@ jobs:
           ln -sfn "$VENV/lib/node_modules" node_modules
           echo "node_modules -> $(readlink node_modules || true)"
 
-          npm ci
+          npm ci --include=dev
           npx prisma migrate deploy
           npm run build
 
@@ -311,7 +311,7 @@ jobs:
             '"
 
       - name: Cleanup whitelist (remove runner IP)
-        if: ${{ success() }}
+        if: ${{ always() }}
         shell: bash
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
