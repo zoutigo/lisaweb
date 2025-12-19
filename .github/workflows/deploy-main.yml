@@ -164,7 +164,7 @@ jobs:
       - name: Diagnose SSH reachability
         shell: bash
         env:
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
         run: |
           set -euo pipefail
@@ -174,18 +174,6 @@ jobs:
           nslookup "$O2_SSH_HOST" || true
           echo "nc probe:"
           nc -vz -w 5 "$O2_SSH_HOST" "$O2_SSH_PORT" || true
-
-      - name: Prepare SSH key
-        shell: bash
-        env:
-          O2_SSH_KEY: ${{ secrets.O2_SSH_KEY }}
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
-          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
 
       - name: Wait for whitelist to be effective
         shell: bash
@@ -216,28 +204,16 @@ jobs:
           echo "SSH still not reachable after 5 min."
           exit 1
 
-      - name: Test SSH connectivity
-        shell: bash
-        env:
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
-          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
-          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
-        run: |
-          set -euo pipefail
-          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          ssh $SSH_OPTS -vvv -o BatchMode=yes -o ConnectTimeout=10 -p "${O2_SSH_PORT}" \
-            "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK && hostname && whoami"
-
       - name: Deploy via rsync (bundle)
         shell: bash
         env:
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
-          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
           O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          SSH_OPTS="-4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           rsync -az --delete \
             -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
@@ -246,14 +222,14 @@ jobs:
       - name: Install prod deps + migrate + restart (server)
         shell: bash
         env:
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
-          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
           O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          SSH_OPTS="-4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           ssh $SSH_OPTS -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
           set -e
           cd "${O2_TARGET_DIR}"
