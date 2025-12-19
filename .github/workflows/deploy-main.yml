@@ -74,7 +74,7 @@ jobs:
           # cPanel API access
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
+          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
 
           # runner IP
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
@@ -89,8 +89,8 @@ jobs:
 
           echo "Runner IP: ${RUNNER_IP}"
           fetch() {
-            curl -4 -sS -v --connect-timeout 10 --max-time 20 \
-              "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?$1"
+            curl -4 -sS -v --connect-timeout 10 --max-time 20 -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+              "https://${CPANEL_HOST}:2083/${ENDPOINT}?$1"
           }
 
           echo "Fetching whitelist..."
@@ -113,12 +113,16 @@ jobs:
 
           echo "Adding RUNNER_IP on port 22 (in/out)..."
           echo "[ADD IN]"
-          fetch "r=add&address=${RUNNER_IP}&direction=in&port=22" || true
+          curl -4 -sS -v --connect-timeout 10 --max-time 20 -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" || true
 
           sleep 2
 
           echo "[ADD OUT]"
-          fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
+          curl -4 -sS -v --connect-timeout 10 --max-time 20 -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+            -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" || true
 
           echo "Wait for runner IP to appear in whitelist (up to ~10 min)..."
           for i in {1..60}; do
@@ -130,8 +134,9 @@ jobs:
             fi
             if [ $((i % 10)) -eq 0 ]; then
               echo "Re-adding runner IP (attempt $i)..."
-              fetch "r=add&address=${RUNNER_IP}&direction=in&port=22" || true
-              fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
+              curl -4 -sS --connect-timeout 10 --max-time 20 -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+                -X POST -d "whitelist[address]=${RUNNER_IP}" -d "whitelist[port]=22" \
+                "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=add" || true
             fi
             echo "IP not yet present, retry $i..."
             sleep 10
@@ -142,13 +147,13 @@ jobs:
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
+          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
         run: |
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
-          RAW="$(curl -4 -sS \
-            "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
+          RAW="$(curl -4 -sS -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+            "https://${CPANEL_HOST}:2083/${ENDPOINT}?r=list")"
           echo "$RAW" | jq -e . >/dev/null
           echo "Whitelist after update:"
           echo "$RAW" | jq -r '.data.list[]?.address'
@@ -260,14 +265,14 @@ jobs:
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
+          CPANEL_PASSWORD: ${{ secrets.CPANEL_PASSWORD }}
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
         run: |
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
           fetch() {
-            curl -4 -sS --connect-timeout 10 --max-time 20 \
-              "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?$1"
+            curl -4 -sS --connect-timeout 10 --max-time 20 -u "${CPANEL_USER}:${CPANEL_PASSWORD}" \
+              "https://${CPANEL_HOST}:2083/${ENDPOINT}?$1"
           }
           echo "Removing runner IP ${RUNNER_IP} (in/out)..."
           fetch "r=remove&address=${RUNNER_IP}&direction=in&port=22" || true
