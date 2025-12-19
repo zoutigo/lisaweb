@@ -197,9 +197,9 @@ jobs:
           set -euo pipefail
           SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           for i in {1..30}; do
-            echo "SSH check attempt $i..."
-            if ssh $SSH_OPTS -o BatchMode=yes -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
-              "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK" >/dev/null 2>&1; then
+            echo "SSH check attempt $i (verbose)..."
+            if ssh $SSH_OPTS -vvv -o BatchMode=yes -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
+              "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK"; then
               echo "SSH is reachable."
               exit 0
             fi
