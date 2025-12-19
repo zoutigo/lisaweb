@@ -226,22 +226,34 @@ jobs:
           O2_SSH_USER: ${{ secrets.O2_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
           O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          ssh $SSH_OPTS -p "${O2_SSH_PORT}" "${O2_SSH_USER}@${O2_SSH_HOST}" << EOF
-          set -e
-          cd "${O2_TARGET_DIR}"
 
-          export DATABASE_URL="${DATABASE_URL}"
+          ssh -4 -i ~/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -p "$O2_SSH_PORT" \
+            "$O2_SSH_USER@$O2_SSH_HOST" \
+            "bash -lc '
+              set -euo pipefail
 
-          npm ci --omit=dev
-          npx prisma migrate deploy
+              # Charge l'\''environnement Node (sinon npm introuvable)
+              source \"$O2_NODEENV_ACTIVATE\"
 
-          mkdir -p tmp
-          touch tmp/restart.txt
-          EOF
+              cd \"$O2_TARGET_DIR\"
+              export DATABASE_URL=\"$DATABASE_URL\"
+
+              node -v
+              npm -v
+
+              npm ci --omit=dev
+              npx prisma migrate deploy
+
+              mkdir -p tmp
+              touch tmp/restart.txt
+            '"
 
       - name: Cleanup whitelist (remove runner IP)
         if: ${{ success() }}
