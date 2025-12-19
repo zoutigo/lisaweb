@@ -213,6 +213,8 @@ jobs:
           set -euo pipefail
           SSH_OPTS="-4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           rsync -az --delete \
+            --filter='protect node_modules' \
+            --exclude 'node_modules' \
             -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
@@ -249,15 +251,12 @@ jobs:
               npm -v
               echo \"VIRTUAL_ENV=\${VIRTUAL_ENV:-unset}\"
 
-              # Assure un node_modules symlink vers l\"env virtualisé de CloudLinux
-              rm -rf node_modules
-              if [ -n \"\${VIRTUAL_ENV:-}\" ]; then
-                ln -sfn \"\$VIRTUAL_ENV/lib/node_modules\" node_modules
-              else
-                echo \"VIRTUAL_ENV non défini, skip symlink.\"
-              fi
-
+              # Ne touche pas à node_modules (CloudLinux gère le symlink)
               npm ci
+
+              # Fix TypeScript si next.config.ts (Next ne peut pas auto-installer TS ici)
+              npm ls typescript >/dev/null 2>&1 || npm i --no-save typescript @types/node
+
               npx prisma migrate deploy
               npm run build
 
