@@ -27,28 +27,19 @@ jobs:
       - name: Type check
         run: npm run type-check
 
-      - name: Build (standalone)
-        run: npm run build
-
-      - name: Prepare deploy bundle
+      - name: Prepare deploy source (no build)
         run: |
           set -euo pipefail
           rm -rf deploy
-          mkdir -p deploy/.next
-          cp -r .next/standalone/* deploy/
-          cp -r .next/static deploy/.next/static
-          cp -r public deploy/public
-          cp package.json package-lock.json deploy/
-          mkdir -p deploy/prisma
-          cp -r prisma/* deploy/prisma/
-          if [ -f server.js ]; then cp server.js deploy/server.js; fi
-
-      - name: Validate standalone bundle (server.js)
-        run: |
-          set -euo pipefail
-          ls -la deploy | sed -n '1,120p'
-          node -c deploy/server.js
-          wc -c deploy/server.js
+          mkdir -p deploy
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'node_modules' \
+            --exclude '.next' \
+            --exclude 'tmp' \
+            --exclude '*.log' \
+            ./ deploy/
 
       - name: Install tools (jq)
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -211,7 +202,7 @@ jobs:
           echo "SSH still not reachable after 5 min."
           exit 1
 
-      - name: Deploy via rsync (bundle)
+      - name: Deploy via rsync (source)
         shell: bash
         env:
           O2_SSH_HOST: ${{ secrets.O2_HOST }}
@@ -225,30 +216,6 @@ jobs:
             -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
-
-      - name: Post-deploy sanity check (server)
-        shell: bash
-        env:
-          O2_SSH_HOST: ${{ secrets.O2_HOST }}
-          O2_SSH_USER: ${{ secrets.O2_USER }}
-          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
-          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
-          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
-        run: |
-          set -euo pipefail
-          ssh -4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            -p "$O2_SSH_PORT" "$O2_SSH_USER@$O2_SSH_HOST" \
-            "bash -lc '
-              set -e
-              source \"$O2_NODEENV_ACTIVATE\" 2>/dev/null || true
-              cd \"$O2_TARGET_DIR\"
-              echo \"--- server.js syntax ---\"
-              node -c server.js
-              echo \"--- server.js size ---\"
-              wc -c server.js
-              echo \"--- .next check ---\"
-              ls -la .next | head
-            '"
 
       - name: Install prod deps + migrate + restart (server)
         shell: bash
@@ -281,11 +248,35 @@ jobs:
               node -v
               npm -v
 
-              npm ci --omit=dev
+              npm ci
               npx prisma migrate deploy
+              npm run build
 
               mkdir -p tmp
               touch tmp/restart.txt
+            '"
+
+      - name: Post-deploy sanity check (server)
+        shell: bash
+        env:
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_USER }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
+        run: |
+          set -euo pipefail
+          ssh -4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -p "$O2_SSH_PORT" "$O2_SSH_USER@$O2_SSH_HOST" \
+            "bash -lc '
+              set -e
+              set +u
+              source \"$O2_NODEENV_ACTIVATE\"
+              set -u
+              cd \"$O2_TARGET_DIR\"
+              echo \"node: \$(node -v) / npm: \$(npm -v)\"
+              test -d .next && echo \".next OK\" || (echo \".next missing\" && exit 1)
+              ls -la .next | head
             '"
 
       - name: Cleanup whitelist (remove runner IP)
