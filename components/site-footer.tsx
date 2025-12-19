@@ -20,7 +20,9 @@ export function SiteFooter() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b2653]">
                 LISAWEB
               </p>
-              <p className="text-sm text-[#4b5563]">Développeur web & mobile</p>
+              <p className="text-sm text-[#4b5563]">
+                Développeur web & mobiles
+              </p>
             </div>
           </div>
           <p className="max-w-xl text-base text-[#374151]">
