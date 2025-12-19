@@ -251,12 +251,18 @@ jobs:
               npm -v
               echo \"VIRTUAL_ENV=\${VIRTUAL_ENV:-unset}\"
 
-              # Ne touche pas à node_modules (CloudLinux gère le symlink)
+              # --- Fix CloudLinux node_modules symlink ---
+              if [ -e node_modules ] && [ ! -L node_modules ]; then
+                echo \"node_modules is a real directory/file -> removing (CloudLinux requires symlink)\"
+                rm -rf node_modules
+              fi
+
+              NODEENV_DIR=\"$(dirname \"$(command -v node)\")/..\"
+              NODEENV_DIR=\"$(cd \"$NODEENV_DIR\" && pwd)\"
+              ln -sfn \"$NODEENV_DIR/lib/node_modules\" node_modules
+              echo \"node_modules -> $(readlink node_modules)\"
+
               npm ci
-
-              # Fix TypeScript si next.config.ts (Next ne peut pas auto-installer TS ici)
-              npm ls typescript >/dev/null 2>&1 || npm i --no-save typescript @types/node
-
               npx prisma migrate deploy
               npm run build
 
