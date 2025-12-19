@@ -120,11 +120,19 @@ jobs:
           echo "[ADD OUT]"
           fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
 
-          echo "Wait for runner IP to appear in whitelist..."
-          for i in {1..12}; do
+          echo "Wait for runner IP to appear in whitelist (up to ~10 min)..."
+          for i in {1..60}; do
             RAW="$(fetch "r=list" || true)"
             echo "$RAW" | jq -e . >/dev/null || true
-            echo "$RAW" | jq -r '.data.list[]?.address' | grep -q "^${RUNNER_IP}$" && break
+            if echo "$RAW" | jq -r '.data.list[]?.address' | grep -q "^${RUNNER_IP}$"; then
+              echo "Runner IP found in whitelist."
+              break
+            fi
+            if [ $((i % 10)) -eq 0 ]; then
+              echo "Re-adding runner IP (attempt $i)..."
+              fetch "r=add&address=${RUNNER_IP}&direction=in&port=22" || true
+              fetch "r=add&address=${RUNNER_IP}&direction=out&port=22" || true
+            fi
             echo "IP not yet present, retry $i..."
             sleep 10
           done
@@ -147,9 +155,6 @@ jobs:
           echo "Runner IP expected: ${RUNNER_IP}"
           echo "Full response:"
           echo "$RAW"
-
-      - name: Wait for firewall propagation (10 min)
-        run: sleep 600
 
       - name: Diagnose SSH reachability
         shell: bash
