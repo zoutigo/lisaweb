@@ -53,6 +53,9 @@ jobs:
           rsync -a .next/standalone/ deploy/.next/standalone/
           rsync -a .next/static/ deploy/.next/static/
 
+          mkdir -p deploy/.next/standalone/.next
+          rsync -a .next/static/ deploy/.next/standalone/.next/static/
+
           # Public assets (optional)
           if [ -d public ]; then
             rsync -a public/ deploy/public/
