@@ -273,22 +273,37 @@ jobs:
             "export DATABASE_URL_B64='$DATABASE_URL_B64'; export O2_TARGET_DIR='$O2_TARGET_DIR'; export O2_NODEENV_ACTIVATE='$O2_NODEENV_ACTIVATE'; bash -s" <<'EOF'
           set -euo pipefail
 
+          # Activate CloudLinux Node env
           set +u
           source "$O2_NODEENV_ACTIVATE"
           set -u
 
           cd "$O2_TARGET_DIR"
 
+          # Decode DB URL safely
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_B64" | base64 --decode)"
 
           echo "node: $(node -v) / npm: $(npm -v)"
-          echo "Running prisma migrate deploy..."
 
-          # Ensure prisma CLI exists in this environment
-          # If prisma is a devDependency, force include=dev in your server-side install OR ensure Prisma is available.
-          # Here: we do NOT npm ci on server; we rely on the nodevenv having deps OR prisma being in standalone bundle.
-          # Safer: run via npx using local package.json (it will use installed deps from nodevenv)
-          npx prisma migrate deploy
+          # Handle VENV/CL_VIRTUAL_ENV
+          VENV="${VIRTUAL_ENV:-${CL_VIRTUAL_ENV:-}}"
+          echo "VENV=${VENV:-unset}"
+          if [ -z "${VENV:-}" ]; then
+            echo "ERROR: VENV is not set (activation failed)."
+            exit 1
+          fi
+
+          # Ensure node_modules points to nodevenv
+          if [ -e node_modules ] && [ ! -L node_modules ]; then
+            echo "node_modules is a real directory/file -> removing"
+            rm -rf node_modules
+          fi
+          ln -sfn "$VENV/lib/node_modules" node_modules
+          echo "node_modules -> $(readlink node_modules || true)"
+
+          npm ci --include=dev
+          npx --no-install prisma migrate deploy
+          npm run build
 
           mkdir -p tmp
           touch tmp/restart.txt
