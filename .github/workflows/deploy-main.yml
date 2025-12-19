@@ -41,6 +41,14 @@ jobs:
           cp package.json package-lock.json deploy/
           mkdir -p deploy/prisma
           cp -r prisma/* deploy/prisma/
+          if [ -f server.js ]; then cp server.js deploy/server.js; fi
+
+      - name: Validate standalone bundle (server.js)
+        run: |
+          set -euo pipefail
+          ls -la deploy | sed -n '1,120p'
+          node -c deploy/server.js
+          wc -c deploy/server.js
 
       - name: Install tools (jq)
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -217,6 +225,30 @@ jobs:
             -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
+
+      - name: Post-deploy sanity check (server)
+        shell: bash
+        env:
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_USER }}
+          O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+          O2_TARGET_DIR: ${{ secrets.O2_TARGET_DIR }}
+          O2_NODEENV_ACTIVATE: ${{ secrets.O2_NODEENV_ACTIVATE }}
+        run: |
+          set -euo pipefail
+          ssh -4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -p "$O2_SSH_PORT" "$O2_SSH_USER@$O2_SSH_HOST" \
+            "bash -lc '
+              set -e
+              source \"$O2_NODEENV_ACTIVATE\" 2>/dev/null || true
+              cd \"$O2_TARGET_DIR\"
+              echo \"--- server.js syntax ---\"
+              node -c server.js
+              echo \"--- server.js size ---\"
+              wc -c server.js
+              echo \"--- .next check ---\"
+              ls -la .next | head
+            '"
 
       - name: Install prod deps + migrate + restart (server)
         shell: bash
