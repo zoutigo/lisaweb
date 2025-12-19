@@ -237,10 +237,12 @@ jobs:
             -p "$O2_SSH_PORT" \
             "$O2_SSH_USER@$O2_SSH_HOST" \
             "bash -lc '
-              set -euo pipefail
+              set -eo pipefail
 
-              # Charge l'\''environnement Node (sinon npm introuvable)
+              # IMPORTANT: pas de -u pendant l activation (sinon CL_VIRTUAL_ENV non défini => crash)
+              set +u
               source \"$O2_NODEENV_ACTIVATE\"
+              set -u
 
               cd \"$O2_TARGET_DIR\"
               export DATABASE_URL=\"$DATABASE_URL\"
