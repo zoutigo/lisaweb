@@ -219,7 +219,7 @@ jobs:
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
 
-      - name: Install prod deps + migrate + restart (server)
+      - name: Install deps + migrate + build + restart (server)
         shell: bash
         env:
           O2_SSH_HOST: ${{ secrets.O2_HOST }}
@@ -231,44 +231,56 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Encode DATABASE_URL to avoid breaking the SSH command with special chars
+          DATABASE_URL_B64="$(printf '%s' "$DATABASE_URL" | base64 -w 0)"
+
           ssh -4 -i ~/.ssh/id_ed25519 \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
             -p "$O2_SSH_PORT" \
             "$O2_SSH_USER@$O2_SSH_HOST" \
-            "bash -lc '
-              set -eo pipefail
+            "bash -lc 'cat > /tmp/deploy_next.sh <<\"EOF\"
+          set -euo pipefail
 
-              # IMPORTANT: pas de -u pendant l activation (sinon CL_VIRTUAL_ENV non défini => crash)
-              set +u
-              source \"$O2_NODEENV_ACTIVATE\"
-              set -u
+          # Activate CloudLinux Node environment
+          set +u
+          source \"$O2_NODEENV_ACTIVATE\"
+          set -u
 
-              cd \"$O2_TARGET_DIR\"
-              export DATABASE_URL=\"$DATABASE_URL\"
+          cd \"$O2_TARGET_DIR\"
 
-              node -v
-              npm -v
-              echo \"VIRTUAL_ENV=\${VIRTUAL_ENV:-unset}\"
+          # Decode DB URL safely
+          export DATABASE_URL=\"$(echo \"$DATABASE_URL_B64\" | base64 -d)\"
 
-              # --- Fix CloudLinux node_modules symlink ---
-              if [ -e node_modules ] && [ ! -L node_modules ]; then
-                echo \"node_modules is a real directory/file -> removing (CloudLinux requires symlink)\"
-                rm -rf node_modules
-              fi
+          echo \"node: $(node -v) / npm: $(npm -v)\"
+          echo \"VIRTUAL_ENV=${VIRTUAL_ENV:-unset}\"
 
-              NODEENV_DIR=\"$(dirname \"$(command -v node)\")/..\"
-              NODEENV_DIR=\"$(cd \"$NODEENV_DIR\" && pwd)\"
-              ln -sfn \"$NODEENV_DIR/lib/node_modules\" node_modules
-              echo \"node_modules -> $(readlink node_modules)\"
+          # CloudLinux expects node_modules to be a symlink into the nodevenv
+          if [ -z \"${VIRTUAL_ENV:-}\" ]; then
+            echo \"ERROR: VIRTUAL_ENV is not set. Node env activation failed.\"
+            exit 1
+          fi
 
-              npm ci
-              npx prisma migrate deploy
-              npm run build
+          if [ -e node_modules ] && [ ! -L node_modules ]; then
+            echo \"node_modules is a real directory/file -> removing\"
+            rm -rf node_modules
+          fi
 
-              mkdir -p tmp
-              touch tmp/restart.txt
-            '"
+          ln -sfn \"$VIRTUAL_ENV/lib/node_modules\" node_modules
+          echo \"node_modules -> $(readlink node_modules)\"
+
+          # Install + migrate + build
+          npm ci
+          npx prisma migrate deploy
+          npm run build
+
+          # Passenger restart (no cPanel click)
+          mkdir -p tmp
+          touch tmp/restart.txt
+
+          echo \"Deploy OK\"
+          EOF
+          bash /tmp/deploy_next.sh'"
 
       - name: Post-deploy sanity check (server)
         shell: bash
