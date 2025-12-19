@@ -44,6 +44,25 @@ If Prettier rewrites files, the commit will stop so you can review and re-stage 
 3. En CI (déploiement main), ajoute le secret `DATABASE_URL` pour permettre à `prisma migrate deploy` de s’exécuter.
 4. Lance l’app : `npm run dev` puis `npm run lint && npm run type-check` pour vérifier.
 
+## Déploiement côté serveur (sans SSH entrant)
+
+Un script serveur `scripts/deploy.sh` permet de déployer depuis le serveur (pull Git + install prod + `prisma migrate deploy` + build + restart via `tmp/restart.txt`).
+
+Étapes :
+
+- Sur o2switch (ou autre), cloner le repo dans le dossier cible et mettre `.env` (DATABASE_URL, etc.).
+- Adapter `REPO_DIR` dans le script ou l’exporter avant exécution (`export REPO_DIR=/home/USER/nodeapps/plisa`).
+- Lancer manuellement : `bash scripts/deploy.sh` (depuis le serveur), ou exposer un webhook local.
+- Le restart repose sur Passenger/Node (touch `tmp/restart.txt`).
+- Si les ressources sont limitées, tu peux sauter le build en définissant `SKIP_BUILD=1` (prévoir alors de livrer un bundle pré-construit).
+
+### Webhook de déploiement (optionnel)
+
+- Script : `scripts/deploy-webhook.js` (HTTP POST, vérification `X-Deploy-Token`).
+- Secrets nécessaires côté serveur : `DEPLOY_TOKEN` (obligatoire), `REPO_DIR` (chemin du repo), `BRANCH` (par défaut `main`), `DEPLOY_PORT` (par défaut 4000).
+- Démarrage : `DEPLOY_TOKEN=xxx REPO_DIR=/home/USER/nodeapps/plisa node scripts/deploy-webhook.js`.
+- Appel depuis GitHub Actions (ou autre) : POST vers `https://<domaine>:<port>` avec header `X-Deploy-Token: xxx`. Le script exécute `scripts/deploy.sh`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

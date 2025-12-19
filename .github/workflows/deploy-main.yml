@@ -76,26 +76,18 @@ jobs:
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
           CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
 
-          # keep your home/static IP
-          IP_TO_KEEP: ${{ secrets.IP_TO_KEEP }}
-
           # runner IP
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
         run: |
           set -euo pipefail
           ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
 
-          if [ -z "${IP_TO_KEEP:-}" ]; then
-            echo "IP_TO_KEEP is missing (refusing to modify whitelist)."
-            exit 1
-          fi
           if [ -z "${RUNNER_IP:-}" ]; then
             echo "RUNNER_IP is empty (no IPv4 detected)."
             exit 1
           fi
 
           echo "Runner IP: ${RUNNER_IP}"
-          echo "IP to keep: ${IP_TO_KEEP}"
           fetch() {
             curl -4 -sS -v --connect-timeout 10 --max-time 20 \
               "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?$1"
@@ -118,24 +110,6 @@ jobs:
 
           echo "Current whitelist IPs:"
           echo "$IPS" | sed '/^$/d' || true
-
-          # Remove everything except IP_TO_KEEP and RUNNER_IP
-          for address in $IPS; do
-            if [[ "$address" == "$IP_TO_KEEP" ]]; then
-              echo "Keeping IP_TO_KEEP: $address"
-              continue
-            fi
-            if [[ "$address" == "$RUNNER_IP" ]]; then
-              echo "Keeping RUNNER_IP already present: $address"
-              continue
-            fi
-
-            echo "Removing old IP: $address (in/out)"
-            fetch "r=remove&address=${address}&direction=in&port=22" || true
-            sleep 2
-            fetch "r=remove&address=${address}&direction=out&port=22" || true
-            sleep 2
-          done
 
           echo "Adding RUNNER_IP on port 22 (in/out)..."
           echo "[ADD IN]"
@@ -173,6 +147,9 @@ jobs:
           echo "Runner IP expected: ${RUNNER_IP}"
           echo "Full response:"
           echo "$RAW"
+
+      - name: Wait for firewall propagation (10 min)
+        run: sleep 600
 
       - name: Diagnose SSH reachability
         shell: bash
@@ -271,3 +248,22 @@ jobs:
           mkdir -p tmp
           touch tmp/restart.txt
           EOF
+
+      - name: Cleanup whitelist (remove runner IP)
+        if: ${{ success() }}
+        shell: bash
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_URLENCODED_PASSWORD: ${{ secrets.CPANEL_URLENCODED_PASSWORD }}
+          RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
+        run: |
+          set -euo pipefail
+          ENDPOINT='frontend/o2switch/o2switch-ssh-whitelist/index.live.php'
+          fetch() {
+            curl -4 -sS --connect-timeout 10 --max-time 20 \
+              "https://${CPANEL_USER}:${CPANEL_URLENCODED_PASSWORD}@${CPANEL_HOST}:2083/${ENDPOINT}?$1"
+          }
+          echo "Removing runner IP ${RUNNER_IP} (in/out)..."
+          fetch "r=remove&address=${RUNNER_IP}&direction=in&port=22" || true
+          fetch "r=remove&address=${RUNNER_IP}&direction=out&port=22" || true
