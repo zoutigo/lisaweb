@@ -231,7 +231,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Encode DATABASE_URL to avoid breaking the SSH command with special chars
+          # Hard fail if secret missing (prevents weird base64 errors)
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "ERROR: DATABASE_URL secret is empty."
+            exit 1
+          fi
+
           DATABASE_URL_B64="$(printf '%s' "$DATABASE_URL" | base64 -w 0)"
 
           ssh -4 -i ~/.ssh/id_ed25519 \
@@ -239,37 +244,38 @@ jobs:
             -o UserKnownHostsFile=/dev/null \
             -p "$O2_SSH_PORT" \
             "$O2_SSH_USER@$O2_SSH_HOST" \
-            "bash -lc 'cat > /tmp/deploy_next.sh <<\"EOF\"
+            "export DATABASE_URL_B64='$DATABASE_URL_B64'; export O2_TARGET_DIR='$O2_TARGET_DIR'; export O2_NODEENV_ACTIVATE='$O2_NODEENV_ACTIVATE'; bash -s" <<'EOF'
           set -euo pipefail
 
-          # Activate CloudLinux Node environment
+          # Activate CloudLinux Node env (NodeJS Selector)
           set +u
-          source \"$O2_NODEENV_ACTIVATE\"
+          source "$O2_NODEENV_ACTIVATE"
           set -u
 
-          cd \"$O2_TARGET_DIR\"
+          cd "$O2_TARGET_DIR"
 
-          # Decode DB URL safely
-          export DATABASE_URL=\"$(echo \"$DATABASE_URL_B64\" | base64 -d)\"
+          # Decode DB URL safely (no echo)
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_B64" | base64 --decode)"
 
-          echo \"node: $(node -v) / npm: $(npm -v)\"
-          echo \"VIRTUAL_ENV=${VIRTUAL_ENV:-unset}\"
+          echo "node: $(node -v) / npm: $(npm -v)"
 
-          # CloudLinux expects node_modules to be a symlink into the nodevenv
-          if [ -z \"${VIRTUAL_ENV:-}\" ]; then
-            echo \"ERROR: VIRTUAL_ENV is not set. Node env activation failed.\"
+          # CloudLinux sometimes exposes CL_VIRTUAL_ENV instead of VIRTUAL_ENV
+          VENV="${VIRTUAL_ENV:-${CL_VIRTUAL_ENV:-}}"
+          echo "VENV=${VENV:-unset}"
+
+          if [ -z "${VENV:-}" ]; then
+            echo "ERROR: VENV is not set (activation failed). Check O2_NODEENV_ACTIVATE path."
             exit 1
           fi
 
+          # CloudLinux expects node_modules to be a symlink into the nodevenv
           if [ -e node_modules ] && [ ! -L node_modules ]; then
-            echo \"node_modules is a real directory/file -> removing\"
+            echo "node_modules is a real directory/file -> removing"
             rm -rf node_modules
           fi
+          ln -sfn "$VENV/lib/node_modules" node_modules
+          echo "node_modules -> $(readlink node_modules || true)"
 
-          ln -sfn \"$VIRTUAL_ENV/lib/node_modules\" node_modules
-          echo \"node_modules -> $(readlink node_modules)\"
-
-          # Install + migrate + build
           npm ci
           npx prisma migrate deploy
           npm run build
@@ -278,9 +284,8 @@ jobs:
           mkdir -p tmp
           touch tmp/restart.txt
 
-          echo \"Deploy OK\"
+          echo "Deploy OK"
           EOF
-          bash /tmp/deploy_next.sh'"
 
       - name: Post-deploy sanity check (server)
         shell: bash
