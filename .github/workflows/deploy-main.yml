@@ -190,21 +190,29 @@ jobs:
       - name: Wait for whitelist to be effective
         shell: bash
         env:
-          O2_SSH_HOST: ${{ secrets.O2_SSH_HOST }}
-          O2_SSH_USER: ${{ secrets.O2_SSH_USER }}
+          O2_SSH_HOST: ${{ secrets.O2_HOST }}
+          O2_SSH_USER: ${{ secrets.O2_USER }}
           O2_SSH_PORT: ${{ secrets.O2_SSH_PORT }}
+          O2_SSH_KEY: ${{ secrets.O2_SSH_KEY }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-4 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          for i in {1..30}; do
-            echo "SSH check attempt $i (verbose)..."
-            if ssh $SSH_OPTS -vvv -o BatchMode=yes -o ConnectTimeout=5 -p "${O2_SSH_PORT}" \
-              "${O2_SSH_USER}@${O2_SSH_HOST}" "echo OK"; then
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$O2_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          SSH_OPTS="-i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+          for i in $(seq 1 30); do
+            echo "SSH check attempt $i..."
+            if ssh $SSH_OPTS -o BatchMode=yes -o ConnectTimeout=5 -p "$O2_SSH_PORT" \
+              "$O2_SSH_USER@$O2_SSH_HOST" "echo OK" >/dev/null 2>&1; then
               echo "SSH is reachable."
               exit 0
             fi
             sleep 10
           done
+
           echo "SSH still not reachable after 5 min."
           exit 1
 
