@@ -247,6 +247,11 @@ jobs:
 
               node -v
               npm -v
+              echo \"VIRTUAL_ENV=\$VIRTUAL_ENV\"
+
+              # Assure un node_modules symlink vers l'env virtualisé de CloudLinux
+              rm -rf node_modules
+              ln -sfn \"$VIRTUAL_ENV/lib/node_modules\" node_modules
 
               npm ci
               npx prisma migrate deploy
