@@ -247,11 +247,15 @@ jobs:
 
               node -v
               npm -v
-              echo \"VIRTUAL_ENV=\$VIRTUAL_ENV\"
+              echo \"VIRTUAL_ENV=\${VIRTUAL_ENV:-unset}\"
 
-              # Assure un node_modules symlink vers l'env virtualisé de CloudLinux
+              # Assure un node_modules symlink vers l\"env virtualisé de CloudLinux
               rm -rf node_modules
-              ln -sfn \"$VIRTUAL_ENV/lib/node_modules\" node_modules
+              if [ -n \"\${VIRTUAL_ENV:-}\" ]; then
+                ln -sfn \"\$VIRTUAL_ENV/lib/node_modules\" node_modules
+              else
+                echo \"VIRTUAL_ENV non défini, skip symlink.\"
+              fi
 
               npm ci
               npx prisma migrate deploy
