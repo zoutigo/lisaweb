@@ -53,6 +53,12 @@ jobs:
           rsync -a .next/standalone/ deploy/.next/standalone/
           rsync -a .next/static/ deploy/.next/static/
 
+          # Mirror public into the standalone bundle (for svg/images)
+          mkdir -p .next/standalone/public
+          if [ -d public ]; then
+            cp -R public/. .next/standalone/public/ || true
+          fi
+
           mkdir -p deploy/.next/standalone/.next
           rsync -a .next/static/ deploy/.next/standalone/.next/static/
 
