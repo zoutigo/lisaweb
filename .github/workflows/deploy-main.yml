@@ -37,50 +37,78 @@ jobs:
           rm -rf deploy
           mkdir -p deploy
 
-          # server.js wrapper (ensure present in repo OR generate here)
-          if [ ! -f server.js ]; then
-            cat > deploy/server.js <<'JS'
+          cat > deploy/server.js <<'JS'
+          /* eslint-disable @typescript-eslint/no-require-imports */
           const path = require("path");
-          process.chdir(__dirname);
-          require(path.join(__dirname, ".next", "standalone", "server.js"));
-          JS
-          else
-            cp -f server.js deploy/server.js
-          fi
 
-          # Copy standalone output
+          const appRoot = __dirname;
+          const standaloneDir = path.join(appRoot, ".next", "standalone");
+
+          process.env.NODE_ENV = process.env.NODE_ENV || "production";
+          process.env.PORT = process.env.PORT || "3000";
+
+          // Run from the standalone directory (required by Next standalone)
+          process.chdir(standaloneDir);
+
+          // Start the standalone server
+          require(path.join(standaloneDir, "server.js"));
+          JS
+
+          # ------------------------------------------------------------
+          # 2) Copy standalone output + static assets
+          # ------------------------------------------------------------
           mkdir -p deploy/.next
+
+          # Next standalone server bundle
           rsync -a .next/standalone/ deploy/.next/standalone/
+
+          # Next static assets (chunks, css, etc.)
           rsync -a .next/static/ deploy/.next/static/
 
-          # Mirror public into the standalone bundle (for svg/images)
-          mkdir -p .next/standalone/public
+          # ------------------------------------------------------------
+          # 3) IMPORTANT: ensure public/ is available to standalone runtime
+          #    This is what fixes /logo.svg and any other public asset 404.
+          # ------------------------------------------------------------
           if [ -d public ]; then
-            cp -R public/. .next/standalone/public/ || true
-          fi
+            mkdir -p deploy/.next/standalone/public
+            rsync -a public/ deploy/.next/standalone/public/
 
-          mkdir -p deploy/.next/standalone/.next
-          rsync -a .next/static/ deploy/.next/standalone/.next/static/
-
-          # Public assets (optional)
-          if [ -d public ]; then
+            # Optional: also ship public at app root (harmless, sometimes useful)
             rsync -a public/ deploy/public/
           fi
 
-          # Prisma (needed for migrate deploy)
+          # ------------------------------------------------------------
+          # 4) OPTIONAL but safe: also expose .next/static under standalone/.next/static
+          #    (some setups expect this exact layout)
+          # ------------------------------------------------------------
+          mkdir -p deploy/.next/standalone/.next
+          rsync -a .next/static/ deploy/.next/standalone/.next/static/
+
+          # ------------------------------------------------------------
+          # 5) Prisma (needed for migrate deploy)
+          # ------------------------------------------------------------
           if [ -d prisma ]; then
             rsync -a prisma/ deploy/prisma/
           fi
 
-          # Minimal package files (useful for Prisma CLI / client)
+          # ------------------------------------------------------------
+          # 6) Minimal package files (for prisma CLI / node deps resolution if needed)
+          # ------------------------------------------------------------
           cp -f package.json deploy/
-          if [ -f package-lock.json ]; then cp -f package-lock.json deploy/; fi
+          if [ -f package-lock.json ]; then
+            cp -f package-lock.json deploy/
+          fi
 
-          # (Optional but useful) include next.config.js for trace/debug
-          if [ -f next.config.js ]; then cp -f next.config.js deploy/; fi
+          # (Optional) include next config for trace/debug
+          if [ -f next.config.js ]; then
+            cp -f next.config.js deploy/
+          fi
+          if [ -f next.config.mjs ]; then
+            cp -f next.config.mjs deploy/
+          fi
 
-          echo "Deploy content:"
-          find deploy -maxdepth 3 -type f | sed -n '1,200p'
+          echo "Deploy content (sample):"
+          find deploy -maxdepth 4 -type f | sed -n '1,200p'
 
       - name: Install tools (jq)
         run: sudo apt-get update && sudo apt-get install -y jq
