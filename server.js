@@ -1,20 +1,15 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-// server.js (Next.js standalone on cPanel/Passenger)
 const path = require("path");
 
-// Ensure correct working directory (important on Passenger)
-process.chdir(__dirname);
+// App root = directory of this file
+const appRoot = __dirname;
 
-// cPanel/Passenger provides PORT
-process.env.PORT = process.env.PORT || "3000";
+// Passenger can start in a different CWD -> force it
+process.chdir(appRoot);
+
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
+// cPanel/Passenger provides PORT, fallback just in case
+process.env.PORT = process.env.PORT || "3000";
 
-// Ensure Next standalone can locate the .next directory at app root
-process.env.NEXT_PRIVATE_STANDALONE_DIR = path.join(
-  appRoot,
-  ".next",
-  "standalone",
-);
-
-// The standalone output includes its own server entry
-require(path.join(__dirname, ".next", "standalone", "server.js"));
+// Launch Next.js standalone server
+require(path.join(appRoot, ".next", "standalone", "server.js"));
