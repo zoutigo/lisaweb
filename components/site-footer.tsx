@@ -42,7 +42,7 @@ export function SiteFooter() {
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="flex flex-col gap-3 text-sm text-[#374151]">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1b2653]">
-              Navigation
+              Navigations
             </p>
             {navLinks.map((link) => (
               <a
