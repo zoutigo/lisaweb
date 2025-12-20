@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -14,13 +13,16 @@ export function Logo({ className, size = 36, alt = "Plisa" }: LogoProps) {
       className={cn("relative", className)}
       style={{ height: dimension, width: dimension }}
     >
-      <Image
+      <img
         src="/logo.svg"
         alt={alt}
-        fill
-        sizes={dimension}
-        className="object-contain"
-        priority
+        loading="eager"
+        style={{
+          objectFit: "contain",
+          width: "100%",
+          height: "100%",
+          display: "block",
+        }}
       />
     </div>
   );

@@ -29,6 +29,10 @@ export const metadata: Metadata = {
   title: "Plisa | Développeur web & web mobile à Pont-de-Chéruy",
   description:
     "Plisa crée et refond des sites vitrines Next.js modernes pour écoles, associations, artisans et TPE à Pont-de-Chéruy et Lyon Est. Design premium, SEO local, maintenance.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
