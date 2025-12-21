@@ -1,5 +1,7 @@
+"use client";
 import { Logo } from "@/components/logo";
 import { Section } from "@/components/section";
+import { useQuery } from "@tanstack/react-query";
 
 const navLinks = [
   { label: "Secteurs", href: "#sectors" },
@@ -10,6 +12,17 @@ const navLinks = [
 ];
 
 export function SiteFooter() {
+  const { data } = useQuery({
+    queryKey: ["siteInfo"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard/site", { cache: "no-store" });
+      return (await res.json()) as { email?: string; phone?: string } | null;
+    },
+  });
+
+  const email = data?.email || "contact@valerymbele.fr";
+  const phone = data?.phone || "+33 6 00 00 00 00";
+
   return (
     <Section as="footer" className="pb-16 pt-0">
       <div className="grid gap-10 rounded-[24px] bg-white/90 p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.3)] sm:grid-cols-[1.1fr_0.9fr] lg:grid-cols-[1.2fr_0.8fr]">
@@ -65,8 +78,8 @@ export function SiteFooter() {
               Disponibilité : rendez-vous en visio ou sur place.
             </p>
             <div className="mt-2 text-sm text-[#1b2653]">
-              <p>Email : contact@valerymbele.fr</p>
-              <p>Tél : +33 6 00 00 00 00</p>
+              <p>Email : {email}</p>
+              <p>Tél : {phone}</p>
             </div>
           </div>
         </div>

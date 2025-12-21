@@ -15,9 +15,18 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
+const useSessionMock = jest.fn();
+jest.mock("next-auth/react", () => ({
+  __esModule: true,
+  useSession: () => useSessionMock(),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+}));
+
 describe("SiteHeader", () => {
   beforeEach(() => {
     pushMock.mockClear();
+    useSessionMock.mockReturnValue({ data: null });
   });
 
   it("affiche le logo et le bouton de prise de rendez-vous", () => {
