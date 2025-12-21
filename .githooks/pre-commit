@@ -8,6 +8,9 @@ npm run format:write
 npm run lint
 npm run type-check
 
+# Run unit/functional tests
+npm test -- --runInBand
+
 # Stop the commit if Prettier modified files so you can review/re-stage
 if ! git diff --quiet; then
   echo "Prettier applied changes. Please review and re-stage files before committing." >&2

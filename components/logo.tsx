@@ -23,6 +23,7 @@ export function Logo({ className, size = 36, alt = "Plisa" }: LogoProps) {
           height: "100%",
           display: "block",
         }}
+        // We intentionally avoid next/image for SVG to ensure it renders on Passenger/standalone
       />
     </div>
   );

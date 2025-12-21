@@ -20,9 +20,14 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-white/90 backdrop-blur-lg">
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-1 sm:px-5 sm:py-2">
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <button
+          type="button"
+          aria-label="Retour à l'accueil"
+          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           <Logo size={80} className="h-8 w-8 md:h-8 md:w-8" />
-          <div className="leading-tight">
+          <div className="leading-tight text-left">
             <p className="text-[16px] font-semibold uppercase tracking-[0.16em] text-[#1b2653] sm:text-[11px]">
               LisaWeb
             </p>
@@ -30,7 +35,7 @@ export function SiteHeader() {
               Développeur web & mobile
             </p>
           </div>
-        </div>
+        </button>
 
         <nav className="hidden items-center gap-5 text-sm font-semibold text-[#1b2653] md:flex">
           {links.map((link) => (
@@ -46,7 +51,7 @@ export function SiteHeader() {
 
         <div className="hidden md:block">
           <Button
-            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm"
+            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm cursor-pointer"
             onClick={() => router.push("/rendezvous")}
           >
             Prendre un rendez-vous !
@@ -81,7 +86,7 @@ export function SiteHeader() {
                 </a>
               ))}
               <Button
-                className="h-9 w-full justify-center px-4 py-0 text-xs"
+                className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
                 onClick={() => {
                   router.push("/rendezvous");
                   setOpen(false);
