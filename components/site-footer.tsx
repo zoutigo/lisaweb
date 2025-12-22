@@ -2,6 +2,7 @@
 import { Logo } from "@/components/logo";
 import { Section } from "@/components/section";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 
 const navLinks = [
   { label: "Secteurs", href: "#sectors" },
@@ -14,9 +15,23 @@ const navLinks = [
 export function SiteFooter() {
   const { data } = useQuery({
     queryKey: ["siteInfo"],
+    staleTime: 1000 * 60 * 10,
     queryFn: async () => {
       const res = await fetch("/api/dashboard/site", { cache: "no-store" });
       return (await res.json()) as { email?: string; phone?: string } | null;
+    },
+  });
+  const { data: partners } = useQuery({
+    queryKey: ["partners-public"],
+    staleTime: 1000 * 60 * 10,
+    queryFn: async () => {
+      const res = await fetch("/api/partners", { cache: "no-store" });
+      return (await res.json()) as Array<{
+        id: number;
+        name: string;
+        logoUrl: string | null;
+        url: string | null;
+      }>;
     },
   });
 
@@ -51,6 +66,33 @@ export function SiteFooter() {
               Accompagnement humain
             </span>
           </div>
+          {partners && partners.length ? (
+            <div className="mt-3">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#1b2653]">
+                Partenaires
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                {partners.map((p) => (
+                  <a
+                    key={p.id}
+                    href={p.url || "#"}
+                    target={p.url ? "_blank" : undefined}
+                    rel={p.url ? "noreferrer" : undefined}
+                    className="inline-flex items-center justify-center"
+                    aria-label={p.name}
+                  >
+                    <Image
+                      src={p.logoUrl || "/partner-placeholder.svg"}
+                      alt={p.name}
+                      width={56}
+                      height={56}
+                      className="h-12 w-12 rounded-lg object-contain"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="flex flex-col gap-3 text-sm text-[#374151]">
