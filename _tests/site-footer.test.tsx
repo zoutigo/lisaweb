@@ -27,7 +27,14 @@ describe("SiteFooter partners", () => {
       .mockResolvedValueOnce({
         ok: true,
         json: () =>
-          Promise.resolve({ email: "contact@test.com", phone: "0102030405" }),
+          Promise.resolve({
+            email: "contact@test.com",
+            phone: "0102030405",
+            address: "1 rue Centrale",
+            postalCode: "75001",
+            city: "Paris",
+            country: "France",
+          }),
       })
       // second call: partners
       .mockResolvedValueOnce({
@@ -63,12 +70,16 @@ describe("SiteFooter partners", () => {
       "/files/acme.png",
     );
 
+    expect(screen.getByText("1 rue Centrale")).toBeInTheDocument();
+    expect(screen.getByText("75001 Paris")).toBeInTheDocument();
+    expect(screen.getByText("France")).toBeInTheDocument();
+
     const fallbackImg = screen.getByAltText("NoLogo");
     expect(fallbackImg.getAttribute("src")).toContain(
       "partner-placeholder.svg",
     );
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/dashboard/site", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/site-info", {
       cache: "no-store",
     });
     expect(fetchMock).toHaveBeenCalledWith("/api/partners", {

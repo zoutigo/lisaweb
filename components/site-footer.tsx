@@ -17,8 +17,15 @@ export function SiteFooter() {
     queryKey: ["siteInfo"],
     staleTime: 1000 * 60 * 10,
     queryFn: async () => {
-      const res = await fetch("/api/dashboard/site", { cache: "no-store" });
-      return (await res.json()) as { email?: string; phone?: string } | null;
+      const res = await fetch("/api/site-info", { cache: "no-store" });
+      return (await res.json()) as {
+        email?: string;
+        phone?: string;
+        address?: string;
+        city?: string;
+        postalCode?: string;
+        country?: string;
+      } | null;
     },
   });
   const { data: partners } = useQuery({
@@ -37,6 +44,9 @@ export function SiteFooter() {
 
   const email = data?.email || "contact@valerymbele.fr";
   const phone = data?.phone || "+33 6 00 00 00 00";
+  const addressLine = data?.address || "";
+  const cityLine = [data?.postalCode, data?.city].filter(Boolean).join(" ");
+  const countryLine = data?.country || "";
 
   return (
     <Section as="footer" className="pb-16 pt-0">
@@ -113,15 +123,20 @@ export function SiteFooter() {
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1b2653]">
               Zones
             </p>
-            <p>Pont-de-Chéruy</p>
-            <p>Charvieu / Tignieu</p>
-            <p>Meyzieu / Lyon Est</p>
-            <p className="mt-2 text-xs text-[#6b7280]">
-              Disponibilité : rendez-vous en visio ou sur place.
-            </p>
-            <div className="mt-2 text-sm text-[#1b2653]">
+            <div className="space-y-1">
+              <p>Pont-de-Chéruy</p>
+              <p>Charvieu / Tignieu</p>
+              <p>Meyzieu / Lyon Est</p>
+              <p className="mt-2 text-xs text-[#6b7280]">
+                Disponibilité : rendez-vous en visio ou sur place.
+              </p>
+            </div>
+            <div className="mt-2 space-y-1 text-sm text-[#1b2653]">
               <p>Email : {email}</p>
               <p>Tél : {phone}</p>
+              {addressLine ? <p>{addressLine}</p> : null}
+              {cityLine ? <p>{cityLine}</p> : null}
+              {countryLine ? <p>{countryLine}</p> : null}
             </div>
           </div>
         </div>
