@@ -3,6 +3,13 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 
 export async function POST(request: Request) {
+  const envUploadDir = process.env.FILES_UPLOAD_DIR;
+  const uploadDir = envUploadDir
+    ? path.isAbsolute(envUploadDir)
+      ? envUploadDir
+      : path.join(process.cwd(), envUploadDir)
+    : path.join(process.cwd(), "public", "files");
+
   const form = await request.formData();
   const file = form.get("file") as File | null;
   if (!file) {
@@ -12,7 +19,6 @@ export async function POST(request: Request) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadDir = path.join(process.cwd(), "public", "files");
   await mkdir(uploadDir, { recursive: true });
 
   const ext = file.name.split(".").pop();
