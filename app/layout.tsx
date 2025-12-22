@@ -3,6 +3,7 @@ import { Comfortaa, Poppins, Raleway } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Providers } from "@/app/providers";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -45,9 +46,11 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${raleway.variable} ${comfortaa.variable} antialiased`}
       >
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
+        <Providers>
+          <SiteHeader />
+          <main>{children}</main>
+          <SiteFooter />
+        </Providers>
       </body>
     </html>
   );

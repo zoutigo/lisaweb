@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const links = [
   { label: "Secteurs", href: "#sectors" },
@@ -16,13 +17,20 @@ const links = [
 export function SiteHeader() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  const isAdmin = Boolean((session?.user as { isAdmin?: boolean })?.isAdmin);
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-white/90 backdrop-blur-lg">
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-1 sm:px-5 sm:py-2">
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <button
+          type="button"
+          aria-label="Retour à l'accueil"
+          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           <Logo size={80} className="h-8 w-8 md:h-8 md:w-8" />
-          <div className="leading-tight">
+          <div className="leading-tight text-left">
             <p className="text-[16px] font-semibold uppercase tracking-[0.16em] text-[#1b2653] sm:text-[11px]">
               LisaWeb
             </p>
@@ -30,9 +38,9 @@ export function SiteHeader() {
               Développeur web & mobile
             </p>
           </div>
-        </div>
+        </button>
 
-        <nav className="hidden items-center gap-5 text-sm font-semibold text-[#1b2653] md:flex">
+        <nav className="hidden">
           {links.map((link) => (
             <a
               key={link.label}
@@ -44,9 +52,9 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div>
           <Button
-            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm"
+            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm cursor-pointer"
             onClick={() => router.push("/rendezvous")}
           >
             Prendre un rendez-vous !
@@ -57,7 +65,7 @@ export function SiteHeader() {
           type="button"
           aria-label="Ouvrir le menu"
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:bg-[#f7f9fc] md:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:bg-[#f7f9fc]"
         >
           <span className="sr-only">Menu</span>
           <div className="flex flex-col gap-1">
@@ -68,7 +76,7 @@ export function SiteHeader() {
         </button>
 
         {open ? (
-          <div className="absolute right-3 top-[calc(100%+8px)] w-[220px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)] md:hidden">
+          <div className="absolute right-3 top-[calc(100%+8px)] w-[220px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
             <div className="flex flex-col gap-3 text-sm font-semibold text-[#1b2653]">
               {links.map((link) => (
                 <a
@@ -81,7 +89,7 @@ export function SiteHeader() {
                 </a>
               ))}
               <Button
-                className="h-9 w-full justify-center px-4 py-0 text-xs"
+                className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
                 onClick={() => {
                   router.push("/rendezvous");
                   setOpen(false);
@@ -89,6 +97,42 @@ export function SiteHeader() {
               >
                 Prendre un rendez-vous
               </Button>
+              <Button
+                className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
+                onClick={() => {
+                  setOpen(false);
+                  if (session) {
+                    signOut({ callbackUrl: "/" });
+                  } else {
+                    signIn("google");
+                  }
+                }}
+              >
+                {session ? "Se déconnecter" : "Se connecter"}
+              </Button>
+              {session ? (
+                <Button
+                  className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
+                  onClick={() => {
+                    router.push("/profile");
+                    setOpen(false);
+                  }}
+                  variant="secondary"
+                >
+                  Mon profil
+                </Button>
+              ) : null}
+              {isAdmin ? (
+                <Button
+                  className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
+                  onClick={() => {
+                    router.push("/dashboard");
+                    setOpen(false);
+                  }}
+                >
+                  Dashboard
+                </Button>
+              ) : null}
             </div>
           </div>
         ) : null}

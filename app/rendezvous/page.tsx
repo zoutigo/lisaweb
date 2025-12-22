@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Section } from "@/components/section";
@@ -13,12 +14,17 @@ import {
 } from "@/lib/validations/rendezvous";
 
 type Status = { type: "success" | "error"; message: string };
+type PendingData = RendezvousInput | null;
 
 const inputClasses =
   "w-full rounded-xl border border-[#e0e7ff] bg-white px-4 py-3 text-sm text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.03)] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#3B5BFF]";
 
 export default function RendezvousPage() {
   const [status, setStatus] = useState<Status | null>(null);
+  const [pendingData, setPendingData] = useState<PendingData>(null);
+  const [askPhone, setAskPhone] = useState(false);
+  const [phone, setPhone] = useState("");
+  const { data: session } = useSession();
 
   const {
     register,
@@ -36,29 +42,34 @@ export default function RendezvousPage() {
     mode: "onChange",
   });
 
-  const onSubmit = async (values: RendezvousInput) => {
-    setStatus(null);
+  const submitRequest = async (values: RendezvousInput) => {
     try {
-      const response = await fetch("/api/rendezvous", {
+      const res = await fetch("/api/rendezvous/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
         throw new Error(
-          payload?.message ||
-            "Impossible d'enregistrer votre demande pour le moment.",
+          payload?.message || "Impossible d'enregistrer le rendez-vous.",
         );
       }
-
+      const payload = await res.json();
       setStatus({
         type: "success",
-        message:
-          "Votre demande a bien été enregistrée. Je reviens vers vous rapidement.",
+        message: `Demande enregistrée. Un récapitulatif a été envoyé à ${
+          payload?.email || session?.user?.email || "votre adresse"
+        }. Vous serez informé(e) très bientôt de la confirmation.`,
       });
-      reset();
+      reset({
+        date: "",
+        time: "",
+        reason: "",
+        content: "",
+      });
+      setPendingData(null);
+      sessionStorage.removeItem("pendingRdv");
     } catch (error) {
       setStatus({
         type: "error",
@@ -69,6 +80,83 @@ export default function RendezvousPage() {
       });
     }
   };
+
+  const onSubmit = async (values: RendezvousInput) => {
+    setStatus(null);
+    setPendingData(values);
+    sessionStorage.setItem("pendingRdv", JSON.stringify(values));
+
+    // Vérifier session
+    if (!session?.user?.email) {
+      await signIn("google", { callbackUrl: window.location.href });
+      return;
+    }
+
+    // Vérifier téléphone
+    try {
+      const meRes = await fetch("/api/profile/me");
+      if (meRes.ok) {
+        const me = await meRes.json();
+        if (!me.phone) {
+          setAskPhone(true);
+          setStatus({
+            type: "error",
+            message: "Ajoutez votre téléphone pour finaliser la demande.",
+          });
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    await submitRequest(values);
+  };
+
+  const onSavePhone = async () => {
+    if (!pendingData) return;
+    setStatus(null);
+    try {
+      const res = await fetch("/api/profile/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (!res.ok) throw new Error("Impossible d'enregistrer le téléphone.");
+      setAskPhone(false);
+      await submitRequest(pendingData);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de l'enregistrement du téléphone.",
+      });
+    }
+  };
+
+  // cleanup listener on unmount just in case
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("message", () => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    if (session?.user?.email && typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("pendingRdv");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as RendezvousInput;
+          reset(parsed);
+          setPendingData(parsed);
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, [session?.user?.email, reset]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
@@ -94,6 +182,26 @@ export default function RendezvousPage() {
                   message={status.message}
                   title={status.type === "success" ? "C'est noté" : "Oups"}
                 />
+              ) : null}
+
+              {askPhone ? (
+                <div className="rounded-2xl border border-[#e0e7ff] bg-[#f8fbff] p-4 text-sm text-[#1b2653] shadow-sm">
+                  <p className="font-semibold">
+                    Complétez votre téléphone pour finaliser.
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+33 6 12 34 56 78"
+                      className={inputClasses}
+                    />
+                    <ButtonRow onSave={onSavePhone} />
+                  </div>
+                  <p className="mt-1 text-xs text-[#4b5563]">
+                    Format attendu: numéro français (+33 ou 0, 10 chiffres).
+                  </p>
+                </div>
               ) : null}
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -173,5 +281,17 @@ export default function RendezvousPage() {
         </Section>
       </main>
     </div>
+  );
+}
+
+function ButtonRow({ onSave }: { onSave: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onSave}
+      className="inline-flex items-center justify-center rounded-[12px] bg-[#3B5BFF] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(59,91,255,0.25)] transition hover:bg-[#324edb]"
+    >
+      Enregistrer le téléphone
+    </button>
   );
 }
