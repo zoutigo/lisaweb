@@ -132,6 +132,12 @@ export default function MethodePage() {
                 >
                   Voir le résumé
                 </Link>
+                <Link
+                  href="/faq"
+                  className="inline-flex items-center justify-center gap-2 rounded-[12px] border border-white/40 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Questions fréquentes
+                </Link>
               </div>
             </div>
             <div className="relative">

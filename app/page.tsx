@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
+import { LandingFaqPreview } from "@/components/landing-faq-preview";
 
 const sectors = [
   {
@@ -176,6 +177,15 @@ export default function Home() {
               Découvrir ma méthode de travail →
             </Link>
           </div>
+        </Section>
+
+        <Section id="faq-preview">
+          <SectionHeading
+            eyebrow="Questions fréquentes"
+            title="Quelques réponses clés avant de vous lancer"
+            description="Tarifs, méthode, technique : trois questions issues de catégories distinctes. Plus de réponses sur la page FAQ."
+          />
+          <LandingFaqPreview />
         </Section>
 
         <Section id="case">

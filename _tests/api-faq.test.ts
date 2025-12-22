@@ -17,7 +17,12 @@ jest.mock("@/lib/prisma", () => {
     update: jest.fn(),
     delete: jest.fn(),
   };
-  return { __esModule: true, prisma: { faq } };
+  const faqCategory = {
+    findMany: jest.fn(),
+    createMany: jest.fn(),
+    count: jest.fn(),
+  };
+  return { __esModule: true, prisma: { faq, faqCategory } };
 });
 
 type FaqMock = {
@@ -29,8 +34,20 @@ type FaqMock = {
 };
 
 const prismaFaq = (
-  jest.requireMock("@/lib/prisma") as { prisma: { faq: FaqMock } }
+  jest.requireMock("@/lib/prisma") as {
+    prisma: { faq: FaqMock; faqCategory: FaqCategoryMock };
+  }
 ).prisma.faq;
+type FaqCategoryMock = {
+  findMany: jest.Mock;
+  createMany: jest.Mock;
+  count: jest.Mock;
+};
+const prismaFaqCategory = (
+  jest.requireMock("@/lib/prisma") as {
+    prisma: { faq: FaqMock; faqCategory: FaqCategoryMock };
+  }
+).prisma.faqCategory;
 
 import * as faqList from "@/app/api/dashboard/faq/route";
 import * as faqDetail from "@/app/api/dashboard/faq/[id]/route";
@@ -41,6 +58,10 @@ describe("API /api/dashboard/faq", () => {
     getServerSessionMock.mockResolvedValue({
       user: { email: "admin@x.com", isAdmin: true },
     });
+    prismaFaqCategory.findMany.mockResolvedValue([
+      { id: 1, name: "Général", order: 1 },
+    ]);
+    prismaFaqCategory.count.mockResolvedValue(1);
   });
 
   it("retourne la liste des FAQ", async () => {
@@ -50,12 +71,16 @@ describe("API /api/dashboard/faq", () => {
         question: "Q?",
         answer: "A",
         createdAt: new Date().toISOString(),
+        categoryId: 1,
       },
     ];
     prismaFaq.findMany.mockResolvedValue(items);
     const res = await faqList.GET();
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual(items);
+    expect(await res.json()).toEqual({
+      faqs: items,
+      categories: [{ id: 1, name: "Général", order: 1 }],
+    });
   });
 
   it("rejette un POST sans session", async () => {
@@ -80,8 +105,17 @@ describe("API /api/dashboard/faq", () => {
   });
 
   it("crée une FAQ quand admin et payload valide", async () => {
-    prismaFaq.create.mockResolvedValue({ id: 1, question: "Q", answer: "A" });
-    const payload = { question: "Question valide", answer: "Réponse valide" };
+    prismaFaq.create.mockResolvedValue({
+      id: 1,
+      question: "Q",
+      answer: "A",
+      categoryId: 1,
+    });
+    const payload = {
+      question: "Question valide",
+      answer: "Réponse valide",
+      categoryId: 1,
+    };
     const res = await faqList.POST(
       new Request("http://x", {
         method: "POST",
@@ -124,10 +158,17 @@ describe("API /api/dashboard/faq/[id]", () => {
   });
 
   it("met à jour une FAQ", async () => {
-    prismaFaq.update.mockResolvedValue({ id: 1, question: "Q", answer: "A" });
+    prismaFaq.update.mockResolvedValue({
+      id: 1,
+      question: "Q",
+      answer: "A",
+      categoryId: 1,
+    });
+    prismaFaq.findUnique.mockResolvedValue({ id: 1, categoryId: 1 });
     const payload = {
       question: "Nouvelle question",
       answer: "Nouvelle réponse",
+      categoryId: 1,
     };
     const res = await faqDetail.PUT(
       new Request("http://x", {

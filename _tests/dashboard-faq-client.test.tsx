@@ -3,6 +3,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FaqClient from "@/app/dashboard/faq/faq-client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const renderWithClient = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
 describe("Dashboard FAQ client", () => {
   beforeEach(() => {
@@ -19,11 +29,17 @@ describe("Dashboard FAQ client", () => {
           id: 1,
           question: "Question valide",
           answer: "Réponse valide",
+          categoryId: 1,
           createdAt: new Date().toISOString(),
         }),
     });
 
-    render(<FaqClient initialFaqs={[]} />);
+    renderWithClient(
+      <FaqClient
+        initialFaqs={[]}
+        categories={[{ id: 1, name: "Général", order: 1 }]}
+      />,
+    );
 
     const submit = screen.getByRole("button", { name: /Ajouter/i });
     expect(submit).toBeDisabled();
@@ -64,7 +80,7 @@ describe("Dashboard FAQ client", () => {
       })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });
 
-    render(
+    renderWithClient(
       <FaqClient
         initialFaqs={[
           {
@@ -72,8 +88,10 @@ describe("Dashboard FAQ client", () => {
             question: "Question existante",
             answer: "Réponse existante",
             createdAt: new Date().toISOString(),
+            categoryId: 1,
           },
         ]}
+        categories={[{ id: 1, name: "Général", order: 1 }]}
       />,
     );
 

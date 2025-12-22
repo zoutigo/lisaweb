@@ -7,45 +7,49 @@ import { faqSchema, type FaqInput } from "@/lib/validations/faq";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { ConfirmMessage } from "@/components/confirm-message";
+import { useQueryClient } from "@tanstack/react-query";
 
 type FaqItem = {
   id: number;
   question: string;
   answer: string;
   createdAt: string;
+  categoryId: number;
 };
 
 type FaqClientProps = {
   initialFaqs: FaqItem[];
+  categories: { id: number; name: string; order: number }[];
 };
 
-export default function FaqClient({ initialFaqs }: FaqClientProps) {
+export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
   const [faqs, setFaqs] = useState(initialFaqs);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const defaultValues = useMemo<FaqInput>(
-    () => ({ question: "", answer: "" }),
-    [],
+    () => ({ question: "", answer: "", categoryId: categories[0]?.id }),
+    [categories],
   );
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    trigger,
-    formState: { isSubmitting, isValid, errors },
-  } = useForm<FaqInput>({
-    resolver: zodResolver(faqSchema),
-    defaultValues,
-    mode: "onChange",
-    reValidateMode: "onChange",
-  });
+  const { register, handleSubmit, reset, trigger, formState } =
+    useForm<FaqInput>({
+      resolver: zodResolver(faqSchema),
+      defaultValues,
+      mode: "onChange",
+      reValidateMode: "onChange",
+    });
+  const { isSubmitting, isValid, errors } = formState;
 
   const fillForm = (faq: FaqItem) => {
-    reset({ question: faq.question, answer: faq.answer });
+    reset({
+      question: faq.question,
+      answer: faq.answer,
+      categoryId: faq.categoryId,
+    });
     trigger();
     setEditingId(faq.id);
   };
@@ -75,6 +79,7 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
     setEditingId(null);
     reset(defaultValues);
     trigger();
+    queryClient.invalidateQueries({ queryKey: ["faq-preview"] });
   };
 
   const onDelete = async (id: number) => {
@@ -93,6 +98,7 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
       reset(defaultValues);
       trigger();
     }
+    queryClient.invalidateQueries({ queryKey: ["faq-preview"] });
   };
 
   return (
@@ -148,9 +154,15 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-gray-500">
-                        {new Date(faq.createdAt).toLocaleDateString("fr-FR")}
-                      </p>
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500">
+                        <span>
+                          {new Date(faq.createdAt).toLocaleDateString("fr-FR")}
+                        </span>
+                        <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[11px] text-gray-700">
+                          {categories.find((c) => c.id === faq.categoryId)
+                            ?.name || "FAQ"}
+                        </span>
+                      </div>
                       <p className="text-base font-semibold text-gray-900">
                         {faq.question}
                       </p>
@@ -172,7 +184,7 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
                       </Button>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-gray-700 whitespace-pre-line">
+                  <p className="mt-2 whitespace-pre-line text-sm text-gray-700">
                     {faq.answer}
                   </p>
                 </li>
@@ -220,6 +232,27 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
               />
               {errors.answer ? (
                 <p className="text-xs text-red-600">{errors.answer.message}</p>
+              ) : null}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-800">
+                Catégorie
+              </label>
+              <select
+                {...register("categoryId", { valueAsNumber: true })}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+                defaultValue={categories[0]?.id}
+              >
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categoryId ? (
+                <p className="text-xs text-red-600">
+                  {errors.categoryId.message}
+                </p>
               ) : null}
             </div>
 
