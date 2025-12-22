@@ -29,6 +29,12 @@ type FaqEntry = {
 };
 
 async function getData() {
+  const canQuery =
+    process.env.NODE_ENV === "test" || Boolean(process.env.DATABASE_URL);
+  if (!canQuery) {
+    return { categories: [], faqs: [], dbError: true };
+  }
+
   let categories = await faqRepo.faqCategory.findMany({
     orderBy: { order: "asc" },
   } as never);
@@ -51,18 +57,19 @@ async function getData() {
     include: { category: true },
   } as never)) as FaqEntry[];
 
-  return { categories, faqs };
+  return { categories, faqs, dbError: false };
 }
 
 export default async function FAQPage() {
-  const { categories, faqs } = await getData();
+  const { categories, faqs, dbError } = await getData();
 
-  const grouped = (categories as Category[]).map((cat) => ({
-    ...cat,
-    items: faqs.filter(
-      (faq) => (faq.categoryId ?? faq.category?.id) === cat.id,
-    ),
-  }));
+  const grouped =
+    (categories as Category[]).map((cat) => ({
+      ...cat,
+      items: faqs.filter(
+        (faq) => (faq.categoryId ?? faq.category?.id) === cat.id,
+      ),
+    })) ?? [];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
@@ -147,6 +154,12 @@ export default async function FAQPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        {dbError ? (
+          <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Les questions fréquentes ne sont pas disponibles pour le moment
+            (base de données non configurée).
+          </div>
+        ) : null}
         <div className="grid gap-8 lg:grid-cols-[1fr_0.6fr]">
           <div>
             {grouped.map((group) => (
