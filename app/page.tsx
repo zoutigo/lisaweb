@@ -168,6 +168,14 @@ export default function Home() {
               </Card>
             ))}
           </div>
+          <div className="mt-6">
+            <Link
+              href="/methode"
+              className="inline-flex items-center gap-2 text-[#1b2653] font-semibold hover:underline"
+            >
+              Découvrir ma méthode de travail →
+            </Link>
+          </div>
         </Section>
 
         <Section id="case">
