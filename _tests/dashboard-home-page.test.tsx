@@ -48,13 +48,15 @@ describe("Dashboard home page", () => {
 
     expect(screen.getByText(/Espace administrateur/i)).toBeInTheDocument();
 
-    const siteLink = screen.getByRole("link", { name: /Site/i });
+    const siteLink = screen.getAllByRole("link", { name: /Site/i })[0];
     const usersLink = screen.getByRole("link", { name: /Utilisateurs/i });
     const partnersLink = screen.getByRole("link", { name: /Partenaires/i });
+    const faqLink = screen.getByRole("link", { name: /FAQ/i });
 
     expect(siteLink).toHaveAttribute("href", "/dashboard/site");
     expect(usersLink).toHaveAttribute("href", "/dashboard/users");
     expect(partnersLink).toHaveAttribute("href", "/dashboard/partners");
+    expect(faqLink).toHaveAttribute("href", "/dashboard/faq");
   });
 
   it("redirige lorsqu'aucune session admin n'est présente", async () => {

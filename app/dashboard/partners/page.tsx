@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import type { Session } from "next-auth";
-import type { Partner } from "@prisma/client";
 
 const placeholderLogo = "/partner-placeholder.svg";
 
@@ -19,7 +18,17 @@ export default async function PartnersPage() {
   const isAdmin = (session.user as { isAdmin?: boolean }).isAdmin ?? false;
   if (!isAdmin) redirect("/");
 
-  const partners = (await prisma.partner.findMany({
+  type PartnerRecord = {
+    id: number;
+    name: string;
+    logoUrl: string | null;
+    url: string | null;
+    createdAt: Date;
+  };
+
+  const partners = (await (
+    prisma as unknown as { partner: typeof prisma.partner }
+  ).partner.findMany({
     select: {
       id: true,
       name: true,
@@ -28,7 +37,7 @@ export default async function PartnersPage() {
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
-  })) as Array<Pick<Partner, "id" | "name" | "logoUrl" | "url" | "createdAt">>;
+  })) as PartnerRecord[];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -56,7 +65,7 @@ export default async function PartnersPage() {
 
       {/* Mobile cards */}
       <div className="mt-6 grid gap-4 md:hidden">
-        {partners.map((p) => (
+        {partners.map((p: PartnerRecord) => (
           <Card
             key={p.id}
             className="border border-gray-200 bg-white p-4 shadow-sm"
@@ -126,7 +135,7 @@ export default async function PartnersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-sm text-gray-800">
-            {partners.map((p) => (
+            {partners.map((p: PartnerRecord) => (
               <tr key={p.id} className="hover:bg-gray-50/60">
                 <td className="px-4 py-3 font-medium text-gray-900">
                   <div className="flex items-center gap-3">

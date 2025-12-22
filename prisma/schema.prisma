@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Explicit output to ensure the client is generated in the expected location
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -91,6 +93,14 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  question  String   @db.Text
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum RendezvousStatus {

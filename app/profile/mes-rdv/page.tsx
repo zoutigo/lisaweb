@@ -16,12 +16,21 @@ export default async function ProfileRendezvousPage() {
   const userId = (session.user as { id?: string }).id;
   if (!userId) redirect("/");
 
-  const rdvs = await prisma.rendezvous.findMany({
+  type RdvRecord = {
+    id: number;
+    scheduledAt: Date | string;
+    reason: string;
+    details: string;
+    status: string;
+  };
+  const rdvs = await (
+    prisma as unknown as { rendezvous: typeof prisma.rendezvous }
+  ).rendezvous.findMany({
     where: { userId },
     orderBy: { scheduledAt: "desc" },
   });
 
-  const initial = rdvs.map((rdv) => {
+  const initial = (rdvs as RdvRecord[]).map((rdv) => {
     const dateObj = new Date(rdv.scheduledAt);
     return {
       id: rdv.id,

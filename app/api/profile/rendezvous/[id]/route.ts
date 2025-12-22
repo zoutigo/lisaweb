@@ -6,11 +6,15 @@ import {
   rendezvousSchema,
   toScheduledDate,
 } from "@/lib/validations/rendezvous";
-import type { Rendezvous } from "@prisma/client";
 
 type RouteContext = { params: Promise<{ id: string }> };
 type SessionUser = { id?: string; email?: string | null };
-type RendezvousWithDetails = Rendezvous & { details: string };
+type RendezvousWithDetails = {
+  id: number;
+  scheduledAt: Date | string;
+  details: string;
+  status: string;
+};
 
 function serialize(rdv: RendezvousWithDetails) {
   const dateObj = new Date(rdv.scheduledAt);

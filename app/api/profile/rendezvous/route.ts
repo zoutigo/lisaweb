@@ -7,10 +7,14 @@ import {
   toScheduledDate,
 } from "@/lib/validations/rendezvous";
 import nodemailer from "nodemailer";
-import type { Rendezvous } from "@prisma/client";
 
 type SessionUser = { id?: string; email?: string | null };
-type RendezvousWithDetails = Rendezvous & { details: string };
+type RendezvousWithDetails = {
+  id: number;
+  scheduledAt: Date | string;
+  details: string;
+  status: string;
+};
 
 function serialize(rdv: RendezvousWithDetails) {
   const dateObj = new Date(rdv.scheduledAt);

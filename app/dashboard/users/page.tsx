@@ -6,7 +6,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { Session } from "next-auth";
-import type { User } from "@prisma/client";
 
 export default async function UsersPage() {
   const session = (await getServerSession(authOptions)) as Session | null;
@@ -15,21 +14,20 @@ export default async function UsersPage() {
   const isAdmin = (session.user as { isAdmin?: boolean }).isAdmin ?? false;
   if (!isAdmin) redirect("/");
 
-  let users: Array<
-    Pick<
-      User,
-      | "id"
-      | "name"
-      | "firstName"
-      | "lastName"
-      | "phone"
-      | "email"
-      | "isAdmin"
-      | "createdAt"
-    >
-  > = [];
+  let users: Array<{
+    id: string;
+    name: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    phone: string | null;
+    email: string | null;
+    isAdmin: boolean;
+    createdAt: Date;
+  }> = [];
   try {
-    users = await prisma.user.findMany({
+    users = await (
+      prisma as unknown as { user: typeof prisma.user }
+    ).user.findMany({
       select: {
         id: true,
         name: true,
