@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { ConfirmMessage } from "@/components/confirm-message";
 import { useQueryClient } from "@tanstack/react-query";
+import { Pagination } from "@/components/ui/pagination";
+import { BackLink } from "@/components/back-link";
 
 type FaqItem = {
   id: number;
@@ -24,11 +26,13 @@ type FaqClientProps = {
 
 export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
   const [faqs, setFaqs] = useState(initialFaqs);
+  const [page, setPage] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const pageSize = 5;
 
   const defaultValues = useMemo<FaqInput>(
     () => ({ question: "", answer: "", categoryId: categories[0]?.id }),
@@ -75,6 +79,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
       const others = prev.filter((f) => f.id !== saved.id);
       return [{ ...saved, createdAt: saved.createdAt }, ...others];
     });
+    setPage(1);
     setMessage(editingId ? "FAQ mise à jour." : "FAQ ajoutée.");
     setEditingId(null);
     reset(defaultValues);
@@ -92,6 +97,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
       return;
     }
     setFaqs((prev) => prev.filter((f) => f.id !== id));
+    setPage(1);
     setMessage("FAQ supprimée.");
     if (editingId === id) {
       setEditingId(null);
@@ -117,6 +123,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
           </p>
         </div>
         <div className="flex gap-2">
+          <BackLink className="hidden sm:inline-flex" />
           <Button
             variant="secondary"
             className="text-sm"
@@ -147,7 +154,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
             </p>
           ) : (
             <ul className="space-y-3">
-              {faqs.map((faq) => (
+              {faqs.slice((page - 1) * pageSize, page * pageSize).map((faq) => (
                 <li
                   key={faq.id}
                   className="rounded-xl border border-gray-100 bg-gray-50 p-4 shadow-sm transition hover:border-gray-200 hover:bg-white"
@@ -191,6 +198,14 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
               ))}
             </ul>
           )}
+          <div className="mt-4">
+            <Pagination
+              currentPage={page}
+              pageSize={pageSize}
+              totalCount={faqs.length}
+              onPageChange={(p) => setPage(p)}
+            />
+          </div>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">

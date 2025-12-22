@@ -62,6 +62,7 @@ describe("Dashboard users pages", () => {
         phone: "+33 6 12 34 56 78",
         email: "anne@example.com",
         isAdmin: true,
+        createdAt: new Date("2024-01-01T10:00:00Z"),
       },
     ]);
 
@@ -75,6 +76,7 @@ describe("Dashboard users pages", () => {
     expect(screen.getAllByText("+33 6 12 34 56 78").length).toBeGreaterThan(0);
     expect(screen.getAllByText("anne@example.com").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/^Admin$/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Page 1/).length).toBeGreaterThan(0);
   });
 
   it("affiche la fiche utilisateur détaillée", async () => {
