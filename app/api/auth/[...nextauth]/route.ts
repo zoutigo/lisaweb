@@ -12,6 +12,15 @@ type TokenWithFlags = {
 type SessionUser = Session["user"] & TokenWithFlags;
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
+  logger: {
+    error(code, ...message) {
+      console.error("NEXTAUTH_ERROR", code, message);
+    },
+    warn(code, ...message) {
+      console.warn("NEXTAUTH_WARN", code, message);
+    },
+  },
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
