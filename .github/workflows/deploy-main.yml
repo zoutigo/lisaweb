@@ -21,6 +21,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Prisma generate (include debian-openssl-1.0.x engine)
+        run: npx prisma generate
+
       - name: Lint
         run: npm run lint
 
@@ -339,6 +342,7 @@ jobs:
           echo "node_modules -> $(readlink node_modules || true)"
 
           npm ci --include=dev
+          npx --no-install prisma generate
           npx --no-install prisma migrate deploy
 
           mkdir -p tmp
