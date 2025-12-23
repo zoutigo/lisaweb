@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -6,6 +7,14 @@ import { faqSchema } from "@/lib/validations/faq";
 
 type SessionUser = { email?: string | null; isAdmin?: boolean };
 type RouteContext = { params: Promise<{ id: string }> };
+type FaqRepo = {
+  faq: {
+    findUnique: (...args: any[]) => Promise<any>;
+    update: (...args: any[]) => Promise<any>;
+    delete: (...args: any[]) => Promise<any>;
+  };
+};
+const faqRepo = prisma as unknown as FaqRepo;
 
 async function ensureAdmin() {
   const session = await getServerSession(authOptions);
@@ -34,7 +43,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   if (!faqId || Number.isNaN(faqId)) {
     return NextResponse.json({ message: "Invalid id" }, { status: 400 });
   }
-  const faq = await prisma.faq.findUnique({ where: { id: faqId } });
+  const faq = await faqRepo.faq.findUnique({ where: { id: faqId } });
   if (!faq) return NextResponse.json({ message: "Not found" }, { status: 404 });
   return NextResponse.json(faq);
 }
@@ -55,11 +64,18 @@ export async function PUT(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ message: "Invalid data" }, { status: 422 });
   }
 
-  const updated = await prisma.faq.update({
+  const existing = await faqRepo.faq.findUnique({ where: { id: faqId } });
+  if (!existing) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+  const categoryId = parsed.data.categoryId ?? existing.categoryId;
+
+  const updated = await faqRepo.faq.update({
     where: { id: faqId },
     data: {
       question: parsed.data.question,
       answer: parsed.data.answer,
+      categoryId,
     },
   });
   return NextResponse.json(updated);
@@ -75,6 +91,6 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({ message: "Invalid id" }, { status: 400 });
   }
 
-  await prisma.faq.delete({ where: { id: faqId } });
+  await faqRepo.faq.delete({ where: { id: faqId } });
   return NextResponse.json({ ok: true });
 }

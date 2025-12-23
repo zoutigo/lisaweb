@@ -72,6 +72,7 @@ describe("Dashboard partners pages", () => {
     const imgs = screen.getAllByRole("img");
     expect(imgs[0].getAttribute("src")).toContain("partner-placeholder.svg");
     expect(screen.getAllByText("ACME").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Page 1/).length).toBeGreaterThan(0);
   });
 
   it("affiche la fiche partenaire avec logo ou placeholder", async () => {

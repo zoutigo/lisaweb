@@ -8,7 +8,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 
 const links = [
   { label: "Secteurs", href: "#sectors" },
-  { label: "Méthode", href: "#process" },
+  { label: "Méthode", href: "/methode" },
   { label: "Réalisation", href: "#case" },
   { label: "Valeurs", href: "#values" },
   { label: "Contact", href: "#cta" },
