@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -17,12 +17,30 @@ const links = [
 export function SiteHeader() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLDivElement | null>(null);
   const { data: session } = useSession();
   const isAdmin = Boolean((session?.user as { isAdmin?: boolean })?.isAdmin);
 
+  useEffect(() => {
+    if (!open) return;
+    const handleOutside = (event: PointerEvent) => {
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handleOutside);
+    return () => document.removeEventListener("pointerdown", handleOutside);
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-white/90 backdrop-blur-lg">
-      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-1 sm:px-5 sm:py-2">
+      <div
+        ref={headerRef}
+        className="relative mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-1 sm:px-5 sm:py-2"
+      >
         <button
           type="button"
           aria-label="Retour à l'accueil"
@@ -52,27 +70,25 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div>
-          <Button
-            className="h-8 items-center px-3.5 py-0 text-xs md:h-8 md:px-4 md:py-0 md:text-sm cursor-pointer"
-            onClick={() => router.push("/rendezvous")}
-          >
-            Prendre un rendez-vous !
-          </Button>
-        </div>
-
         <button
           type="button"
-          aria-label="Ouvrir le menu"
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           onClick={() => setOpen((v) => !v)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:bg-[#f7f9fc]"
         >
           <span className="sr-only">Menu</span>
-          <div className="flex flex-col gap-1">
-            <span className="h-0.5 w-4 rounded-full bg-current" />
-            <span className="h-0.5 w-4 rounded-full bg-current" />
-            <span className="h-0.5 w-4 rounded-full bg-current" />
-          </div>
+          {open ? (
+            <div className="relative h-4 w-4">
+              <span className="absolute left-0 top-1/2 block h-0.5 w-4 -translate-y-1/2 rotate-45 rounded-full bg-current transition" />
+              <span className="absolute left-0 top-1/2 block h-0.5 w-4 -translate-y-1/2 -rotate-45 rounded-full bg-current transition" />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <span className="h-0.5 w-4 rounded-full bg-current" />
+              <span className="h-0.5 w-4 rounded-full bg-current" />
+              <span className="h-0.5 w-4 rounded-full bg-current" />
+            </div>
+          )}
         </button>
 
         {open ? (
@@ -83,7 +99,11 @@ export function SiteHeader() {
                   key={link.label}
                   className="rounded-lg px-2 py-2 hover:bg-[#f7f9fc]"
                   href={link.href}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpen(false);
+                    router.push(link.href);
+                  }}
                 >
                   {link.label}
                 </a>

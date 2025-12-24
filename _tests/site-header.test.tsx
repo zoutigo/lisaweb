@@ -34,8 +34,8 @@ describe("SiteHeader", () => {
 
     expect(screen.getByAltText(/plisa/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: /ouvrir le menu/i }),
+    ).toBeVisible();
   });
 
   it("redirige vers la page d'accueil quand on clique sur le logo", async () => {
@@ -53,10 +53,53 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
+    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
     await user.click(
       screen.getByRole("button", { name: /prendre un rendez-vous/i }),
     );
-
     expect(pushMock).toHaveBeenCalledWith("/rendezvous");
+  });
+
+  it("ferme le menu quand on clique sur un lien du menu", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    expect(
+      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
+    ).toBeInTheDocument();
+
+    const menuLinks = screen.getAllByRole("link", { name: /méthode/i });
+    await user.click(menuLinks[menuLinks.length - 1]);
+    expect(
+      screen.queryByRole("button", { name: /prendre un rendez-vous/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ferme le menu quand on clique en dehors", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    expect(
+      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
+    ).toBeInTheDocument();
+
+    await user.click(document.body);
+    expect(
+      screen.queryByRole("button", { name: /prendre un rendez-vous/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("change l'icône/label quand le menu est ouvert", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    const toggle = screen.getByRole("button", { name: /ouvrir le menu/i });
+    expect(toggle).toBeInTheDocument();
+    await user.click(toggle);
+    expect(
+      screen.getByRole("button", { name: /fermer le menu/i }),
+    ).toBeInTheDocument();
   });
 });
