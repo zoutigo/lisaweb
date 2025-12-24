@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Pagination } from "@/components/ui/pagination";
+import { useRouter } from "next/navigation";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
 
 type UserItem = {
   id: string;
@@ -23,6 +24,7 @@ export function UsersClient({ users }: UsersClientProps) {
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const paged = users.slice((page - 1) * pageSize, page * pageSize);
+  const router = useRouter();
 
   return (
     <>
@@ -71,18 +73,18 @@ export function UsersClient({ users }: UsersClientProps) {
             </div>
 
             <div className="mt-4 flex gap-2">
-              <Link
-                href={`/dashboard/users/${u.id}`}
-                className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-800 hover:border-blue-300 hover:text-blue-700"
-              >
-                Voir
-              </Link>
-              <Link
-                href={`/dashboard/users/${u.id}/edit`}
-                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                Modifier
-              </Link>
+              <ActionIconButton
+                action="view"
+                label="Voir"
+                tone="default"
+                onClick={() => router.push(`/dashboard/users/${u.id}`)}
+              />
+              <ActionIconButton
+                action="edit"
+                label="Modifier"
+                tone="primary"
+                onClick={() => router.push(`/dashboard/users/${u.id}/edit`)}
+              />
             </div>
           </div>
         ))}
@@ -131,18 +133,22 @@ export function UsersClient({ users }: UsersClientProps) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <Link
-                      href={`/dashboard/users/${u.id}`}
-                      className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-800 hover:border-blue-300 hover:text-blue-700"
-                    >
-                      Voir
-                    </Link>
-                    <Link
-                      href={`/dashboard/users/${u.id}/edit`}
-                      className="inline-flex items-center justify-center rounded-full bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-                    >
-                      Modifier
-                    </Link>
+                    <ActionIconButton
+                      action="view"
+                      label="Voir"
+                      tone="default"
+                      onClick={() => router.push(`/dashboard/users/${u.id}`)}
+                      className="text-xs px-3 py-1.5"
+                    />
+                    <ActionIconButton
+                      action="edit"
+                      label="Modifier"
+                      tone="primary"
+                      onClick={() =>
+                        router.push(`/dashboard/users/${u.id}/edit`)
+                      }
+                      className="text-xs px-3 py-1.5"
+                    />
                   </div>
                 </td>
               </tr>

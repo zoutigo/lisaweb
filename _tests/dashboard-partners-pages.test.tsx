@@ -67,8 +67,9 @@ describe("Dashboard partners pages", () => {
 
     expect(screen.getByText(/Partenaires/)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Créer un partenaire/ }),
+      screen.getByRole("link", { name: /Créer un partenaire/ }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retour/i })).toBeInTheDocument();
     const imgs = screen.getAllByRole("img");
     expect(imgs[0].getAttribute("src")).toContain("partner-placeholder.svg");
     expect(screen.getAllByText("ACME").length).toBeGreaterThan(0);
@@ -132,6 +133,37 @@ describe("Dashboard partners pages", () => {
     expect((global.fetch as jest.Mock).mock.calls[2][0]).toBe(
       "/api/dashboard/partners/1",
     );
+  });
+
+  it("permet de supprimer depuis la liste avec le bouton ActionIconButton", async () => {
+    prismaPartner.findMany.mockResolvedValue([
+      {
+        id: 1,
+        name: "ACME",
+        url: "https://acme.test",
+        logoUrl: null,
+        createdAt: new Date(),
+      },
+    ]);
+    const user = userEvent.setup();
+    global.confirm = jest.fn(() => true);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: true, json: () => ({}) } as Response);
+
+    const ui = await PartnersPage();
+    render(ui);
+
+    const deleteBtns = screen.getAllByRole("button", { name: /supprimer/i });
+    expect(deleteBtns.length).toBeGreaterThan(0);
+    await user.click(deleteBtns[0]);
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith("/api/dashboard/partners/1", {
+        method: "DELETE",
+      }),
+    );
+    await waitFor(() => expect(refreshMock).toHaveBeenCalled());
   });
 
   it("crée un partenaire avec upload logo et bouton désactivé si invalide", async () => {

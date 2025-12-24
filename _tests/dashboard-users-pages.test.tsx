@@ -103,6 +103,52 @@ describe("Dashboard users pages", () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
+  it("navigue vers la fiche via le bouton Voir", async () => {
+    prismaUserMock.findMany.mockResolvedValue([
+      {
+        id: "user-1",
+        firstName: "Anne",
+        lastName: "Rousselot",
+        name: "Anne ROUSSELOT",
+        phone: "+33 6 12 34 56 78",
+        email: "anne@example.com",
+        isAdmin: true,
+        createdAt: new Date("2024-01-01T10:00:00Z"),
+      },
+    ]);
+
+    const ui = await UsersPage();
+    render(ui);
+
+    const viewButtons = screen.getAllByRole("button", { name: /voir/i });
+    expect(viewButtons.length).toBeGreaterThan(0);
+    viewButtons[0].click();
+    expect(pushMock).toHaveBeenCalledWith("/dashboard/users/user-1");
+  });
+
+  it("navigue vers l'édition via le bouton Modifier", async () => {
+    prismaUserMock.findMany.mockResolvedValue([
+      {
+        id: "user-2",
+        firstName: "Paul",
+        lastName: "Martin",
+        name: "Paul MARTIN",
+        phone: "+33 6 98 76 54 32",
+        email: "paul@example.com",
+        isAdmin: false,
+        createdAt: new Date("2024-02-02T10:00:00Z"),
+      },
+    ]);
+
+    const ui = await UsersPage();
+    render(ui);
+
+    const editButtons = screen.getAllByRole("button", { name: /modifier/i });
+    expect(editButtons.length).toBeGreaterThan(0);
+    editButtons[0].click();
+    expect(pushMock).toHaveBeenCalledWith("/dashboard/users/user-2/edit");
+  });
+
   it("pré-remplit le formulaire d'édition et affiche les actions", async () => {
     global.fetch = jest
       .fn()
