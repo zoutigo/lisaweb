@@ -11,9 +11,9 @@ import type { Session } from "next-auth";
 export default async function UserViewPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   if (!id) redirect("/dashboard/users");
 
   const session = (await getServerSession(authOptions)) as Session | null;

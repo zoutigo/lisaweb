@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/pagination";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
+import { useRouter } from "next/navigation";
 
 type PartnerItem = {
   id: number;
@@ -23,12 +25,31 @@ export function PartnersClient({
   partners,
   placeholderLogo,
 }: PartnersClientProps) {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const pageSize = 8;
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const paged = useMemo(
     () => partners.slice((page - 1) * pageSize, page * pageSize),
     [partners, page, pageSize],
   );
+
+  const handleDelete = async (id: number) => {
+    if (deletingId) return;
+    const confirmed =
+      typeof window === "undefined"
+        ? true
+        : window.confirm("Supprimer ce partenaire ?");
+    if (!confirmed) return;
+    setDeletingId(id);
+    const res = await fetch(`/api/dashboard/partners/${id}`, {
+      method: "DELETE",
+    });
+    setDeletingId(null);
+    if (res.ok) {
+      router.refresh();
+    }
+  };
 
   return (
     <>
@@ -75,18 +96,24 @@ export function PartnersClient({
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <Link
-                href={`/dashboard/partners/${p.id}`}
-                className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-800 hover:border-blue-300 hover:text-blue-700"
-              >
-                Voir
-              </Link>
-              <Link
-                href={`/dashboard/partners/${p.id}/edit`}
-                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                Modifier
-              </Link>
+              <ActionIconButton
+                action="view"
+                label="Voir"
+                onClick={() => router.push(`/dashboard/partners/${p.id}`)}
+              />
+              <ActionIconButton
+                action="edit"
+                label="Modifier"
+                tone="primary"
+                onClick={() => router.push(`/dashboard/partners/${p.id}/edit`)}
+              />
+              <ActionIconButton
+                action="delete"
+                label="Supprimer"
+                tone="danger"
+                disabled={deletingId === p.id}
+                onClick={() => handleDelete(p.id)}
+              />
             </div>
           </Card>
         ))}
@@ -141,18 +168,29 @@ export function PartnersClient({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <Link
-                      href={`/dashboard/partners/${p.id}`}
-                      className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-800 hover:border-blue-300 hover:text-blue-700"
-                    >
-                      Voir
-                    </Link>
-                    <Link
-                      href={`/dashboard/partners/${p.id}/edit`}
-                      className="inline-flex items-center justify-center rounded-full bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-                    >
-                      Modifier
-                    </Link>
+                    <ActionIconButton
+                      action="view"
+                      label="Voir"
+                      onClick={() => router.push(`/dashboard/partners/${p.id}`)}
+                      className="text-xs px-3 py-1.5"
+                    />
+                    <ActionIconButton
+                      action="edit"
+                      label="Modifier"
+                      tone="primary"
+                      onClick={() =>
+                        router.push(`/dashboard/partners/${p.id}/edit`)
+                      }
+                      className="text-xs px-3 py-1.5"
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Supprimer"
+                      tone="danger"
+                      disabled={deletingId === p.id}
+                      onClick={() => handleDelete(p.id)}
+                      className="text-xs px-3 py-1.5"
+                    />
                   </div>
                 </td>
               </tr>

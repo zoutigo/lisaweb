@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/confirm-modal";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
 
 type Props = {
   userId: string;
@@ -37,19 +37,19 @@ export function UserActions({ userId }: Props) {
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Link
-          href={`/dashboard/users/${userId}/edit`}
-          className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-        >
-          Modifier
-        </Link>
-        <button
+        <ActionIconButton
+          action="edit"
+          label="Modifier"
+          tone="primary"
+          onClick={() => router.push(`/dashboard/users/${userId}/edit`)}
+        />
+        <ActionIconButton
+          action="delete"
+          label="Supprimer"
+          tone="danger"
           onClick={() => setConfirmOpen(true)}
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-100 disabled:opacity-60"
-        >
-          Supprimer
-        </button>
+        />
       </div>
 
       <ConfirmModal

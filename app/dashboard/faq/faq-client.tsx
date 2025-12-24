@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { faqSchema, type FaqInput } from "@/lib/validations/faq";
-import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { ConfirmMessage } from "@/components/confirm-message";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "@/components/ui/pagination";
 import { BackLink } from "@/components/back-link";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
+import { Button } from "@/components/ui/button";
 
 type FaqItem = {
   id: number;
@@ -124,17 +125,16 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
         </div>
         <div className="flex gap-2">
           <BackLink className="hidden sm:inline-flex" />
-          <Button
-            variant="secondary"
-            className="text-sm"
+          <ActionIconButton
+            action="create"
+            label="Nouvelle question"
+            tone="primary"
             onClick={() => {
               setEditingId(null);
               reset(defaultValues);
               trigger();
             }}
-          >
-            Nouvelle question
-          </Button>
+          />
         </div>
       </div>
 
@@ -175,20 +175,18 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="secondary"
-                        className="px-3 py-1 text-xs"
+                      <ActionIconButton
+                        action="edit"
+                        label="Modifier"
+                        tone="primary"
                         onClick={() => fillForm(faq)}
-                      >
-                        Modifier
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="px-3 py-1 text-xs text-red-600"
+                      />
+                      <ActionIconButton
+                        action="delete"
+                        label="Supprimer"
+                        tone="danger"
                         onClick={() => setConfirmId(faq.id)}
-                      >
-                        Supprimer
-                      </Button>
+                      />
                     </div>
                   </div>
                   <p className="mt-2 whitespace-pre-line text-sm text-gray-700">

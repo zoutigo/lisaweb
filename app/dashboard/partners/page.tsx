@@ -2,11 +2,12 @@ export const runtime = "nodejs";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import type { Session } from "next-auth";
 import { PartnersClient } from "./partners-client";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const placeholderLogo = "/partner-placeholder.svg";
 
@@ -56,9 +57,13 @@ export default async function PartnersPage() {
           <div className="text-sm text-gray-500">
             {partners.length} partenaire{partners.length > 1 ? "s" : ""}
           </div>
-          <Link href="/dashboard/partners/new">
-            <Button>Créer un partenaire</Button>
-          </Link>
+          <ActionIconButton
+            as="link"
+            href="/dashboard/partners/new"
+            action="create"
+            label="Créer un partenaire"
+            tone="primary"
+          />
         </div>
       </div>
       <PartnersClient
