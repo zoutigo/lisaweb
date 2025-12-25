@@ -35,7 +35,7 @@ const sectors = [
   },
 ];
 
-const process = [
+const processSteps = [
   {
     title: "Je vous écoute",
     text: "Comprendre vos objectifs, votre public et vos contraintes est la base de tout.",
@@ -57,15 +57,18 @@ const process = [
 ];
 
 export default async function Home() {
-  const featuredCase =
-    (await prisma.customerCase.findFirst({
-      where: { isOnLandingPage: true },
-      orderBy: { createdAt: "desc" },
-    })) ??
-    (await prisma.customerCase.findFirst({
-      orderBy: { createdAt: "desc" },
-    })) ??
-    null;
+  let featuredCase = null;
+  if (process.env.DATABASE_URL) {
+    featuredCase =
+      (await prisma.customerCase.findFirst({
+        where: { isOnLandingPage: true },
+        orderBy: { createdAt: "desc" },
+      })) ??
+      (await prisma.customerCase.findFirst({
+        orderBy: { createdAt: "desc" },
+      })) ??
+      null;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.15),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.16),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.18),transparent_25%)] blur-3xl" />
@@ -165,7 +168,7 @@ export default async function Home() {
             description="On avance étape par étape, en restant clair et disponible."
           />
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {process.map((step) => (
+            {processSteps.map((step) => (
               <Card
                 key={step.title}
                 className={`flex flex-col gap-3 border-none ${step.color}`}
