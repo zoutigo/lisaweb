@@ -5,18 +5,18 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 
 type FaqPreviewItem = {
-  id: number;
+  id: string;
   question: string;
   answer: string;
-  category: { id: number; name: string };
+  category: { id: string; name: string };
 };
 
 type FaqPreviewResponse = {
-  categories: Array<{ id: number; name: string; order: number }>;
+  categories: Array<{ id: string; name: string; order: number }>;
   faqs: Array<
     FaqPreviewItem & {
       createdAt: string;
-      categoryId?: number;
+      categoryId?: string;
     }
   >;
 };
@@ -36,7 +36,7 @@ export function LandingFaqPreview() {
   const faqs = (() => {
     if (!data?.faqs) return [];
     const picked: FaqPreviewItem[] = [];
-    const seen = new Set<number>();
+    const seen = new Set<string>();
     for (const faq of data.faqs) {
       const catId = faq.category?.id;
       if (catId && !seen.has(catId)) {

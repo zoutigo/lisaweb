@@ -124,6 +124,44 @@ export default async function DashboardPage() {
               Gérez les questions/réponses affichées sur le site.
             </p>
           </Link>
+
+          <Link
+            href="/dashboard/customers-cases"
+            className="group rounded-2xl border border-[#e5e7eb] bg-white/90 p-6 shadow-[0_14px_38px_-24px_rgba(27,38,83,0.35)] transition hover:-translate-y-1 hover:shadow-[0_20px_60px_-30px_rgba(27,38,83,0.45)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e0f2fe] text-[#0284c7]">
+                ⭐
+              </div>
+              <span className="text-xs uppercase tracking-[0.18em] text-[#6b7280]">
+                Réalisations
+              </span>
+            </div>
+            <h2 className="mt-4 text-lg font-semibold text-[#1b2653]">
+              Cas clients
+            </h2>
+            <p className="mt-1 text-sm text-[#4b5563]">
+              Ajoutez et maintenez les études de cas affichées sur la landing.
+            </p>
+          </Link>
+
+          <Link
+            href="/dashboard/rendezvous"
+            className="group rounded-2xl border border-[#e5e7eb] bg-white/90 p-6 shadow-[0_14px_38px_-24px_rgba(27,38,83,0.35)] transition hover:-translate-y-1 hover:shadow-[0_20px_60px_-30px_rgba(27,38,83,0.45)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f5e9] text-[#2e7d32]">
+                📅
+              </div>
+              <span className="text-xs uppercase tracking-[0.18em] text-[#6b7280]">
+                Rendez-vous
+              </span>
+            </div>
+            <h2 className="mt-4 text-lg font-semibold text-[#1b2653]">RDV</h2>
+            <p className="mt-1 text-sm text-[#4b5563]">
+              Liste, validation et suivi des demandes de rendez-vous.
+            </p>
+          </Link>
         </div>
       </div>
     </main>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -65,15 +66,15 @@ export default function Home() {
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="flex flex-col gap-6">
                 <Badge className="bg-white/20 text-white">
-                  Basé à Pont-de-Chéruy
+                  Développeur web à Pont-de-Chéruy
                 </Badge>
                 <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-                  Votre développeur web local, pour un site moderne et efficace.
+                  Des sites modernes, rapides et visibles localement
                 </h1>
                 <p className="text-lg text-white/90">
-                  Basé à Pont-de-Chéruy, j’accompagne les écoles, associations,
-                  artisans et TPE dans la création de sites web professionnels,
-                  rapides et simples à gérer.
+                  J’accompagne les écoles, associations, artisans et TPE de
+                  Pont-de-Chéruy, Tignieu et Crémieu dans la création de sites
+                  web clairs, efficaces et simples à gérer.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
@@ -102,13 +103,13 @@ export default function Home() {
                 <div className="absolute h-64 w-64 rounded-full bg-white/15 blur-3xl" />
                 <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-white/40 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur">
                   <div className="flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-white to-[#d8e2ff] text-2xl font-semibold text-[#1b2653]">
-                    Plisa
+                    LISAWEB
                   </div>
                   <div className="absolute -left-6 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#1b2653] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
-                    Réponse sous 24h
+                    Proximité
                   </div>
                   <div className="absolute -right-4 bottom-6 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#1b2653] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
-                    Accompagnement humain
+                    Eco Responsable
                   </div>
                 </div>
               </div>
@@ -189,19 +190,38 @@ export default function Home() {
         </Section>
 
         <Section id="case">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.18),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(232,217,255,0.22),transparent_30%)]" />
-              <div className="relative flex flex-col gap-4">
+          <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.18),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(232,217,255,0.22),transparent_30%)]" />
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
+              <div className="flex-1 space-y-4">
                 <Badge className="bg-white text-[#1b2653]">Cas client</Badge>
                 <h3 className="text-3xl font-semibold text-[#1b2653]">
                   Un site moderne et clair pour une école locale
                 </h3>
                 <p className="text-base text-[#374151]">
-                  J’ai accompagné l’École Saint-Augustin dans la refonte
-                  complète de son site web. Navigation simplifiée, design
-                  moderne, informations facilement accessibles.
+                  J’ai accompagné l’École Saint-Augustin de Crémieu dans la
+                  refonte complète de son site web.
                 </p>
+                <div className="space-y-2 rounded-2xl bg-white/60 p-4 text-sm text-[#1b2653] shadow-[0_10px_28px_-22px_rgba(27,38,83,0.45)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#3b5bff]">
+                    Résultat
+                  </p>
+                  <ul className="space-y-1.5">
+                    {[
+                      "Navigation simplifiée pour les parents",
+                      "Informations accessibles rapidement",
+                      "Site optimisé mobile et ordinateur",
+                      "Augmentation de la visibilité en ligne",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-2">
+                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#3b5bff] text-[10px] font-bold text-white">
+                          ✓
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
                   {[
                     "Navigation claire",
@@ -221,20 +241,19 @@ export default function Home() {
                   Voir la réalisation
                 </Button>
               </div>
-            </div>
-            <Card className="flex flex-col justify-center gap-4 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-              <h4 className="text-lg font-semibold text-[#1b2653]">
-                Mockup du site
-              </h4>
-              <p className="text-sm text-[#4b5563]">
-                Place ici une capture ou un visuel du site de l’école (mockup
-                desktop ou mobile). Il met en avant le design clair, la
-                navigation simple et les informations parents.
-              </p>
-              <div className="flex h-48 items-center justify-center rounded-[16px] border border-dashed border-[#d0d7ff] bg-[#f7f9fc] text-sm text-[#1b2653]">
-                Espace visuel / capture écran
+              <div className="flex-1">
+                <div className="relative overflow-hidden rounded-[18px] border border-white/50 bg-white/80 shadow-[0_10px_28px_-20px_rgba(27,38,83,0.35)]">
+                  <Image
+                    src="/images/st-augustin.png"
+                    alt="Aperçu du site École Saint-Augustin"
+                    width={1200}
+                    height={800}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
-            </Card>
+            </div>
           </div>
         </Section>
 

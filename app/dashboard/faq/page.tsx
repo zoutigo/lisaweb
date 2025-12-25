@@ -17,11 +17,11 @@ type FaqRepo = {
 };
 const faqRepo = prisma as unknown as FaqRepo;
 type FaqRow = {
-  id: number;
+  id: string;
   question: string;
   answer: string;
   createdAt: Date;
-  categoryId?: number;
+  categoryId?: string | null;
 };
 
 export const metadata = {
@@ -63,7 +63,7 @@ export default async function FaqPage() {
     question: f.question,
     answer: f.answer,
     createdAt: f.createdAt.toISOString(),
-    categoryId: f.categoryId ?? (categories[0]?.id || 1),
+    categoryId: f.categoryId ?? categories[0]?.id,
   }));
 
   return <FaqClient initialFaqs={initialFaqs} categories={categories} />;

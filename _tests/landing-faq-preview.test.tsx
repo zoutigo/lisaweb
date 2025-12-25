@@ -14,15 +14,24 @@ describe("LandingFaqPreview", () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          categories: [{ id: 1, name: "Général", order: 1 }],
+          categories: [
+            {
+              id: "11111111-1111-1111-1111-111111111111",
+              name: "Général",
+              order: 1,
+            },
+          ],
           faqs: [
             {
-              id: 1,
+              id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               question: "Combien ça coûte ?",
               answer: "Une fourchette selon vos besoins.",
-              category: { id: 1, name: "Général" },
+              category: {
+                id: "11111111-1111-1111-1111-111111111111",
+                name: "Général",
+              },
               createdAt: new Date().toISOString(),
-              categoryId: 1,
+              categoryId: "11111111-1111-1111-1111-111111111111",
             },
           ],
         }),

@@ -13,7 +13,7 @@ type RdvForm = z.infer<typeof rendezvousSchema>;
 
 type ProfileRdvClientProps = {
   initialRendezvous: Array<{
-    id: number;
+    id: string;
     date: string;
     time: string;
     reason: string;
@@ -28,9 +28,9 @@ export default function ProfileRdvClient({
   initialRendezvous,
 }: ProfileRdvClientProps) {
   const [rdvs, setRdvs] = useState(initialRendezvous);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -138,7 +138,7 @@ export default function ProfileRdvClient({
     setShowForm(false);
   };
 
-  const onDelete = async (id: number) => {
+  const onDelete = async (id: string) => {
     setConfirmId(null);
     const res = await fetch(`/api/profile/rendezvous/${id}`, {
       method: "DELETE",

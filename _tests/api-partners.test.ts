@@ -40,7 +40,13 @@ describe("API /api/dashboard/partners", () => {
   });
 
   it("returns partners list", async () => {
-    const partners = [{ id: 1, name: "ACME", url: "https://acme.test" }];
+    const partners = [
+      {
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        name: "ACME",
+        url: "https://acme.test",
+      },
+    ];
     prismaPartner.findMany.mockResolvedValue(partners);
     const res = await partnersList.GET();
     expect(res.status).toBe(200);
@@ -73,7 +79,7 @@ describe("API /api/dashboard/partners", () => {
       user: { email: "admin", isAdmin: true },
     });
     prismaPartner.create.mockResolvedValue({
-      id: 1,
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       name: "ACME",
       url: "https://acme.test",
     });
@@ -100,7 +106,9 @@ describe("API /api/dashboard/partners", () => {
 });
 
 describe("API /api/dashboard/partners/[id]", () => {
-  const ctx = { params: Promise.resolve({ id: "1" }) };
+  const ctx = {
+    params: Promise.resolve({ id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -110,17 +118,26 @@ describe("API /api/dashboard/partners/[id]", () => {
   });
 
   it("gets a partner", async () => {
-    prismaPartner.findUnique.mockResolvedValue({ id: 1, name: "ACME" });
+    prismaPartner.findUnique.mockResolvedValue({
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      name: "ACME",
+    });
     const res = await partnerDetail.GET(
       new Request("http://x") as unknown as import("next/server").NextRequest,
       ctx,
     );
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ id: 1, name: "ACME" });
+    expect(await res.json()).toEqual({
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      name: "ACME",
+    });
   });
 
   it("updates a partner", async () => {
-    prismaPartner.update.mockResolvedValue({ id: 1, name: "New" });
+    prismaPartner.update.mockResolvedValue({
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      name: "New",
+    });
     const payload = {
       name: "New",
       url: "https://new.test",
@@ -135,7 +152,7 @@ describe("API /api/dashboard/partners/[id]", () => {
     );
     expect(res.status).toBe(200);
     expect(prismaPartner.update).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
       data: { name: "New", url: "https://new.test", logoUrl: "/files/x.png" },
     });
   });
@@ -147,11 +164,13 @@ describe("API /api/dashboard/partners/[id]", () => {
       ctx,
     );
     expect(res.status).toBe(200);
-    expect(prismaPartner.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(prismaPartner.delete).toHaveBeenCalledWith({
+      where: { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+    });
   });
 
-  it("returns 400 on invalid id", async () => {
-    const badCtx = { params: Promise.resolve({ id: "abc" }) };
+  it("returns 400 on missing id", async () => {
+    const badCtx = { params: Promise.resolve({ id: "" }) };
     const res = await partnerDetail.GET(
       new Request("http://x") as unknown as import("next/server").NextRequest,
       badCtx,

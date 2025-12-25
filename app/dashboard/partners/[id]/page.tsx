@@ -15,9 +15,9 @@ const placeholderLogo = "/partner-placeholder.svg";
 export default async function PartnerViewPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   if (!id) redirect("/dashboard/partners");
 
   const session = (await getServerSession(authOptions)) as Session | null;
@@ -26,7 +26,7 @@ export default async function PartnerViewPage({
   if (!isAdmin) redirect("/");
 
   const partner = await prisma.partner.findUnique({
-    where: { id: Number(id) },
+    where: { id },
   });
   if (!partner) redirect("/dashboard/partners");
 

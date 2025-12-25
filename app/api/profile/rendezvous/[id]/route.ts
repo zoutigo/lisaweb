@@ -10,7 +10,7 @@ import {
 type RouteContext = { params: Promise<{ id: string }> };
 type SessionUser = { id?: string; email?: string | null };
 type RendezvousWithDetails = {
-  id: number;
+  id: string;
   scheduledAt: Date | string;
   details: string;
   status: string;
@@ -23,7 +23,7 @@ function serialize(rdv: RendezvousWithDetails) {
   return { ...rdv, content: rdv.details, date, time };
 }
 
-async function ensureOwned(userId: string, id: number) {
+async function ensureOwned(userId: string, id: string) {
   const rdv = await prisma.rendezvous.findUnique({ where: { id } });
   if (!rdv || rdv.userId !== userId) return null;
   return rdv;
@@ -55,12 +55,11 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const rdvId = Number(id);
-  if (!rdvId || Number.isNaN(rdvId)) {
+  if (!id) {
     return NextResponse.json({ error: "invalid id" }, { status: 400 });
   }
 
-  const rdv = await ensureOwned(userId, rdvId);
+  const rdv = await ensureOwned(userId, id);
   if (!rdv) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json(serialize(rdv));
 }
@@ -76,12 +75,11 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const rdvId = Number(id);
-  if (!rdvId || Number.isNaN(rdvId)) {
+  if (!id) {
     return NextResponse.json({ error: "invalid id" }, { status: 400 });
   }
 
-  const rdv = await ensureOwned(userId, rdvId);
+  const rdv = await ensureOwned(userId, id);
   if (!rdv) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const body = await req.json();
@@ -92,7 +90,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
 
   const scheduledAt = toScheduledDate(parsed.data.date, parsed.data.time);
   const updated = await prisma.rendezvous.update({
-    where: { id: rdvId },
+    where: { id },
     data: {
       scheduledAt,
       reason: parsed.data.reason,
@@ -114,14 +112,13 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const rdvId = Number(id);
-  if (!rdvId || Number.isNaN(rdvId)) {
+  if (!id) {
     return NextResponse.json({ error: "invalid id" }, { status: 400 });
   }
 
-  const rdv = await ensureOwned(userId, rdvId);
+  const rdv = await ensureOwned(userId, id);
   if (!rdv) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  await prisma.rendezvous.delete({ where: { id: rdvId } });
+  await prisma.rendezvous.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
