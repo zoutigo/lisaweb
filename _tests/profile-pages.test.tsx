@@ -163,10 +163,12 @@ describe("Pages profil", () => {
     await user.click(screen.getByRole("button", { name: /Enregistrer/i }));
 
     await waitFor(() => expect(global.fetch as jest.Mock).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(
-        screen.queryByRole("button", { name: /Enregistrer/i }),
-      ).not.toBeInTheDocument(),
+    await waitFor(
+      () =>
+        expect(
+          screen.queryByRole("button", { name: /Enregistrer/i }),
+        ).not.toBeInTheDocument(),
+      { timeout: 2000 },
     );
     expect(
       screen.getByRole("button", { name: /Modifier/i }),

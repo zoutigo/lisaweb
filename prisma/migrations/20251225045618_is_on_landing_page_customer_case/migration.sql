@@ -1,0 +1,15 @@
+-- AlterTable
+ALTER TABLE `Faq` ALTER COLUMN `id` DROP DEFAULT,
+    ALTER COLUMN `updatedAt` DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE `FaqCategory` ALTER COLUMN `id` DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE `Partner` ALTER COLUMN `id` DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE `Receipe` ALTER COLUMN `id` DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE `Rendezvous` ALTER COLUMN `id` DROP DEFAULT;

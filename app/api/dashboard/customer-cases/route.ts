@@ -35,13 +35,22 @@ export async function POST(req: Request) {
     );
   }
 
-  const created = await prisma.customerCase.create({
-    data: {
-      ...parsed.data,
-      customer: parsed.data.customer || null,
-      url: parsed.data.url || null,
-      imageUrl: parsed.data.imageUrl || null,
-    },
+  const data = {
+    ...parsed.data,
+    isOnLandingPage: parsed.data.isOnLandingPage ?? false,
+    customer: parsed.data.customer || null,
+    url: parsed.data.url || null,
+    imageUrl: parsed.data.imageUrl || null,
+  };
+
+  const created = await prisma.$transaction(async (tx) => {
+    if (data.isOnLandingPage) {
+      await tx.customerCase.updateMany({
+        data: { isOnLandingPage: false },
+        where: { isOnLandingPage: true },
+      });
+    }
+    return tx.customerCase.create({ data });
   });
   return NextResponse.json(created, { status: 201 });
 }

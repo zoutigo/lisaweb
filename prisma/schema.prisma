@@ -68,6 +68,7 @@ model CustomerCase {
   description String
   url         String?
   imageUrl    String?
+  isOnLandingPage Boolean @default(false)
   result1     String?
   result2     String?
   result3     String?
@@ -137,4 +138,11 @@ model FaqCategory {
   name   String @db.VarChar(191)
   order  Int    @default(0)
   faqs   Faq[]
+}
+
+model Receipe {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(191)
+  description String   @db.Text
+  createdAt   DateTime @default(now())
 }

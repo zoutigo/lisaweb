@@ -38,14 +38,22 @@ export async function PUT(
     );
   }
 
-  const updated = await prisma.customerCase.update({
-    where: { id: rawId },
-    data: {
-      ...parsed.data,
-      customer: parsed.data.customer || null,
-      url: parsed.data.url || null,
-      imageUrl: parsed.data.imageUrl || null,
-    },
+  const data = {
+    ...parsed.data,
+    isOnLandingPage: parsed.data.isOnLandingPage ?? false,
+    customer: parsed.data.customer || null,
+    url: parsed.data.url || null,
+    imageUrl: parsed.data.imageUrl || null,
+  };
+
+  const updated = await prisma.$transaction(async (tx) => {
+    if (data.isOnLandingPage) {
+      await tx.customerCase.updateMany({
+        data: { isOnLandingPage: false },
+        where: { isOnLandingPage: true, NOT: { id: rawId } },
+      });
+    }
+    return tx.customerCase.update({ where: { id: rawId }, data });
   });
   return NextResponse.json(updated);
 }

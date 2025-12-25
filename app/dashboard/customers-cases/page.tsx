@@ -24,6 +24,7 @@ type CustomerCase = {
   feature5: string | null;
   imageUrl: string | null;
   createdAt: Date;
+  isOnLandingPage: boolean;
 };
 
 export default async function CustomersCasesPage() {
@@ -40,6 +41,7 @@ export default async function CustomersCasesPage() {
     <CustomersCasesClient
       initialCases={cases.map((c) => ({
         ...c,
+        isOnLandingPage: c.isOnLandingPage ?? false,
         customer: c.customer ?? undefined,
         url: c.url ?? undefined,
         imageUrl: c.imageUrl ?? undefined,

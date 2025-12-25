@@ -59,6 +59,7 @@ describe("Dashboard customer cases", () => {
         feature4: null,
         feature5: null,
         createdAt: new Date(),
+        isOnLandingPage: false,
       },
     ]);
 

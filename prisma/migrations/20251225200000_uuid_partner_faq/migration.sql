@@ -1,8 +1,4 @@
 -- Clean UUID migration for Partner, Faq, FaqCategory
-
--- Partner: switch id to VARCHAR UUID (table empty on reset)
--- Reset Partner / Faq / FaqCategory tables to UUID string IDs
-
 DROP TABLE IF EXISTS `Faq`;
 DROP TABLE IF EXISTS `FaqCategory`;
 DROP TABLE IF EXISTS `Partner`;

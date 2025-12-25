@@ -53,6 +53,7 @@ export default function CustomersCasesClient({ initialCases }: Props) {
       feature3: "",
       feature4: "",
       feature5: "",
+      isOnLandingPage: false,
     }),
     [],
   );
@@ -83,6 +84,7 @@ export default function CustomersCasesClient({ initialCases }: Props) {
       feature3: item.feature3 || "",
       feature4: item.feature4 || "",
       feature5: item.feature5 || "",
+      isOnLandingPage: Boolean(item.isOnLandingPage),
     });
     trigger();
     setEditingId(item.id);
@@ -267,6 +269,11 @@ export default function CustomersCasesClient({ initialCases }: Props) {
                               </span>
                             ))}
                         </div>
+                        {item.isOnLandingPage ? (
+                          <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+                            Mis en avant
+                          </span>
+                        ) : null}
                       </div>
                       <div className="flex gap-2">
                         <ActionIconButton
@@ -414,6 +421,15 @@ export default function CustomersCasesClient({ initialCases }: Props) {
                 </div>
               ))}
             </div>
+
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+              <input
+                type="checkbox"
+                {...register("isOnLandingPage")}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
+              />
+              Mettre en avant sur la landing (un seul cas client à la fois)
+            </label>
 
             {message ? (
               <ConfirmMessage type="success" message={message} />

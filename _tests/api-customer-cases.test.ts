@@ -30,8 +30,18 @@ jest.mock("@/lib/prisma", () => {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    updateMany: jest.fn(),
   };
-  return { prisma: { customerCase } };
+  return {
+    prisma: {
+      customerCase,
+      $transaction: (
+        cb: (tx: {
+          customerCase: typeof customerCase;
+        }) => Promise<unknown> | unknown,
+      ) => cb({ customerCase }),
+    },
+  };
 });
 
 const sessionMock = getServerSession as jest.Mock;
@@ -41,6 +51,7 @@ const prismaMock = jest.requireMock("@/lib/prisma").prisma
   create: jest.Mock;
   update: jest.Mock;
   delete: jest.Mock;
+  updateMany: jest.Mock;
 };
 
 describe("API customer-cases", () => {
@@ -67,9 +78,11 @@ describe("API customer-cases", () => {
         description: "Desc suffisante",
         url: "https://exemple.com",
         imageUrl: "https://exemple.com/img.png",
+        isOnLandingPage: true,
       }),
     } as unknown as Request);
     expect(res.status).toBe(201);
+    expect(prismaMock.updateMany).toHaveBeenCalled();
   });
 
   it("PUT updates case", async () => {
@@ -79,11 +92,13 @@ describe("API customer-cases", () => {
         json: async () => ({
           title: "Case",
           description: "Desc suffisante",
+          isOnLandingPage: true,
         }),
       } as unknown as Request,
       { params: { id: "1" } },
     );
     expect(res.status).toBe(200);
+    expect(prismaMock.updateMany).toHaveBeenCalled();
   });
 
   it("DELETE removes case", async () => {

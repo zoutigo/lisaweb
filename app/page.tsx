@@ -1,11 +1,12 @@
 import Link from "next/link";
-import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { LandingFaqPreview } from "@/components/landing-faq-preview";
+import { LandingFeaturedCase } from "@/components/landing-featured-case";
 
 const sectors = [
   {
@@ -55,7 +56,16 @@ const process = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const featuredCase =
+    (await prisma.customerCase.findFirst({
+      where: { isOnLandingPage: true },
+      orderBy: { createdAt: "desc" },
+    })) ??
+    (await prisma.customerCase.findFirst({
+      orderBy: { createdAt: "desc" },
+    })) ??
+    null;
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.15),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.16),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.18),transparent_25%)] blur-3xl" />
@@ -190,71 +200,7 @@ export default function Home() {
         </Section>
 
         <Section id="case">
-          <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.18),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(232,217,255,0.22),transparent_30%)]" />
-            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-              <div className="flex-1 space-y-4">
-                <Badge className="bg-white text-[#1b2653]">Cas client</Badge>
-                <h3 className="text-3xl font-semibold text-[#1b2653]">
-                  Un site moderne et clair pour une école locale
-                </h3>
-                <p className="text-base text-[#374151]">
-                  J’ai accompagné l’École Saint-Augustin de Crémieu dans la
-                  refonte complète de son site web.
-                </p>
-                <div className="space-y-2 rounded-2xl bg-white/60 p-4 text-sm text-[#1b2653] shadow-[0_10px_28px_-22px_rgba(27,38,83,0.45)]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#3b5bff]">
-                    Résultat
-                  </p>
-                  <ul className="space-y-1.5">
-                    {[
-                      "Navigation simplifiée pour les parents",
-                      "Informations accessibles rapidement",
-                      "Site optimisé mobile et ordinateur",
-                      "Augmentation de la visibilité en ligne",
-                    ].map((item) => (
-                      <li key={item} className="flex items-center gap-2">
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#3b5bff] text-[10px] font-bold text-white">
-                          ✓
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
-                  {[
-                    "Navigation claire",
-                    "Design moderne",
-                    "SEO local",
-                    "Mobile first",
-                  ].map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-                <Button variant="secondary" className="w-fit">
-                  Voir la réalisation
-                </Button>
-              </div>
-              <div className="flex-1">
-                <div className="relative overflow-hidden rounded-[18px] border border-white/50 bg-white/80 shadow-[0_10px_28px_-20px_rgba(27,38,83,0.35)]">
-                  <Image
-                    src="/images/st-augustin.png"
-                    alt="Aperçu du site École Saint-Augustin"
-                    width={1200}
-                    height={800}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <LandingFeaturedCase initialCase={featuredCase} />
         </Section>
 
         <Section id="values" className="pb-16">

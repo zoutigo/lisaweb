@@ -24,6 +24,7 @@ export const customerCaseSchema = z.object({
   feature3: z.string().optional(),
   feature4: z.string().optional(),
   feature5: z.string().optional(),
+  isOnLandingPage: z.boolean().optional().default(false),
 });
 
 export type CustomerCaseInput = z.infer<typeof customerCaseSchema>;
