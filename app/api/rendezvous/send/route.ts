@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       );
 
     const rv = await prisma.rendezvous.findUnique({
-      where: { id: Number(rendezvousId) },
+      where: { id: rendezvousId as string },
     });
     if (!rv)
       return NextResponse.json(

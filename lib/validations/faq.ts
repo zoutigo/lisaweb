@@ -9,7 +9,7 @@ export const faqSchema = z.object({
     .string()
     .min(5, "La réponse doit contenir au moins 5 caractères")
     .max(2000, "2000 caractères maximum"),
-  categoryId: z.number().int().positive().optional(),
+  categoryId: z.string().uuid({ message: "Catégorie invalide" }).optional(),
 });
 
 export type FaqInput = z.infer<typeof faqSchema>;

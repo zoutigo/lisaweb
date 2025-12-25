@@ -26,10 +26,10 @@ describe("Dashboard FAQ client", () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: 1,
+          id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
           question: "Question valide",
           answer: "Réponse valide",
-          categoryId: 1,
+          categoryId: "11111111-1111-1111-1111-111111111111",
           createdAt: new Date().toISOString(),
         }),
     });
@@ -37,7 +37,13 @@ describe("Dashboard FAQ client", () => {
     renderWithClient(
       <FaqClient
         initialFaqs={[]}
-        categories={[{ id: 1, name: "Général", order: 1 }]}
+        categories={[
+          {
+            id: "11111111-1111-1111-1111-111111111111",
+            name: "Général",
+            order: 1,
+          },
+        ]}
       />,
     );
 
@@ -72,7 +78,7 @@ describe("Dashboard FAQ client", () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            id: 1,
+            id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             question: "Q mise à jour",
             answer: "R mise à jour",
             createdAt: new Date().toISOString(),
@@ -84,14 +90,20 @@ describe("Dashboard FAQ client", () => {
       <FaqClient
         initialFaqs={[
           {
-            id: 1,
+            id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             question: "Question existante",
             answer: "Réponse existante",
             createdAt: new Date().toISOString(),
-            categoryId: 1,
+            categoryId: "11111111-1111-1111-1111-111111111111",
           },
         ]}
-        categories={[{ id: 1, name: "Général", order: 1 }]}
+        categories={[
+          {
+            id: "11111111-1111-1111-1111-111111111111",
+            name: "Général",
+            order: 1,
+          },
+        ]}
       />,
     );
 
@@ -102,7 +114,7 @@ describe("Dashboard FAQ client", () => {
     await user.click(submit);
 
     expect((global.fetch as jest.Mock).mock.calls[0][0]).toBe(
-      "/api/dashboard/faq/1",
+      "/api/dashboard/faq/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     );
 
     await user.click(screen.getByRole("button", { name: /Supprimer/i }));
@@ -112,7 +124,7 @@ describe("Dashboard FAQ client", () => {
     await user.click(screen.getAllByRole("button", { name: /Supprimer/i })[1]);
 
     expect((global.fetch as jest.Mock).mock.calls[1][0]).toBe(
-      "/api/dashboard/faq/1",
+      "/api/dashboard/faq/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     );
     await waitFor(() =>
       expect(screen.getByText(/FAQ supprimée/i)).toBeInTheDocument(),

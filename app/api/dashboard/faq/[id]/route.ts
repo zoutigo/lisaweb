@@ -39,11 +39,10 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   if (!adminCheck.ok) return adminCheck.res;
 
   const { id } = await context.params;
-  const faqId = Number(id);
-  if (!faqId || Number.isNaN(faqId)) {
+  if (!id) {
     return NextResponse.json({ message: "Invalid id" }, { status: 400 });
   }
-  const faq = await faqRepo.faq.findUnique({ where: { id: faqId } });
+  const faq = await faqRepo.faq.findUnique({ where: { id } });
   if (!faq) return NextResponse.json({ message: "Not found" }, { status: 404 });
   return NextResponse.json(faq);
 }
@@ -53,8 +52,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   if (!adminCheck.ok) return adminCheck.res;
 
   const { id } = await context.params;
-  const faqId = Number(id);
-  if (!faqId || Number.isNaN(faqId)) {
+  if (!id) {
     return NextResponse.json({ message: "Invalid id" }, { status: 400 });
   }
 
@@ -64,14 +62,14 @@ export async function PUT(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ message: "Invalid data" }, { status: 422 });
   }
 
-  const existing = await faqRepo.faq.findUnique({ where: { id: faqId } });
+  const existing = await faqRepo.faq.findUnique({ where: { id } });
   if (!existing) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
   const categoryId = parsed.data.categoryId ?? existing.categoryId;
 
   const updated = await faqRepo.faq.update({
-    where: { id: faqId },
+    where: { id },
     data: {
       question: parsed.data.question,
       answer: parsed.data.answer,
@@ -86,11 +84,10 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
   if (!adminCheck.ok) return adminCheck.res;
 
   const { id } = await context.params;
-  const faqId = Number(id);
-  if (!faqId || Number.isNaN(faqId)) {
+  if (!id) {
     return NextResponse.json({ message: "Invalid id" }, { status: 400 });
   }
 
-  await faqRepo.faq.delete({ where: { id: faqId } });
+  await faqRepo.faq.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

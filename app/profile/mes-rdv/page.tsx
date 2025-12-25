@@ -17,7 +17,7 @@ export default async function ProfileRendezvousPage() {
   if (!userId) redirect("/");
 
   type RdvRecord = {
-    id: number;
+    id: string;
     scheduledAt: Date | string;
     reason: string;
     details: string;

@@ -12,7 +12,7 @@ const refreshMock = jest.fn();
 jest.mock("next/navigation", () => ({
   __esModule: true,
   redirect: (...args: unknown[]) => redirectMock(...args),
-  useParams: () => ({ id: "1" }),
+  useParams: () => ({ id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
   useRouter: () => ({
     push: pushMock,
     refresh: refreshMock,
@@ -55,7 +55,7 @@ describe("Dashboard partners pages", () => {
   it("affiche la liste des partenaires avec placeholder", async () => {
     prismaPartner.findMany.mockResolvedValue([
       {
-        id: 1,
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         name: "ACME",
         url: "https://acme.test",
         logoUrl: null,
@@ -79,13 +79,17 @@ describe("Dashboard partners pages", () => {
   it("affiche la fiche partenaire avec logo ou placeholder", async () => {
     const logo = "/files/logo.png";
     prismaPartner.findUnique.mockResolvedValue({
-      id: 1,
+      id: "p1",
       name: "ACME",
       url: "https://acme.test",
       logoUrl: logo,
       createdAt: new Date(),
     });
-    const ui = await PartnerViewPage({ params: { id: "1" } });
+    const ui = await PartnerViewPage({
+      params: Promise.resolve({
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      }),
+    });
     render(ui);
 
     expect(screen.getAllByText("ACME").length).toBeGreaterThan(0);
@@ -131,14 +135,14 @@ describe("Dashboard partners pages", () => {
       "/api/files/upload",
     );
     expect((global.fetch as jest.Mock).mock.calls[2][0]).toBe(
-      "/api/dashboard/partners/1",
+      "/api/dashboard/partners/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     );
   });
 
   it("permet de supprimer depuis la liste avec le bouton ActionIconButton", async () => {
     prismaPartner.findMany.mockResolvedValue([
       {
-        id: 1,
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         name: "ACME",
         url: "https://acme.test",
         logoUrl: null,
@@ -159,9 +163,12 @@ describe("Dashboard partners pages", () => {
     await user.click(deleteBtns[0]);
 
     await waitFor(() =>
-      expect(global.fetch).toHaveBeenCalledWith("/api/dashboard/partners/1", {
-        method: "DELETE",
-      }),
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/dashboard/partners/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        {
+          method: "DELETE",
+        },
+      ),
     );
     await waitFor(() => expect(refreshMock).toHaveBeenCalled());
   });

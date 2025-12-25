@@ -42,6 +42,11 @@ export default function RendezvousPage() {
     mode: "onChange",
   });
 
+  const dateError = errors.date?.message as string | undefined;
+  const timeError = errors.time?.message as string | undefined;
+  const reasonError = errors.reason?.message as string | undefined;
+  const contentError = errors.content?.message as string | undefined;
+
   const submitRequest = async (values: RendezvousInput) => {
     try {
       const res = await fetch("/api/rendezvous/request", {
@@ -212,10 +217,8 @@ export default function RendezvousPage() {
                     {...register("date")}
                     className={inputClasses}
                   />
-                  {errors.date?.message ? (
-                    <span className="text-sm text-red-600">
-                      {errors.date.message}
-                    </span>
+                  {dateError ? (
+                    <span className="text-sm text-red-600">{dateError}</span>
                   ) : null}
                 </label>
 
@@ -226,10 +229,8 @@ export default function RendezvousPage() {
                     {...register("time")}
                     className={inputClasses}
                   />
-                  {errors.time?.message ? (
-                    <span className="text-sm text-red-600">
-                      {errors.time.message}
-                    </span>
+                  {timeError ? (
+                    <span className="text-sm text-red-600">{timeError}</span>
                   ) : null}
                 </label>
               </div>
@@ -242,10 +243,8 @@ export default function RendezvousPage() {
                   {...register("reason")}
                   className={inputClasses}
                 />
-                {errors.reason?.message ? (
-                  <span className="text-sm text-red-600">
-                    {errors.reason.message}
-                  </span>
+                {reasonError ? (
+                  <span className="text-sm text-red-600">{reasonError}</span>
                 ) : null}
               </label>
 
@@ -257,10 +256,8 @@ export default function RendezvousPage() {
                   {...register("content")}
                   className={inputClasses}
                 />
-                {errors.content?.message ? (
-                  <span className="text-sm text-red-600">
-                    {errors.content.message}
-                  </span>
+                {contentError ? (
+                  <span className="text-sm text-red-600">{contentError}</span>
                 ) : null}
               </label>
 

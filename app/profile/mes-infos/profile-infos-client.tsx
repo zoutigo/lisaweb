@@ -70,6 +70,10 @@ export default function ProfileInfosClient({
       lastName: updated.lastName || "",
       phone: updated.phone || "",
     });
+    setTimeout(() => {
+      setShowForm(false);
+      setMessage(null);
+    }, 1000);
   };
 
   return (

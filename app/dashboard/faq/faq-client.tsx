@@ -13,32 +13,36 @@ import { ActionIconButton } from "@/components/ui/action-icon-button";
 import { Button } from "@/components/ui/button";
 
 type FaqItem = {
-  id: number;
+  id: string;
   question: string;
   answer: string;
   createdAt: string;
-  categoryId: number;
+  categoryId?: string | null;
 };
 
 type FaqClientProps = {
   initialFaqs: FaqItem[];
-  categories: { id: number; name: string; order: number }[];
+  categories: { id: string; name: string; order: number }[];
 };
 
 export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
   const [faqs, setFaqs] = useState(initialFaqs);
   const [page, setPage] = useState(1);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const pageSize = 5;
 
-  const defaultValues = useMemo<FaqInput>(
-    () => ({ question: "", answer: "", categoryId: categories[0]?.id }),
-    [categories],
-  );
+  const defaultValues = useMemo<FaqInput>(() => {
+    const firstCategory = categories[0]?.id;
+    return {
+      question: "",
+      answer: "",
+      categoryId: firstCategory,
+    };
+  }, [categories]);
 
   const { register, handleSubmit, reset, trigger, formState } =
     useForm<FaqInput>({
@@ -53,7 +57,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
     reset({
       question: faq.question,
       answer: faq.answer,
-      categoryId: faq.categoryId,
+      categoryId: faq.categoryId ?? undefined,
     });
     trigger();
     setEditingId(faq.id);
@@ -75,10 +79,23 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
       setError("Impossible d'enregistrer la FAQ.");
       return;
     }
-    const saved: FaqItem = await res.json();
+    const saved = (await res.json()) as {
+      id: string;
+      question: string;
+      answer: string;
+      createdAt: string;
+      categoryId?: string | null;
+    };
+    const normalized: FaqItem = {
+      id: saved.id,
+      question: saved.question,
+      answer: saved.answer,
+      createdAt: new Date(saved.createdAt).toISOString(),
+      categoryId: saved.categoryId ?? values.categoryId ?? categories[0]?.id,
+    };
     setFaqs((prev) => {
-      const others = prev.filter((f) => f.id !== saved.id);
-      return [{ ...saved, createdAt: saved.createdAt }, ...others];
+      const others = prev.filter((f) => f.id !== normalized.id);
+      return [normalized, ...others];
     });
     setPage(1);
     setMessage(editingId ? "FAQ mise à jour." : "FAQ ajoutée.");
@@ -88,7 +105,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
     queryClient.invalidateQueries({ queryKey: ["faq-preview"] });
   };
 
-  const onDelete = async (id: number) => {
+  const onDelete = async (id: string) => {
     setConfirmId(null);
     setMessage(null);
     setError(null);
@@ -252,7 +269,7 @@ export default function FaqClient({ initialFaqs, categories }: FaqClientProps) {
                 Catégorie
               </label>
               <select
-                {...register("categoryId", { valueAsNumber: true })}
+                {...register("categoryId")}
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
                 defaultValue={categories[0]?.id}
               >

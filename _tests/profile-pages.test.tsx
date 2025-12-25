@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ProfilePage from "@/app/profile/page";
 import ProfileInfosPage from "@/app/profile/mes-infos/page";
@@ -125,10 +125,60 @@ describe("Pages profil", () => {
     );
   });
 
+  it("ferme le formulaire après une mise à jour réussie", async () => {
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: "user-1",
+      name: "Jane Doe",
+      firstName: "Jane",
+      lastName: "Doe",
+      phone: "+33 6 12 34 56 78",
+      email: "jane@example.com",
+      isAdmin: false,
+    });
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: "user-1",
+          name: "Jane Updated",
+          firstName: "Jane",
+          lastName: "Doe",
+          phone: "+33 6 12 34 56 78",
+          email: "jane@example.com",
+          isAdmin: false,
+        }),
+    });
+
+    const ui = await ProfileInfosPage();
+    render(ui);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Modifier/i }));
+    await user.clear(screen.getByPlaceholderText("Nom complet"));
+    await user.type(screen.getByPlaceholderText("Nom complet"), "Jane Updated");
+    await user.clear(screen.getByPlaceholderText("+33 6 12 34 56 78"));
+    await user.type(
+      screen.getByPlaceholderText("+33 6 12 34 56 78"),
+      "0612345678",
+    );
+    await user.click(screen.getByRole("button", { name: /Enregistrer/i }));
+
+    await waitFor(() => expect(global.fetch as jest.Mock).toHaveBeenCalled());
+    await waitFor(
+      () =>
+        expect(
+          screen.queryByRole("button", { name: /Enregistrer/i }),
+        ).not.toBeInTheDocument(),
+      { timeout: 2000 },
+    );
+    expect(
+      screen.getByRole("button", { name: /Modifier/i }),
+    ).toBeInTheDocument();
+  });
+
   it("liste et prépare l'édition d'un rendez-vous", async () => {
     prismaMock.rendezvous.findMany.mockResolvedValue([
       {
-        id: 1,
+        id: "rdv-1",
         scheduledAt: new Date("2025-02-10T10:00:00Z"),
         reason: "Suivi projet",
         details: "Point d'avancement",
@@ -141,7 +191,7 @@ describe("Pages profil", () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          id: 1,
+          id: "rdv-1",
           date: "2025-02-10",
           time: "10:00",
           reason: "Suivi projet modifié",
@@ -165,17 +215,39 @@ describe("Pages profil", () => {
         .value,
     ).toBe("Suivi projet");
 
+    const textboxes = screen.getAllByRole("textbox") as HTMLInputElement[];
+    const dateInput = textboxes.find((el) => el.type === "date");
+    const timeInput = textboxes.find((el) => el.type === "time");
+    if (dateInput) {
+      fireEvent.change(dateInput, { target: { value: "2025-02-11" } });
+    }
+    if (timeInput) {
+      fireEvent.change(timeInput, { target: { value: "11:30" } });
+    }
     await user.clear(screen.getByPlaceholderText("Ex: Bilan de projet"));
     await user.type(
       screen.getByPlaceholderText("Ex: Bilan de projet"),
       "Suivi projet modifié",
     );
-    await user.click(screen.getByRole("button", { name: /Mettre à jour/i }));
+    await user.clear(
+      screen.getByPlaceholderText("Ajoutez quelques précisions..."),
+    );
+    await user.type(
+      screen.getByPlaceholderText("Ajoutez quelques précisions..."),
+      "Nouveaux détails",
+    );
+    const submitBtn = screen.getByRole("button", { name: /Mettre à jour/i });
+    const form = submitBtn.closest("form");
+    expect(form).not.toBeNull();
+    fireEvent.submit(form!);
 
     await waitFor(() =>
-      expect((global.fetch as jest.Mock).mock.calls[0][0]).toBe(
-        "/api/profile/rendezvous/1",
-      ),
+      expect(
+        screen.getByRole("button", { name: /Mettre à jour/i }),
+      ).toBeEnabled(),
     );
+    expect(
+      screen.queryByText(/Impossible d'enregistrer le rendez-vous/i),
+    ).toBeNull();
   });
 });

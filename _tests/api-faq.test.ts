@@ -59,7 +59,7 @@ describe("API /api/dashboard/faq", () => {
       user: { email: "admin@x.com", isAdmin: true },
     });
     prismaFaqCategory.findMany.mockResolvedValue([
-      { id: 1, name: "Général", order: 1 },
+      { id: "11111111-1111-1111-1111-111111111111", name: "Général", order: 1 },
     ]);
     prismaFaqCategory.count.mockResolvedValue(1);
   });
@@ -67,11 +67,11 @@ describe("API /api/dashboard/faq", () => {
   it("retourne la liste des FAQ", async () => {
     const items = [
       {
-        id: 1,
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         question: "Q?",
         answer: "A",
         createdAt: new Date().toISOString(),
-        categoryId: 1,
+        categoryId: "11111111-1111-1111-1111-111111111111",
       },
     ];
     prismaFaq.findMany.mockResolvedValue(items);
@@ -79,7 +79,13 @@ describe("API /api/dashboard/faq", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
       faqs: items,
-      categories: [{ id: 1, name: "Général", order: 1 }],
+      categories: [
+        {
+          id: "11111111-1111-1111-1111-111111111111",
+          name: "Général",
+          order: 1,
+        },
+      ],
     });
   });
 
@@ -106,15 +112,15 @@ describe("API /api/dashboard/faq", () => {
 
   it("crée une FAQ quand admin et payload valide", async () => {
     prismaFaq.create.mockResolvedValue({
-      id: 1,
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       question: "Q",
       answer: "A",
-      categoryId: 1,
+      categoryId: "11111111-1111-1111-1111-111111111111",
     });
     const payload = {
       question: "Question valide",
       answer: "Réponse valide",
-      categoryId: 1,
+      categoryId: "11111111-1111-1111-1111-111111111111",
     };
     const res = await faqList.POST(
       new Request("http://x", {
@@ -130,7 +136,9 @@ describe("API /api/dashboard/faq", () => {
 });
 
 describe("API /api/dashboard/faq/[id]", () => {
-  const ctx = { params: Promise.resolve({ id: "1" }) };
+  const ctx = {
+    params: Promise.resolve({ id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -139,8 +147,8 @@ describe("API /api/dashboard/faq/[id]", () => {
     });
   });
 
-  it("renvoie 400 si id invalide", async () => {
-    const badCtx = { params: Promise.resolve({ id: "abc" }) };
+  it("renvoie 400 si id manquant", async () => {
+    const badCtx = { params: Promise.resolve({ id: "" }) };
     const res = await faqDetail.GET(
       new Request("http://x") as unknown as NextRequest,
       badCtx,
@@ -159,16 +167,19 @@ describe("API /api/dashboard/faq/[id]", () => {
 
   it("met à jour une FAQ", async () => {
     prismaFaq.update.mockResolvedValue({
-      id: 1,
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       question: "Q",
       answer: "A",
-      categoryId: 1,
+      categoryId: "11111111-1111-1111-1111-111111111111",
     });
-    prismaFaq.findUnique.mockResolvedValue({ id: 1, categoryId: 1 });
+    prismaFaq.findUnique.mockResolvedValue({
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      categoryId: "11111111-1111-1111-1111-111111111111",
+    });
     const payload = {
       question: "Nouvelle question",
       answer: "Nouvelle réponse",
-      categoryId: 1,
+      categoryId: "11111111-1111-1111-1111-111111111111",
     };
     const res = await faqDetail.PUT(
       new Request("http://x", {
@@ -179,7 +190,7 @@ describe("API /api/dashboard/faq/[id]", () => {
     );
     expect(res.status).toBe(200);
     expect(prismaFaq.update).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
       data: payload,
     });
   });
@@ -196,12 +207,16 @@ describe("API /api/dashboard/faq/[id]", () => {
   });
 
   it("supprime une FAQ", async () => {
-    prismaFaq.delete.mockResolvedValue({ id: 1 });
+    prismaFaq.delete.mockResolvedValue({
+      id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    });
     const res = await faqDetail.DELETE(
       new Request("http://x") as unknown as NextRequest,
       ctx,
     );
     expect(res.status).toBe(200);
-    expect(prismaFaq.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(prismaFaq.delete).toHaveBeenCalledWith({
+      where: { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+    });
   });
 });

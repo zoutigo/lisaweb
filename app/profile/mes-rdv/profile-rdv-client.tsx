@@ -8,12 +8,13 @@ import { rendezvousSchema } from "@/lib/validations/rendezvous";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
 
 type RdvForm = z.infer<typeof rendezvousSchema>;
 
 type ProfileRdvClientProps = {
   initialRendezvous: Array<{
-    id: number;
+    id: string;
     date: string;
     time: string;
     reason: string;
@@ -28,12 +29,13 @@ export default function ProfileRdvClient({
   initialRendezvous,
 }: ProfileRdvClientProps) {
   const [rdvs, setRdvs] = useState(initialRendezvous);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const defaultValues = useMemo<RdvForm>(
     () => ({
@@ -138,7 +140,7 @@ export default function ProfileRdvClient({
     setShowForm(false);
   };
 
-  const onDelete = async (id: number) => {
+  const onDelete = async (id: string) => {
     setConfirmId(null);
     const res = await fetch(`/api/profile/rendezvous/${id}`, {
       method: "DELETE",
@@ -179,17 +181,16 @@ export default function ProfileRdvClient({
           >
             ← Retour
           </Button>
-          <Button
-            variant="secondary"
-            className="text-sm"
+          <ActionIconButton
+            action="create"
+            label="Programmer un rendez-vous"
+            tone="primary"
             onClick={() => {
               setEditingId(null);
               reset(defaultValues);
               setShowForm(true);
             }}
-          >
-            Programmer un rendez-vous
-          </Button>
+          />
         </div>
       </div>
 
@@ -232,20 +233,17 @@ export default function ProfileRdvClient({
                   </p>
                   <p className="mt-1 text-sm text-gray-700">{rdv.content}</p>
                   <div className="mt-3 flex gap-2">
-                    <Button
-                      variant="secondary"
-                      className="px-4 py-2 text-xs"
+                    <ActionIconButton
+                      action="edit"
+                      label="Modifier"
                       onClick={() => fillForm(rdv)}
-                    >
-                      Modifier
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="px-4 py-2 text-xs text-red-600"
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Supprimer"
+                      tone="danger"
                       onClick={() => setConfirmId(rdv.id)}
-                    >
-                      Supprimer
-                    </Button>
+                    />
                   </div>
                 </li>
               ))}
@@ -289,6 +287,7 @@ export default function ProfileRdvClient({
                   <input
                     type="date"
                     {...register("date")}
+                    min={minDate}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
                   />
                 </div>

@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { LandingFaqPreview } from "@/components/landing-faq-preview";
+import { LandingFeaturedCase } from "@/components/landing-featured-case";
 
 const sectors = [
   {
@@ -33,7 +35,7 @@ const sectors = [
   },
 ];
 
-const process = [
+const processSteps = [
   {
     title: "Je vous écoute",
     text: "Comprendre vos objectifs, votre public et vos contraintes est la base de tout.",
@@ -54,7 +56,19 @@ const process = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  let featuredCase = null;
+  if (process.env.DATABASE_URL) {
+    featuredCase =
+      (await prisma.customerCase.findFirst({
+        where: { isOnLandingPage: true },
+        orderBy: { createdAt: "desc" },
+      })) ??
+      (await prisma.customerCase.findFirst({
+        orderBy: { createdAt: "desc" },
+      })) ??
+      null;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.15),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.16),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.18),transparent_25%)] blur-3xl" />
@@ -65,15 +79,15 @@ export default function Home() {
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="flex flex-col gap-6">
                 <Badge className="bg-white/20 text-white">
-                  Basé à Pont-de-Chéruy
+                  Développeur web à Pont-de-Chéruy
                 </Badge>
                 <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-                  Votre développeur web local, pour un site moderne et efficace.
+                  Des sites modernes, rapides et visibles localement
                 </h1>
                 <p className="text-lg text-white/90">
-                  Basé à Pont-de-Chéruy, j’accompagne les écoles, associations,
-                  artisans et TPE dans la création de sites web professionnels,
-                  rapides et simples à gérer.
+                  J’accompagne les écoles, associations, artisans et TPE de
+                  Pont-de-Chéruy, Tignieu et Crémieu dans la création de sites
+                  web clairs, efficaces et simples à gérer.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
@@ -102,13 +116,13 @@ export default function Home() {
                 <div className="absolute h-64 w-64 rounded-full bg-white/15 blur-3xl" />
                 <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-white/40 bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur">
                   <div className="flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-white to-[#d8e2ff] text-2xl font-semibold text-[#1b2653]">
-                    Plisa
+                    LISAWEB
                   </div>
                   <div className="absolute -left-6 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#1b2653] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
-                    Réponse sous 24h
+                    Proximité
                   </div>
                   <div className="absolute -right-4 bottom-6 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#1b2653] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
-                    Accompagnement humain
+                    Eco Responsable
                   </div>
                 </div>
               </div>
@@ -154,7 +168,7 @@ export default function Home() {
             description="On avance étape par étape, en restant clair et disponible."
           />
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {process.map((step) => (
+            {processSteps.map((step) => (
               <Card
                 key={step.title}
                 className={`flex flex-col gap-3 border-none ${step.color}`}
@@ -189,53 +203,7 @@ export default function Home() {
         </Section>
 
         <Section id="case">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.18),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(232,217,255,0.22),transparent_30%)]" />
-              <div className="relative flex flex-col gap-4">
-                <Badge className="bg-white text-[#1b2653]">Cas client</Badge>
-                <h3 className="text-3xl font-semibold text-[#1b2653]">
-                  Un site moderne et clair pour une école locale
-                </h3>
-                <p className="text-base text-[#374151]">
-                  J’ai accompagné l’École Saint-Augustin dans la refonte
-                  complète de son site web. Navigation simplifiée, design
-                  moderne, informations facilement accessibles.
-                </p>
-                <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
-                  {[
-                    "Navigation claire",
-                    "Design moderne",
-                    "SEO local",
-                    "Mobile first",
-                  ].map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-                <Button variant="secondary" className="w-fit">
-                  Voir la réalisation
-                </Button>
-              </div>
-            </div>
-            <Card className="flex flex-col justify-center gap-4 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-              <h4 className="text-lg font-semibold text-[#1b2653]">
-                Mockup du site
-              </h4>
-              <p className="text-sm text-[#4b5563]">
-                Place ici une capture ou un visuel du site de l’école (mockup
-                desktop ou mobile). Il met en avant le design clair, la
-                navigation simple et les informations parents.
-              </p>
-              <div className="flex h-48 items-center justify-center rounded-[16px] border border-dashed border-[#d0d7ff] bg-[#f7f9fc] text-sm text-[#1b2653]">
-                Espace visuel / capture écran
-              </div>
-            </Card>
-          </div>
+          <LandingFeaturedCase initialCase={featuredCase} />
         </Section>
 
         <Section id="values" className="pb-16">

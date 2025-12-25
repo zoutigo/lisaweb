@@ -9,7 +9,7 @@ import { ActionIconButton } from "@/components/ui/action-icon-button";
 import { useRouter } from "next/navigation";
 
 type PartnerItem = {
-  id: number;
+  id: string;
   name: string;
   logoUrl: string | null;
   url: string | null;
@@ -28,13 +28,13 @@ export function PartnersClient({
   const router = useRouter();
   const [page, setPage] = useState(1);
   const pageSize = 8;
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const paged = useMemo(
     () => partners.slice((page - 1) * pageSize, page * pageSize),
     [partners, page, pageSize],
   );
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (deletingId) return;
     const confirmed =
       typeof window === "undefined"

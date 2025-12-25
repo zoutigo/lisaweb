@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormStatus } from "@/components/ui/form-status";
-import Image from "next/image";
+import { UploadImageInput } from "@/components/ui/upload-image-input";
 const placeholderLogo = "/partner-placeholder.svg";
 
 type FormData = PartnerInput;
@@ -25,6 +25,7 @@ export default function EditPartnerPage() {
     reset,
     setValue,
     formState: { errors, isSubmitting, isValid },
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(partnerSchema),
     defaultValues: { name: "", logoUrl: "", url: "" },
@@ -44,13 +45,6 @@ export default function EditPartnerPage() {
           logoUrl: data.logoUrl || "",
           url: data.url || "",
         });
-        if (data.logoUrl) {
-          setPreviewUrl(data.logoUrl);
-          setLogoName(data.logoUrl.split("/").pop() || "");
-        } else {
-          setPreviewUrl(placeholderLogo);
-          setLogoName("");
-        }
       } catch {
         setError("Impossible de charger le partenaire");
       } finally {
@@ -77,29 +71,7 @@ export default function EditPartnerPage() {
   };
 
   const [uploading, setUploading] = useState(false);
-  const [logoName, setLogoName] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string>(placeholderLogo);
-  const handleLogoUpload = async (file?: File) => {
-    if (!file) return;
-    setUploading(true);
-    setError(null);
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch("/api/files/upload", {
-      method: "POST",
-      body: formData,
-    });
-    setUploading(false);
-    if (!res.ok) {
-      setError("Upload du logo échoué");
-      return;
-    }
-    const data: { path?: string } = await res.json();
-    const path = data.path || placeholderLogo;
-    setValue("logoUrl", path, { shouldValidate: true });
-    setPreviewUrl(path);
-    setLogoName(file.name || "");
-  };
+  const logoUrlValue = watch("logoUrl") || placeholderLogo;
 
   if (loading) return <div className="p-6">Chargement...</div>;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
@@ -142,36 +114,19 @@ export default function EditPartnerPage() {
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-800">Logo</label>
-            <label className="flex cursor-pointer items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-800 shadow-sm transition hover:border-blue-300 hover:bg-white focus-within:border-blue-400 focus-within:bg-white">
-              <div className="flex items-center gap-3">
-                <Image
-                  src={previewUrl}
-                  alt="Logo preview"
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-                <span>{logoName || "Choisir un fichier image"}</span>
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                aria-label="Logo"
-                onChange={(e) =>
-                  handleLogoUpload(e.target.files?.[0] || undefined)
-                }
-                className="sr-only"
-              />
-            </label>
-            <p className="text-xs text-gray-500">
-              Upload vers /files. Formats image seulement.
-            </p>
-            {errors.logoUrl ? (
-              <p className="text-xs text-red-600">{errors.logoUrl.message}</p>
-            ) : null}
-          </div>
+          <UploadImageInput
+            label="Logo"
+            value={logoUrlValue}
+            onChange={(url) =>
+              setValue("logoUrl", url, { shouldValidate: true })
+            }
+            onUploadingChange={setUploading}
+            onError={(msg) => (msg ? setError(msg) : setError(null))}
+            helperText="Upload vers /files. Formats image seulement."
+          />
+          {errors.logoUrl ? (
+            <p className="text-xs text-red-600">{errors.logoUrl.message}</p>
+          ) : null}
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-gray-800">

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ActionIconButton } from "@/components/ui/action-icon-button";
 
 type Props = {
-  partnerId: number;
+  partnerId: string;
 };
 
 export function PartnerActions({ partnerId }: Props) {

@@ -19,7 +19,7 @@ export default async function PartnersPage() {
   if (!isAdmin) redirect("/");
 
   type PartnerRecord = {
-    id: number;
+    id: string;
     name: string;
     logoUrl: string | null;
     url: string | null;

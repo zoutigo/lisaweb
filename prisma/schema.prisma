@@ -13,15 +13,15 @@ datasource db {
 }
 
 model Rendezvous {
-  id          Int      @id @default(autoincrement())
-  scheduledAt DateTime
-  reason      String   @db.VarChar(191)
-  details     String   @db.Text
-  createdAt   DateTime @default(now())
-  user        User?    @relation(fields: [userId], references: [id])
-  userId      String?
-  status      RendezvousStatus @default(CONFIRMED)
-  pendingToken String? @unique
+  id           String           @id @default(uuid())
+  scheduledAt  DateTime
+  reason       String           @db.VarChar(191)
+  details      String           @db.Text
+  createdAt    DateTime         @default(now())
+  user         User?            @relation(fields: [userId], references: [id])
+  userId       String?
+  status       RendezvousStatus @default(PENDING)
+  pendingToken String?          @unique
 }
 
 // NextAuth-compatible models (Prisma adapter). IDs are strings (cuid()) to match NextAuth defaults.
@@ -42,7 +42,7 @@ model User {
 }
 
 model Partner {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   logoUrl   String?
   url       String?
@@ -50,7 +50,7 @@ model Partner {
 }
 
 model SiteInfo {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid())
   name       String   @default("Site")
   email      String
   address    String?
@@ -59,6 +59,27 @@ model SiteInfo {
   country    String?
   phone      String?
   updatedAt  DateTime @updatedAt
+}
+
+model CustomerCase {
+  id          String   @id @default(uuid())
+  title       String
+  customer    String?
+  description String
+  url         String?
+  imageUrl    String?
+  isOnLandingPage Boolean @default(false)
+  result1     String?
+  result2     String?
+  result3     String?
+  result4     String?
+  result5     String?
+  feature1    String?
+  feature2    String?
+  feature3    String?
+  feature4    String?
+  feature5    String?
+  createdAt   DateTime @default(now())
 }
 
 model Account {
@@ -98,11 +119,11 @@ model VerificationToken {
 }
 
 model Faq {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   question  String   @db.Text
   answer    String   @db.Text
   category   FaqCategory? @relation(fields: [categoryId], references: [id])
-  categoryId Int?
+  categoryId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -113,8 +134,15 @@ enum RendezvousStatus {
 }
 
 model FaqCategory {
-  id     Int    @id @default(autoincrement())
+  id     String @id @default(uuid())
   name   String @db.VarChar(191)
   order  Int    @default(0)
   faqs   Faq[]
+}
+
+model Receipe {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(191)
+  description String   @db.Text
+  createdAt   DateTime @default(now())
 }

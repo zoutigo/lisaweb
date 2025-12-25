@@ -32,16 +32,20 @@ describe("Page /faq", () => {
     jest.clearAllMocks();
     prismaMock.faqCategory.count.mockResolvedValue(1);
     prismaMock.faqCategory.findMany.mockResolvedValue([
-      { id: 1, name: "Général", order: 1 },
+      { id: "11111111-1111-1111-1111-111111111111", name: "Général", order: 1 },
     ]);
     prismaMock.faq.findMany.mockResolvedValue([
       {
-        id: 1,
+        id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         question: "Combien ça coûte ?",
         answer: "Une estimation selon le besoin.",
-        categoryId: 1,
+        categoryId: "11111111-1111-1111-1111-111111111111",
         createdAt: new Date(),
-        category: { id: 1, name: "Général", order: 1 },
+        category: {
+          id: "11111111-1111-1111-1111-111111111111",
+          name: "Général",
+          order: 1,
+        },
       },
     ]);
   });

@@ -18,13 +18,13 @@ type FaqRepo = {
   };
 };
 const faqRepo = prisma as unknown as FaqRepo;
-type Category = { id: number; name: string; order: number };
+type Category = { id: string; name: string; order: number };
 type FaqEntry = {
-  id: number;
+  id: string;
   question: string;
   answer: string;
   createdAt: Date;
-  categoryId?: number;
+  categoryId?: string | null;
   category?: Category;
 };
 

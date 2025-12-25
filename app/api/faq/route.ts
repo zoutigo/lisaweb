@@ -6,10 +6,21 @@ type FaqRepo = {
   faqCategory: {
     count: (...args: any[]) => Promise<number>;
     createMany: (...args: any[]) => Promise<any>;
-    findMany: (...args: any[]) => Promise<any>;
+    findMany: (
+      ...args: any[]
+    ) => Promise<Array<{ id: string; name: string; order: number }>>;
   };
   faq: {
-    findMany: (...args: any[]) => Promise<any>;
+    findMany: (...args: any[]) => Promise<
+      Array<{
+        id: string;
+        question: string;
+        answer: string;
+        createdAt: Date;
+        categoryId?: string | null;
+        category?: { id: string; name: string; order: number };
+      }>
+    >;
   };
 };
 

@@ -9,9 +9,7 @@ type SessionUser = { email?: string | null; isAdmin?: boolean };
 
 export async function GET(_req: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const idNum = Number(id);
-  if (!id || Number.isNaN(idNum))
-    return NextResponse.json({ message: "Invalid id" }, { status: 400 });
+  if (!id) return NextResponse.json({ message: "Invalid id" }, { status: 400 });
 
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email)
@@ -21,7 +19,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 
   const partner = await prisma.partner.findUnique({
-    where: { id: idNum },
+    where: { id },
   });
   if (!partner)
     return NextResponse.json({ message: "Not found" }, { status: 404 });
@@ -30,9 +28,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const idNum = Number(id);
-  if (!id || Number.isNaN(idNum))
-    return NextResponse.json({ message: "Invalid id" }, { status: 400 });
+  if (!id) return NextResponse.json({ message: "Invalid id" }, { status: 400 });
 
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email)
@@ -48,7 +44,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
   const { name, logoUrl, url } = parsed.data;
   const updated = await prisma.partner.update({
-    where: { id: idNum },
+    where: { id },
     data: { name, logoUrl: logoUrl || null, url: url || null },
   });
   return NextResponse.json(updated);
@@ -56,9 +52,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
-  const idNum = Number(id);
-  if (!id || Number.isNaN(idNum))
-    return NextResponse.json({ message: "Invalid id" }, { status: 400 });
+  if (!id) return NextResponse.json({ message: "Invalid id" }, { status: 400 });
 
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email)
@@ -67,6 +61,6 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
   if (!user?.isAdmin)
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 
-  await prisma.partner.delete({ where: { id: idNum } });
+  await prisma.partner.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
