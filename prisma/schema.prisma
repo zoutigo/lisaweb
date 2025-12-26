@@ -140,9 +140,50 @@ model FaqCategory {
   faqs   Faq[]
 }
 
-model Receipe {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(191)
-  description String   @db.Text
-  createdAt   DateTime @default(now())
+model ServiceOffer {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  subtitle         String?
+  shortDescription String   @db.Text
+  longDescription  String   @db.Text
+  targetAudience   String
+  priceLabel       String
+  durationLabel    String
+  engagementLabel  String
+  isFeatured       Boolean  @default(false)
+  order            Int      @default(0)
+  ctaLabel         String
+  ctaLink          String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  features         ServiceOfferFeature[]
+  steps            ServiceOfferStep[]
+  useCases         ServiceOfferUseCase[]
+}
+
+model ServiceOfferFeature {
+  id      String        @id @default(cuid())
+  offerId String
+  label   String
+  icon    String?
+  order   Int           @default(0)
+  offer   ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+}
+
+model ServiceOfferStep {
+  id          String        @id @default(cuid())
+  offerId     String
+  title       String
+  description String        @db.Text
+  order       Int           @default(0)
+  offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+}
+
+model ServiceOfferUseCase {
+  id          String        @id @default(cuid())
+  offerId     String
+  title       String
+  description String        @db.Text
+  offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }

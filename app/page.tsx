@@ -7,6 +7,10 @@ import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { LandingFaqPreview } from "@/components/landing-faq-preview";
 import { LandingFeaturedCase } from "@/components/landing-featured-case";
+import {
+  LandingFeaturedOffer,
+  type LandingServiceOffer,
+} from "@/components/landing-featured-offer";
 
 const sectors = [
   {
@@ -58,6 +62,7 @@ const processSteps = [
 
 export default async function Home() {
   let featuredCase = null;
+  let featuredOffer: LandingServiceOffer | null = null;
   if (process.env.DATABASE_URL) {
     featuredCase =
       (await prisma.customerCase.findFirst({
@@ -68,6 +73,30 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
       })) ??
       null;
+
+    const offer = await prisma.serviceOffer.findFirst({
+      where: { isFeatured: true },
+      orderBy: { order: "asc" },
+      include: {
+        features: { orderBy: { order: "asc" } },
+        steps: { orderBy: { order: "asc" } },
+      },
+    });
+    if (offer) {
+      featuredOffer = {
+        title: offer.title,
+        subtitle: offer.subtitle,
+        shortDescription: offer.shortDescription,
+        targetAudience: offer.targetAudience,
+        priceLabel: offer.priceLabel,
+        durationLabel: offer.durationLabel,
+        engagementLabel: offer.engagementLabel,
+        ctaLabel: offer.ctaLabel,
+        ctaLink: offer.ctaLink,
+        features: offer.features,
+        steps: offer.steps,
+      };
+    }
   }
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
@@ -160,6 +189,19 @@ export default async function Home() {
             </Button>
           </div>
         </Section>
+
+        {featuredOffer ? (
+          <Section id="service-offer">
+            <SectionHeading
+              eyebrow="Formats d'accompagnement"
+              title="Choisissez un service pensé pour vos besoins"
+              description="Une offre guidée, claire et prête à l’emploi. Tout est personnalisable et expliqué sans jargon."
+            />
+            <div className="mt-8">
+              <LandingFeaturedOffer offer={featuredOffer} />
+            </div>
+          </Section>
+        ) : null}
 
         <Section id="process">
           <SectionHeading
