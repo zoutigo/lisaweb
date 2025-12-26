@@ -29,14 +29,14 @@ type Props = {
   initialCase: LandingCase | null;
 };
 
-const FALLBACK_RESULTS = [
+const FALLBACK_RESULTS: string[] = [
   "Navigation simplifiée pour les parents",
   "Informations accessibles rapidement",
   "Site optimisé mobile et ordinateur",
   "Augmentation de la visibilité en ligne",
 ];
 
-const FALLBACK_FEATURES = [
+const FALLBACK_FEATURES: string[] = [
   "Navigation claire",
   "Design moderne",
   "SEO local",
@@ -50,38 +50,36 @@ export function LandingFeaturedCase({ initialCase }: Props) {
       const res = await fetch("/api/customer-cases/featured", {
         cache: "no-store",
       });
-      if (!res.ok) return initialCase ?? null;
+      if (!res.ok) return null;
       return (await res.json()) as LandingCase | null;
     },
-    initialData: initialCase,
-    staleTime: 1000 * 60 * 60, // 1h : pas de refetch fréquent
+    initialData: initialCase ?? undefined,
+    staleTime: 0,
   });
 
   const caseData = data ?? initialCase;
+  if (!caseData) return null;
+
   const caseResults = [
-    caseData?.result1,
-    caseData?.result2,
-    caseData?.result3,
-    caseData?.result4,
-    caseData?.result5,
+    caseData.result1,
+    caseData.result2,
+    caseData.result3,
+    caseData.result4,
+    caseData.result5,
   ].filter(Boolean);
   const caseFeatures = [
-    caseData?.feature1,
-    caseData?.feature2,
-    caseData?.feature3,
-    caseData?.feature4,
-    caseData?.feature5,
+    caseData.feature1,
+    caseData.feature2,
+    caseData.feature3,
+    caseData.feature4,
+    caseData.feature5,
   ].filter(Boolean);
 
-  const caseTitle =
-    caseData?.title || "Un site moderne et clair pour une école locale";
-  const caseCustomer =
-    caseData?.customer || "École Saint-Augustin de Crémieu (exemple local)";
-  const caseDescription =
-    caseData?.description ||
-    "Refonte complète : navigation simplifiée, design moderne, informations accessibles.";
-  const caseImage = caseData?.imageUrl || "/images/st-augustin.png";
-  const caseUrl = caseData?.url || undefined;
+  const caseTitle = caseData.title;
+  const caseCustomer = caseData.customer;
+  const caseDescription = caseData.description;
+  const caseImage = caseData.imageUrl || "/images/st-augustin.png";
+  const caseUrl = caseData.url || undefined;
 
   return (
     <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
@@ -98,12 +96,12 @@ export function LandingFeaturedCase({ initialCase }: Props) {
             </p>
             <ul className="space-y-1.5">
               {(caseResults.length ? caseResults : FALLBACK_RESULTS).map(
-                (item) => (
+                (item: string | null | undefined) => (
                   <li key={item} className="flex items-center gap-2">
                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#3b5bff] text-[10px] font-bold text-white">
                       ✓
                     </span>
-                    <span>{item}</span>
+                    <span>{item ?? ""}</span>
                   </li>
                 ),
               )}
@@ -111,12 +109,12 @@ export function LandingFeaturedCase({ initialCase }: Props) {
           </div>
           <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
             {(caseFeatures.length ? caseFeatures : FALLBACK_FEATURES).map(
-              (item) => (
+              (item: string | null | undefined) => (
                 <span
                   key={item}
                   className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
                 >
-                  {item}
+                  {item ?? ""}
                 </span>
               ),
             )}

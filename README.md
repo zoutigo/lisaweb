@@ -39,10 +39,46 @@ If Prettier rewrites files, the commit will stop so you can review and re-stage 
 
 ## Base de données & Prisma
 
-1. Duplique `.env.example` en `.env` et renseigne `DATABASE_URL` (MySQL).
+1. Duplique `.env.example` en `.env` et renseigne `DATABASE_URL` (MySQL) et `SHADOW_DATABASE_URL` pour Prisma.
 2. Génère le client et applique le schéma : `npx prisma generate` puis `npx prisma migrate dev --name init` (ou `npx prisma migrate deploy` en CI/production).
-3. En CI (déploiement main), ajoute le secret `DATABASE_URL` pour permettre à `prisma migrate deploy` de s’exécuter.
+3. En CI (déploiement main), ajoute les secrets `DATABASE_URL` (MySQL prod) et `SHADOW_DATABASE_URL` (shadow) pour permettre à `prisma migrate deploy` de s’exécuter.
 4. Lance l’app : `npm run dev` puis `npm run lint && npm run type-check` pour vérifier.
+
+### Seed des données (hors users/rdv)
+
+La base peut être initialisée avec les offres, leurs features/steps/use-cases, et les FAQ/catégories via :
+
+```bash
+npx prisma db seed
+```
+
+Le seed ne touche pas aux tables users/rdv.
+
+### Variables d’environnement à renseigner
+
+- `DATABASE_URL` : connexion MySQL principale.
+- `SHADOW_DATABASE_URL` : connexion MySQL pour la shadow database Prisma.
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (auth Google)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`
+- `MAIL_FROM`, `NOTIFY_TO`, `SITE_URL`
+
+Ajoute aussi les variables déjà présentes dans `.env.example` en prod/CI. En CI (GitHub Actions), définis au minimum `DATABASE_URL` et `SHADOW_DATABASE_URL` dans les secrets avant `prisma migrate deploy`.
+
+### Variables spécifiques GitHub Actions (dev-checks)
+
+- `DATABASE_URL` (ex.: `mysql://root:root@127.0.0.1:3306/lisaweb`)
+- `SHADOW_DATABASE_URL` (ex.: `mysql://root:root@127.0.0.1:3306/lisaweb_shadow`)
+- (optionnel selon besoins CI) `NEXTAUTH_SECRET`, SMTP vars si tu veux tester l’envoi en CI
+
+### Secrets requis pour les workflows GitHub (déploiement o2switch)
+
+- `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_PASSWORD` (whitelist & vérifications cPanel)
+- `O2_HOST`, `O2_SSH_PORT`, `O2_SSH_USER`, `O2_SSH_KEY` (clé privée), `O2_TARGET_DIR`
+- `O2_NODEENV_ACTIVATE` (commande d’activation de l’environnement node côté serveur)
+- `DATABASE_URL` (utilisé pendant le déploiement pour `prisma migrate deploy`)
+
+En CI (GitHub Actions), ajoute au minimum `DATABASE_URL` et `SHADOW_DATABASE_URL` dans les secrets avant `prisma migrate deploy`.
 
 ## Déploiement côté serveur (sans SSH entrant)
 
