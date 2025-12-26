@@ -213,6 +213,46 @@ const faqs = [
   },
 ];
 
+const customerCases = [
+  {
+    title: "Site vitrine moderne pour une école",
+    customer: "École Saint-Augustin",
+    description:
+      "Refonte complète du site : navigation simplifiée, contenus parent, design clair.",
+    url: "https://www.ecole-st-augustin.fr",
+    imageUrl: "/images/st-augustin.png",
+    result1: "Navigation claire pour les parents",
+    result2: "Informations accessibles rapidement",
+    result3: "SEO local optimisé",
+    feature1: "Mobile first",
+    feature2: "Design épuré",
+  },
+  {
+    title: "Site associatif avec agenda",
+    customer: "Association locale",
+    description:
+      "Site vitrine avec agenda d’événements et formulaire de contact clair.",
+    url: "https://www.association-exemple.fr",
+    imageUrl: "/images/placeholder-case.png",
+    result1: "Agenda lisible",
+    result2: "Demande de contact facilitée",
+    feature1: "SEO local",
+    feature2: "Formulaires ciblés",
+  },
+  {
+    title: "Refonte pour un artisan",
+    customer: "Artisan bâtisseur",
+    description:
+      "Modernisation d’un site obsolète avec mise en avant des réalisations.",
+    url: "https://www.artisan-exemple.fr",
+    imageUrl: "/images/placeholder-case.png",
+    result1: "Portfolio clair",
+    result2: "Demandes entrantes en hausse",
+    feature1: "Performance renforcée",
+    feature2: "Design contemporain",
+  },
+];
+
 async function main() {
   const existing = await prisma.serviceOffer.count();
   if (existing > 0) {
@@ -257,6 +297,16 @@ async function main() {
       });
     }
     console.log("FAQ seeded.");
+  }
+
+  const customerCaseCount = await prisma.customerCase.count();
+  if (customerCaseCount === 0) {
+    for (const item of customerCases) {
+      await prisma.customerCase.create({
+        data: { ...item, isOnLandingPage: false },
+      });
+    }
+    console.log("Customer cases seeded.");
   }
 }
 

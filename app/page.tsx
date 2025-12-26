@@ -125,12 +125,14 @@ export default async function Home() {
                   >
                     Prendre un rendez-vous
                   </Link>
-                  <Button
-                    variant="ghost"
-                    className="border border-white/40 bg-white/10 text-white"
-                  >
-                    Voir mes services
-                  </Button>
+                  <Link href="/contact">
+                    <Button
+                      variant="ghost"
+                      className="border border-white/40 bg-white/10 text-white"
+                    >
+                      Me contacter
+                    </Button>
+                  </Link>
                 </div>
                 <div className="flex flex-wrap gap-3 text-sm text-white/80">
                   <span className="rounded-full border border-white/30 px-3 py-1">

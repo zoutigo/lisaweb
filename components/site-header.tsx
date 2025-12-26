@@ -9,9 +9,9 @@ import { useSession, signIn, signOut } from "next-auth/react";
 const links = [
   { label: "Secteurs", href: "#sectors" },
   { label: "Méthode", href: "/methode" },
-  { label: "Réalisation", href: "#case" },
+  { label: "Réalisations", href: "/realisations" },
   { label: "Valeurs", href: "#values" },
-  { label: "Contact", href: "#cta" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function SiteHeader() {
@@ -111,11 +111,11 @@ export function SiteHeader() {
               <Button
                 className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
                 onClick={() => {
-                  router.push("/rendezvous");
+                  router.push("/contact");
                   setOpen(false);
                 }}
               >
-                Prendre un rendez-vous
+                Me contacter
               </Button>
               <Button
                 className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"

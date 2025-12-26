@@ -49,15 +49,13 @@ describe("SiteHeader", () => {
     expect(pushMock).toHaveBeenCalledWith("/");
   });
 
-  it("redirige vers /rendezvous quand on clique sur le bouton", async () => {
+  it("redirige vers /contact quand on clique sur le bouton", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
-    await user.click(
-      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
-    );
-    expect(pushMock).toHaveBeenCalledWith("/rendezvous");
+    await user.click(screen.getByRole("button", { name: /me contacter/i }));
+    expect(pushMock).toHaveBeenCalledWith("/contact");
   });
 
   it("ferme le menu quand on clique sur un lien du menu", async () => {
@@ -66,13 +64,13 @@ describe("SiteHeader", () => {
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
     expect(
-      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
+      screen.getByRole("button", { name: /me contacter/i }),
     ).toBeInTheDocument();
 
     const menuLinks = screen.getAllByRole("link", { name: /méthode/i });
     await user.click(menuLinks[menuLinks.length - 1]);
     expect(
-      screen.queryByRole("button", { name: /prendre un rendez-vous/i }),
+      screen.queryByRole("button", { name: /me contacter/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -82,12 +80,12 @@ describe("SiteHeader", () => {
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
     expect(
-      screen.getByRole("button", { name: /prendre un rendez-vous/i }),
+      screen.getByRole("button", { name: /me contacter/i }),
     ).toBeInTheDocument();
 
     await user.click(document.body);
     expect(
-      screen.queryByRole("button", { name: /prendre un rendez-vous/i }),
+      screen.queryByRole("button", { name: /me contacter/i }),
     ).not.toBeInTheDocument();
   });
 

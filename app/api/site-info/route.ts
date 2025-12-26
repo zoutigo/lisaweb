@@ -13,5 +13,14 @@ export async function GET() {
       phone: true,
     },
   });
-  return NextResponse.json(site || null);
+  const fallback = {
+    name: "LiSAWEB",
+    email: "contact@lisaweb.fr",
+    address: "89C rue du travail",
+    city: "Pont de Cheruy",
+    postalCode: "38230",
+    country: "France",
+    phone: "0650597839",
+  };
+  return NextResponse.json(site || fallback);
 }
