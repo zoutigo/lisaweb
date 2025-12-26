@@ -9,7 +9,17 @@ export const metadata = {
 };
 
 export default async function ContactPage() {
-  const siteInfo = await prisma.siteInfo.findFirst();
+  let siteInfo = null;
+  if (process.env.DATABASE_URL) {
+    try {
+      siteInfo = await prisma.siteInfo.findFirst();
+    } catch (error) {
+      if (process.env.NODE_ENV !== "test") {
+        console.error("Failed to load site info", error);
+      }
+      siteInfo = null;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#eef2ff] text-[#111827]">
