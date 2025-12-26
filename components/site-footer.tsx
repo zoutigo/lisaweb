@@ -10,7 +10,7 @@ const navLinks = [
   { label: "FAQ", href: "/faq" },
   { label: "Réalisation", href: "#case" },
   { label: "Valeurs", href: "#values" },
-  { label: "Contact", href: "#cta" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function SiteFooter() {
