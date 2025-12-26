@@ -145,8 +145,8 @@ model ServiceOffer {
   slug             String   @unique
   title            String
   subtitle         String?
-  shortDescription String
-  longDescription  String
+  shortDescription String   @db.Text
+  longDescription  String   @db.Text
   targetAudience   String
   priceLabel       String
   durationLabel    String
@@ -175,7 +175,7 @@ model ServiceOfferStep {
   id          String        @id @default(cuid())
   offerId     String
   title       String
-  description String
+  description String        @db.Text
   order       Int           @default(0)
   offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
@@ -184,6 +184,6 @@ model ServiceOfferUseCase {
   id          String        @id @default(cuid())
   offerId     String
   title       String
-  description String
+  description String        @db.Text
   offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
