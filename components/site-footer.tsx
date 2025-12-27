@@ -5,10 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 const navLinks = [
-  { label: "Secteurs", href: "#sectors" },
+  { label: "Nos offres", href: "/services-offers" },
   { label: "Méthode", href: "/methode" },
   { label: "FAQ", href: "/faq" },
-  { label: "Réalisation", href: "#case" },
+  { label: "Réalisation", href: "/realisations" },
   { label: "Valeurs", href: "#values" },
   { label: "Contact", href: "/contact" },
 ];

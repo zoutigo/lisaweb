@@ -47,6 +47,8 @@ describe("Dashboard links", () => {
     expect(hrefs).toContain("/dashboard/partners");
     expect(hrefs).toContain("/dashboard/faq");
     expect(hrefs).toContain("/dashboard/customers-cases");
+    expect(hrefs).toContain("/dashboard/service-offers");
+    expect(hrefs).toContain("/dashboard/offer-options");
     expect(hrefs).toContain("/dashboard/rendezvous");
   });
 });

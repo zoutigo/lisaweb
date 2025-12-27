@@ -6,8 +6,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { BackLink } from "@/components/back-link";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { ActionIconButton } from "@/components/ui/action-icon-button";
 
 export default async function ServiceOfferDetailPage({
   params,
@@ -24,21 +23,31 @@ export default async function ServiceOfferDetailPage({
 
   const offer = await prisma.serviceOffer.findUnique({
     where: { id },
-    include: { features: true, steps: true, useCases: true },
+    include: {
+      features: true,
+      steps: true,
+      useCases: true,
+      offerOptions: true,
+    },
   });
   if (!offer) redirect("/dashboard/service-offers");
 
   const features = offer.features ?? [];
   const steps = offer.steps ?? [];
   const useCases = offer.useCases ?? [];
+  const attachedOptions = offer.offerOptions ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-4 flex items-center justify-between">
         <BackLink />
-        <Link href={`/dashboard/service-offers/${offer.id}/edit`}>
-          <Button className="h-9 px-4 text-sm">Modifier</Button>
-        </Link>
+        <ActionIconButton
+          as="link"
+          action="edit"
+          tone="primary"
+          label="Modifier"
+          href={`/dashboard/service-offers/${offer.id}/edit`}
+        />
       </div>
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
@@ -105,6 +114,24 @@ export default async function ServiceOfferDetailPage({
                 </li>
               ))}
             </ul>
+          </div>
+        ) : null}
+
+        {attachedOptions.length ? (
+          <div className="mt-4 space-y-2 rounded-xl bg-[#eef2ff] p-4 text-sm text-gray-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#3b5bff]">
+              Options liées
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {attachedOptions.map((opt) => (
+                <span
+                  key={opt.id}
+                  className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-800 shadow-sm"
+                >
+                  {opt.title} ({opt.slug})
+                </span>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>

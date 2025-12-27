@@ -31,12 +31,14 @@ type FormOffer =
       features: FormFeature[];
       steps: FormStep[];
       useCases: FormUseCase[];
+      offerOptionIds?: string[];
     })
   | null;
 
 type Props = {
   mode: "create" | "edit";
   initialOffer?: FormOffer;
+  availableOptions?: { id: string; title: string; slug: string }[];
 };
 
 function parseLinesToFeatures(
@@ -82,7 +84,11 @@ function parseLinesToUseCases(
     });
 }
 
-export function ServiceOfferForm({ mode, initialOffer }: Props) {
+export function ServiceOfferForm({
+  mode,
+  initialOffer,
+  availableOptions = [],
+}: Props) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +125,7 @@ export function ServiceOfferForm({ mode, initialOffer }: Props) {
           title: u.title,
           description: u.description,
         })) ?? [],
+      offerOptionIds: initialOffer?.offerOptionIds ?? [],
     }),
     [initialOffer],
   );
@@ -144,6 +151,18 @@ export function ServiceOfferForm({ mode, initialOffer }: Props) {
   const useCasesText = watch("useCases")
     ?.map((u) => `${u.title}: ${u.description}`)
     .join("\n");
+  const selectedOptionIds = watch("offerOptionIds") ?? [];
+
+  const toggleOption = (id: string) => {
+    const exists = selectedOptionIds.includes(id);
+    const next = exists
+      ? selectedOptionIds.filter((optId) => optId !== id)
+      : [...selectedOptionIds, id];
+    setValue("offerOptionIds", next, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
 
   const onSubmit = async (values: ServiceOfferInput) => {
     setMessage(null);
@@ -159,6 +178,7 @@ export function ServiceOfferForm({ mode, initialOffer }: Props) {
       features: values.features ?? [],
       steps: values.steps ?? [],
       useCases: values.useCases ?? [],
+      offerOptionIds: values.offerOptionIds ?? [],
     };
 
     const res = await fetch(url, {
@@ -344,6 +364,41 @@ export function ServiceOfferForm({ mode, initialOffer }: Props) {
             />
           </div>
         </div>
+
+        {availableOptions && availableOptions.length > 0 ? (
+          <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+            <p className="text-sm font-semibold text-gray-800">
+              Options associées
+            </p>
+            <p className="text-xs text-gray-600">
+              Sélectionnez les modules complémentaires liés à cette offre.
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {availableOptions.map((opt) => {
+                const checked = selectedOptionIds.includes(opt.id);
+                return (
+                  <label
+                    key={opt.id}
+                    className="flex cursor-pointer items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
+                      checked={checked}
+                      onChange={() => toggleOption(opt.id)}
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-900">
+                        {opt.title}
+                      </span>
+                      <span className="text-xs text-gray-600">{opt.slug}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-gray-800">

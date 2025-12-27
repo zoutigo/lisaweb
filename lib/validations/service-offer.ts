@@ -34,6 +34,7 @@ export const serviceOfferSchema = z.object({
   features: z.array(featureInput).optional().default([]),
   steps: z.array(stepInput).optional().default([]),
   useCases: z.array(useCaseInput).optional().default([]),
+  offerOptionIds: z.array(z.string()).optional().default([]),
 });
 
 export type ServiceOfferInput = z.infer<typeof serviceOfferSchema>;

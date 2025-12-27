@@ -28,11 +28,17 @@ jest.mock("next-auth", () => ({
 
 jest.mock("@/lib/prisma", () => {
   const serviceOffer = { findUnique: jest.fn() };
-  return { __esModule: true, prisma: { serviceOffer } };
+  const offerOption = { findMany: jest.fn() };
+  return { __esModule: true, prisma: { serviceOffer, offerOption } };
 });
 
-const prismaMock = jest.requireMock("@/lib/prisma").prisma.serviceOffer as {
+const prismaServiceOfferMock = jest.requireMock("@/lib/prisma").prisma
+  .serviceOffer as {
   findUnique: jest.Mock;
+};
+const prismaOfferOptionMock = jest.requireMock("@/lib/prisma").prisma
+  .offerOption as {
+  findMany: jest.Mock;
 };
 
 describe("Dashboard service offers pages", () => {
@@ -44,7 +50,7 @@ describe("Dashboard service offers pages", () => {
   });
 
   it("affiche la fiche détail", async () => {
-    prismaMock.findUnique.mockResolvedValue({
+    prismaServiceOfferMock.findUnique.mockResolvedValue({
       id: "s1",
       slug: "slug-1",
       title: "Titre 1",
@@ -53,7 +59,11 @@ describe("Dashboard service offers pages", () => {
       features: [{ id: "f1", label: "Feature", icon: null, order: 0 }],
       steps: [{ id: "st1", title: "Etape 1", description: "Desc", order: 0 }],
       useCases: [{ id: "u1", title: "Cas", description: "Usage" }],
+      offerOptions: [{ id: "opt-1", title: "Option 1", slug: "opt1" }],
     });
+    prismaOfferOptionMock.findMany.mockResolvedValue([
+      { id: "opt-1", title: "Option 1", slug: "opt1" },
+    ]);
 
     const ui = await ServiceOfferDetailPage({ params: { id: "s1" } });
     render(ui);
@@ -65,7 +75,7 @@ describe("Dashboard service offers pages", () => {
   });
 
   it("pré-remplit la page d'édition", async () => {
-    prismaMock.findUnique.mockResolvedValue({
+    prismaServiceOfferMock.findUnique.mockResolvedValue({
       id: "s2",
       slug: "slug-2",
       title: "Titre 2",
@@ -74,7 +84,9 @@ describe("Dashboard service offers pages", () => {
       features: [],
       steps: [],
       useCases: [],
+      offerOptions: [],
     });
+    prismaOfferOptionMock.findMany.mockResolvedValue([]);
 
     const ui = await EditServiceOfferPage({ params: { id: "s2" } });
     render(ui);
@@ -86,6 +98,9 @@ describe("Dashboard service offers pages", () => {
   });
 
   it("affiche la page de création", async () => {
+    prismaOfferOptionMock.findMany.mockResolvedValue([
+      { id: "opt-1", title: "Option 1", slug: "opt1" },
+    ]);
     const ui = await NewServiceOfferPage();
     render(ui);
 

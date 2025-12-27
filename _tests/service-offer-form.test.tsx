@@ -46,6 +46,8 @@ const fillRequiredFields = () => {
   fireEvent.change(textboxes[13], { target: { value: "Cas: Description" } });
 };
 
+const availableOptions = [{ id: "opt-1", title: "Option 1", slug: "opt1" }];
+
 describe("ServiceOfferForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -55,9 +57,17 @@ describe("ServiceOfferForm", () => {
   });
 
   it("soumet en création et redirige", async () => {
-    render(<ServiceOfferForm mode="create" />);
+    render(
+      <ServiceOfferForm mode="create" availableOptions={availableOptions} />,
+    );
 
     fillRequiredFields();
+
+    const optionCheckbox = screen
+      .getByText(/option 1/i)
+      .closest("label")!
+      .querySelector("input") as HTMLInputElement;
+    fireEvent.click(optionCheckbox);
 
     const submit = screen.getByRole("button", { name: /ajouter/i });
     await waitFor(() => expect(submit).not.toBeDisabled());
@@ -68,6 +78,9 @@ describe("ServiceOfferForm", () => {
         "/api/dashboard/service-offers",
         expect.objectContaining({ method: "POST" }),
       );
+      const [, options] = (global.fetch as jest.Mock).mock.calls[0];
+      const parsed = JSON.parse((options as RequestInit).body as string);
+      expect(parsed.offerOptionIds).toContain("opt-1");
       expect(pushMock).toHaveBeenCalledWith("/dashboard/service-offers");
       expect(refreshMock).toHaveBeenCalled();
     });
@@ -95,7 +108,9 @@ describe("ServiceOfferForm", () => {
           features: [],
           steps: [],
           useCases: [],
+          offerOptionIds: ["opt-1"],
         }}
+        availableOptions={availableOptions}
       />,
     );
 

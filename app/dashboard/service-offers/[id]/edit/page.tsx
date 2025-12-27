@@ -23,9 +23,19 @@ export default async function EditServiceOfferPage({
 
   const offer = await prisma.serviceOffer.findUnique({
     where: { id },
-    include: { features: true, steps: true, useCases: true },
+    include: {
+      features: true,
+      steps: true,
+      useCases: true,
+      offerOptions: true,
+    },
   });
   if (!offer) redirect("/dashboard/service-offers");
+
+  const offerOptions = await prisma.offerOption.findMany({
+    orderBy: { order: "asc" },
+    select: { id: true, title: true, slug: true },
+  });
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
@@ -55,7 +65,9 @@ export default async function EditServiceOfferPage({
               title: u.title,
               description: u.description,
             })) ?? [],
+          offerOptionIds: offer.offerOptions?.map((o) => o.id) ?? [],
         }}
+        availableOptions={offerOptions}
       />
     </div>
   );
