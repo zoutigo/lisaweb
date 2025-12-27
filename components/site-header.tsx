@@ -10,7 +10,7 @@ const links = [
   { label: "Nos offres", href: "/services-offers" },
   { label: "Méthode", href: "/methode" },
   { label: "Réalisations", href: "/realisations" },
-  { label: "Valeurs", href: "#values" },
+
   { label: "Contact", href: "/contact" },
 ];
 

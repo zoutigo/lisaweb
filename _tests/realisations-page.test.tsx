@@ -24,8 +24,8 @@ describe("Page /realisations", () => {
         description: "Refonte complète du site",
         url: "https://example.com",
         imageUrl: "/test.png",
-        result1: "Navigation simplifiée",
-        feature1: "Mobile first",
+        results: [{ id: "r1", label: "Navigation simplifiée", slug: "nav" }],
+        features: [{ id: "f1", label: "Mobile first", slug: "mobile" }],
         createdAt: new Date("2024-01-01"),
       },
     ]);
@@ -41,8 +41,10 @@ describe("Page /realisations", () => {
             description: "Refonte complète du site",
             url: "https://example.com",
             imageUrl: "/test.png",
-            result1: "Navigation simplifiée",
-            feature1: "Mobile first",
+            results: [
+              { id: "r1", label: "Navigation simplifiée", slug: "nav" },
+            ],
+            features: [{ id: "f1", label: "Mobile first", slug: "mobile" }],
           },
         ]),
     });

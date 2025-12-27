@@ -30,11 +30,24 @@ jest.mock("next-auth", () => ({
 
 jest.mock("@/lib/prisma", () => {
   const customerCase = { findUnique: jest.fn() };
-  return { __esModule: true, prisma: { customerCase } };
+  const customerCaseResult = { findMany: jest.fn() };
+  const customerCaseFeature = { findMany: jest.fn() };
+  return {
+    __esModule: true,
+    prisma: { customerCase, customerCaseResult, customerCaseFeature },
+  };
 });
 
 const prismaMock = jest.requireMock("@/lib/prisma").prisma.customerCase as {
   findUnique: jest.Mock;
+};
+const prismaResultMock = jest.requireMock("@/lib/prisma").prisma
+  .customerCaseResult as {
+  findMany: jest.Mock;
+};
+const prismaFeatureMock = jest.requireMock("@/lib/prisma").prisma
+  .customerCaseFeature as {
+  findMany: jest.Mock;
 };
 
 describe("Pages dashboard/customers-cases", () => {
@@ -53,10 +66,10 @@ describe("Pages dashboard/customers-cases", () => {
       description: "Description complète",
       url: "https://exemple.com",
       imageUrl: null,
-      result1: "Résultat 1",
-      feature1: "Feature 1",
+      results: [{ id: "r1", label: "Résultat 1", slug: "res-1" }],
+      features: [{ id: "f1", label: "Feature 1", slug: "feat-1" }],
       createdAt: new Date(),
-      isOnLandingPage: false,
+      isFeatured: false,
     });
 
     const ui = await CustomerCaseDetailPage({ params: { id: "case-1" } });
@@ -81,19 +94,13 @@ describe("Pages dashboard/customers-cases", () => {
       description: "Une description existante",
       url: null,
       imageUrl: null,
-      result1: null,
-      result2: null,
-      result3: null,
-      result4: null,
-      result5: null,
-      feature1: null,
-      feature2: null,
-      feature3: null,
-      feature4: null,
-      feature5: null,
-      isOnLandingPage: false,
+      results: [],
+      features: [],
+      isFeatured: false,
       createdAt: new Date(),
     });
+    prismaResultMock.findMany.mockResolvedValue([]);
+    prismaFeatureMock.findMany.mockResolvedValue([]);
 
     const ui = await EditCustomerCasePage({ params: { id: "case-2" } });
     render(ui);
@@ -105,6 +112,8 @@ describe("Pages dashboard/customers-cases", () => {
   });
 
   it("affiche la page de création avec le formulaire", async () => {
+    prismaResultMock.findMany.mockResolvedValue([]);
+    prismaFeatureMock.findMany.mockResolvedValue([]);
     const ui = await NewCustomerCasePage();
     render(ui);
 
@@ -112,7 +121,7 @@ describe("Pages dashboard/customers-cases", () => {
       screen.getByRole("heading", { name: /ajouter un cas client/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /ajouter/i }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("button", { name: /ajouter/i })[2],
+    ).toBeDefined();
   });
 });

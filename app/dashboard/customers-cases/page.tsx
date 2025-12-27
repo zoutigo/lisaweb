@@ -12,19 +12,11 @@ type CustomerCase = {
   customer: string | null;
   description: string;
   url: string | null;
-  result1: string | null;
-  result2: string | null;
-  result3: string | null;
-  result4: string | null;
-  result5: string | null;
-  feature1: string | null;
-  feature2: string | null;
-  feature3: string | null;
-  feature4: string | null;
-  feature5: string | null;
+  results: { id: string; label: string; slug: string }[];
+  features: { id: string; label: string; slug: string }[];
   imageUrl: string | null;
   createdAt: Date;
-  isOnLandingPage: boolean;
+  isFeatured: boolean;
 };
 
 export default async function CustomersCasesPage() {
@@ -35,26 +27,22 @@ export default async function CustomersCasesPage() {
 
   const cases = (await prisma.customerCase.findMany({
     orderBy: { createdAt: "desc" },
+    include: {
+      results: true,
+      features: true,
+    },
   })) as CustomerCase[];
 
   return (
     <CustomersCasesClient
       initialCases={cases.map((c) => ({
         ...c,
-        isOnLandingPage: c.isOnLandingPage ?? false,
+        isFeatured: c.isFeatured ?? false,
         customer: c.customer ?? undefined,
         url: c.url ?? undefined,
         imageUrl: c.imageUrl ?? undefined,
-        result1: c.result1 ?? undefined,
-        result2: c.result2 ?? undefined,
-        result3: c.result3 ?? undefined,
-        result4: c.result4 ?? undefined,
-        result5: c.result5 ?? undefined,
-        feature1: c.feature1 ?? undefined,
-        feature2: c.feature2 ?? undefined,
-        feature3: c.feature3 ?? undefined,
-        feature4: c.feature4 ?? undefined,
-        feature5: c.feature5 ?? undefined,
+        results: c.results ?? [],
+        features: c.features ?? [],
         createdAt: c.createdAt.toISOString(),
       }))}
     />

@@ -6,6 +6,14 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+function slugifyLabel(label: string) {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   const isAdmin = Boolean((session?.user as { isAdmin?: boolean })?.isAdmin);
@@ -15,6 +23,10 @@ export async function GET() {
 
   const cases = await prisma.customerCase.findMany({
     orderBy: { createdAt: "desc" },
+    include: {
+      results: { orderBy: { order: "asc" } },
+      features: { orderBy: { order: "asc" } },
+    },
   });
   return NextResponse.json(cases);
 }
@@ -37,20 +49,56 @@ export async function POST(req: Request) {
 
   const data = {
     ...parsed.data,
-    isOnLandingPage: parsed.data.isOnLandingPage ?? false,
+    isFeatured: parsed.data.isFeatured ?? false,
     customer: parsed.data.customer || null,
     url: parsed.data.url || null,
     imageUrl: parsed.data.imageUrl || null,
+    results: parsed.data.results ?? [],
+    features: parsed.data.features ?? [],
   };
 
   const created = await prisma.$transaction(async (tx) => {
-    if (data.isOnLandingPage) {
+    if (data.isFeatured) {
       await tx.customerCase.updateMany({
-        data: { isOnLandingPage: false },
-        where: { isOnLandingPage: true },
+        data: { isFeatured: false },
+        where: { isFeatured: true },
       });
     }
-    return tx.customerCase.create({ data });
+    const createdCase = await tx.customerCase.create({
+      data: {
+        title: data.title,
+        customer: data.customer,
+        description: data.description,
+        url: data.url,
+        imageUrl: data.imageUrl,
+        isFeatured: data.isFeatured,
+        results: {
+          connectOrCreate: data.results.map((r, idx) => ({
+            where: { slug: r.slug ?? slugifyLabel(r.label) },
+            create: {
+              slug: r.slug ?? slugifyLabel(r.label),
+              label: r.label,
+              order: idx,
+            },
+          })),
+        },
+        features: {
+          connectOrCreate: data.features.map((f, idx) => ({
+            where: { slug: f.slug ?? slugifyLabel(f.label) },
+            create: {
+              slug: f.slug ?? slugifyLabel(f.label),
+              label: f.label,
+              order: idx,
+            },
+          })),
+        },
+      },
+      include: {
+        results: { orderBy: { order: "asc" } },
+        features: { orderBy: { order: "asc" } },
+      },
+    });
+    return createdCase;
   });
   return NextResponse.json(created, { status: 201 });
 }

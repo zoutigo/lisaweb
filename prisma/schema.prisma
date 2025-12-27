@@ -1,14 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   // Explicit output to ensure the client is generated in the expected location
-  output   = "../node_modules/.prisma/client"
+  output        = "../node_modules/.prisma/client"
   // Ship engines for local dev and o2switch (OpenSSL 1.0.x) + newer Debian (3.0.x)
   binaryTargets = ["native", "debian-openssl-1.0.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -26,19 +26,19 @@ model Rendezvous {
 
 // NextAuth-compatible models (Prisma adapter). IDs are strings (cuid()) to match NextAuth defaults.
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
   firstName     String?
   lastName      String?
-  email         String?   @unique
-  phone         String?   @db.VarChar(32)
+  email         String?      @unique
+  phone         String?      @db.VarChar(32)
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   rendezvous    Rendezvous[]
-  isAdmin       Boolean   @default(false)
-  createdAt     DateTime  @default(now())
+  isAdmin       Boolean      @default(false)
+  createdAt     DateTime     @default(now())
 }
 
 model Partner {
@@ -62,39 +62,31 @@ model SiteInfo {
 }
 
 model CustomerCase {
-  id          String   @id @default(uuid())
+  id          String                @id @default(uuid())
   title       String
   customer    String?
   description String
   url         String?
   imageUrl    String?
-  isOnLandingPage Boolean @default(false)
-  result1     String?
-  result2     String?
-  result3     String?
-  result4     String?
-  result5     String?
-  feature1    String?
-  feature2    String?
-  feature3    String?
-  feature4    String?
-  feature5    String?
-  createdAt   DateTime @default(now())
+  isFeatured  Boolean               @default(false)
+  createdAt   DateTime              @default(now())
+  results     CustomerCaseResult[]  @relation("CustomerCaseToResults")
+  features    CustomerCaseFeature[] @relation("CustomerCaseToFeatures")
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -119,13 +111,13 @@ model VerificationToken {
 }
 
 model Faq {
-  id        String   @id @default(uuid())
-  question  String   @db.Text
-  answer    String   @db.Text
+  id         String       @id @default(uuid())
+  question   String       @db.Text
+  answer     String       @db.Text
   category   FaqCategory? @relation(fields: [categoryId], references: [id])
   categoryId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 enum RendezvousStatus {
@@ -134,29 +126,29 @@ enum RendezvousStatus {
 }
 
 model FaqCategory {
-  id     String @id @default(uuid())
-  name   String @db.VarChar(191)
-  order  Int    @default(0)
-  faqs   Faq[]
+  id    String @id @default(uuid())
+  name  String @db.VarChar(191)
+  order Int    @default(0)
+  faqs  Faq[]
 }
 
 model ServiceOffer {
-  id               String   @id @default(cuid())
-  slug             String   @unique
+  id               String                @id @default(cuid())
+  slug             String                @unique
   title            String
   subtitle         String?
-  shortDescription String   @db.Text
-  longDescription  String   @db.Text
+  shortDescription String                @db.Text
+  longDescription  String                @db.Text
   targetAudience   String
   priceLabel       String
   durationLabel    String
   engagementLabel  String
-  isFeatured       Boolean  @default(false)
-  order            Int      @default(0)
+  isFeatured       Boolean               @default(false)
+  order            Int                   @default(0)
   ctaLabel         String
   ctaLink          String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
   features         ServiceOfferFeature[]
   steps            ServiceOfferStep[]
   useCases         ServiceOfferUseCase[]
@@ -164,48 +156,68 @@ model ServiceOffer {
 }
 
 model ServiceOfferFeature {
-  id      String        @id @default(cuid())
+  id      String       @id @default(cuid())
   offerId String
   label   String
   icon    String?
-  order   Int           @default(0)
-  offer   ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  order   Int          @default(0)
+  offer   ServiceOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
 
 model ServiceOfferStep {
-  id          String        @id @default(cuid())
+  id          String       @id @default(cuid())
   offerId     String
   title       String
-  description String        @db.Text
-  order       Int           @default(0)
-  offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  description String       @db.Text
+  order       Int          @default(0)
+  offer       ServiceOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
 
 model ServiceOfferUseCase {
-  id          String        @id @default(cuid())
+  id          String       @id @default(cuid())
   offerId     String
   title       String
-  description String        @db.Text
-  offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  description String       @db.Text
+  offer       ServiceOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 }
 
 model OfferOption {
-  id               String   @id @default(uuid())
-  slug             String   @unique
+  id               String         @id @default(uuid())
+  slug             String         @unique
   title            String
-  descriptionShort String   @db.Text
-  descriptionLong  String   @db.Text
+  descriptionShort String         @db.Text
+  descriptionLong  String         @db.Text
   pricingType      PricingType
   priceCents       Int?
   priceFromCents   Int?
   unitLabel        String?
   unitPriceCents   Int?
-  isPopular        Boolean  @default(false)
-  order            Int      @default(0)
+  isPopular        Boolean        @default(false)
+  order            Int            @default(0)
   constraintsJson  String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   serviceOffers    ServiceOffer[]
+}
+
+model CustomerCaseResult {
+  id        String         @id @default(uuid())
+  slug      String         @unique
+  label     String
+  order     Int            @default(0)
+  cases     CustomerCase[] @relation("CustomerCaseToResults")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model CustomerCaseFeature {
+  id        String         @id @default(uuid())
+  slug      String         @unique
+  label     String
+  order     Int            @default(0)
+  cases     CustomerCase[] @relation("CustomerCaseToFeatures")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
 
 enum PricingType {

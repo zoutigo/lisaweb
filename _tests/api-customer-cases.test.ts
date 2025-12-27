@@ -78,7 +78,7 @@ describe("API customer-cases", () => {
         description: "Desc suffisante",
         url: "https://exemple.com",
         imageUrl: "https://exemple.com/img.png",
-        isOnLandingPage: true,
+        isFeatured: true,
       }),
     } as unknown as Request);
     expect(res.status).toBe(201);
@@ -92,7 +92,7 @@ describe("API customer-cases", () => {
         json: async () => ({
           title: "Case",
           description: "Desc suffisante",
-          isOnLandingPage: true,
+          isFeatured: true,
         }),
       } as unknown as Request,
       { params: { id: "1" } },

@@ -24,7 +24,15 @@ describe("CustomerCaseForm interactions", () => {
   });
 
   it("soumet un nouveau cas client (POST) et redirige", async () => {
-    render(<CustomerCaseForm mode="create" />);
+    render(
+      <CustomerCaseForm
+        mode="create"
+        availableResults={[{ id: "r1", label: "Result A", slug: "result-a" }]}
+        availableFeatures={[
+          { id: "f1", label: "Feature A", slug: "feature-a" },
+        ]}
+      />,
+    );
 
     fireEvent.change(screen.getByPlaceholderText(/Titre du cas client/i), {
       target: { value: "Nouveau cas client" },
@@ -36,7 +44,35 @@ describe("CustomerCaseForm interactions", () => {
       target: { value: "https://exemple.com" },
     });
 
-    const submitButton = screen.getByRole("button", { name: /Ajouter/i });
+    // select existing options
+    const combos = screen.getAllByRole("combobox");
+    fireEvent.change(combos[0], { target: { value: "result-a" } });
+    fireEvent.change(combos[1], { target: { value: "feature-a" } });
+
+    // add custom
+    const customResultInput = screen.getByPlaceholderText(
+      /Ajouter un nouveau résultat/i,
+    );
+    fireEvent.change(customResultInput, { target: { value: "Result Custom" } });
+    fireEvent.keyDown(customResultInput, { key: "Enter", code: "Enter" });
+
+    const customFeatureInput = screen.getByPlaceholderText(
+      /Ajouter une caractéristique/i,
+    );
+    fireEvent.change(customFeatureInput, {
+      target: { value: "Feature Custom" },
+    });
+    fireEvent.keyDown(customFeatureInput, { key: "Enter", code: "Enter" });
+
+    // add another feature via button to ensure click works
+    fireEvent.change(customFeatureInput, {
+      target: { value: "Feature Button" },
+    });
+    fireEvent.click(screen.getByTestId("add-feature-btn"));
+
+    const submitButton = screen.getAllByRole("button", {
+      name: /Ajouter/i,
+    })[2];
     await waitFor(() => expect(submitButton).not.toBeDisabled());
     fireEvent.click(submitButton);
 
@@ -48,6 +84,11 @@ describe("CustomerCaseForm interactions", () => {
           headers: { "Content-Type": "application/json" },
         }),
       );
+      const body = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body as string,
+      );
+      expect(body.results.length).toBeGreaterThan(0);
+      expect(body.features.length).toBeGreaterThan(0);
       expect(pushMock).toHaveBeenCalledWith("/dashboard/customers-cases");
       expect(refreshMock).toHaveBeenCalled();
     });
@@ -61,12 +102,19 @@ describe("CustomerCaseForm interactions", () => {
       description: "Une description assez longue",
       url: "https://exemple.com",
       imageUrl: "https://exemple.com/img.png",
-      result1: "Résultat 1",
-      feature1: "Feature 1",
-      isOnLandingPage: true,
+      results: [{ label: "Résultat 1", slug: "res-1" }],
+      features: [{ label: "Feature 1", slug: "feat-1" }],
+      isFeatured: true,
     };
 
-    render(<CustomerCaseForm mode="edit" initialCase={initialCase} />);
+    render(
+      <CustomerCaseForm
+        mode="edit"
+        initialCase={initialCase}
+        availableResults={[{ id: "r1", label: "Résultat 1", slug: "res-1" }]}
+        availableFeatures={[{ id: "f1", label: "Feature 1", slug: "feat-1" }]}
+      />,
+    );
 
     expect(screen.getByPlaceholderText(/Titre du cas client/i)).toHaveValue(
       "Titre initial",
@@ -92,5 +140,31 @@ describe("CustomerCaseForm interactions", () => {
       expect(pushMock).toHaveBeenCalledWith("/dashboard/customers-cases");
       expect(refreshMock).toHaveBeenCalled();
     });
+  });
+
+  it("rend le bouton Mettre à jour actif avec des valeurs valides préremplies", async () => {
+    render(
+      <CustomerCaseForm
+        mode="edit"
+        initialCase={{
+          id: "case-999",
+          title: "Titre ok",
+          description: "Description assez longue",
+          customer: "Client",
+          url: "https://exemple.com",
+          imageUrl: "",
+          results: [{ label: "R1", slug: "r1" }],
+          features: [{ label: "F1", slug: "f1" }],
+          isFeatured: false,
+        }}
+        availableResults={[]}
+        availableFeatures={[]}
+      />,
+    );
+
+    const submitButton = await screen.findByRole("button", {
+      name: /Mettre à jour/i,
+    });
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
   });
 });

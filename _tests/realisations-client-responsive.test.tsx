@@ -11,8 +11,8 @@ const cases = [
     customer: "Client 1",
     description: "Desc 1",
     imageUrl: "/img1.png",
-    result1: "Résultat 1",
-    feature1: "Feature 1",
+    results: [{ id: "r1", label: "Résultat 1", slug: "res1" }],
+    features: [{ id: "f1", label: "Feature 1", slug: "feat1" }],
     createdAt: "2024-01-01T00:00:00.000Z",
   },
   {
@@ -21,8 +21,8 @@ const cases = [
     customer: "Client 2",
     description: "Desc 2",
     imageUrl: "/img2.png",
-    result1: "Résultat 2",
-    feature1: "Feature 2",
+    results: [{ id: "r2", label: "Résultat 2", slug: "res2" }],
+    features: [{ id: "f2", label: "Feature 2", slug: "feat2" }],
     createdAt: "2024-01-02T00:00:00.000Z",
   },
   {
@@ -31,8 +31,8 @@ const cases = [
     customer: "Client 3",
     description: "Desc 3",
     imageUrl: "/img3.png",
-    result1: "Résultat 3",
-    feature1: "Feature 3",
+    results: [{ id: "r3", label: "Résultat 3", slug: "res3" }],
+    features: [{ id: "f3", label: "Feature 3", slug: "feat3" }],
     createdAt: "2024-01-03T00:00:00.000Z",
   },
   {
@@ -41,8 +41,8 @@ const cases = [
     customer: "Client 4",
     description: "Desc 4",
     imageUrl: "/img4.png",
-    result1: "Résultat 4",
-    feature1: "Feature 4",
+    results: [{ id: "r4", label: "Résultat 4", slug: "res4" }],
+    features: [{ id: "f4", label: "Feature 4", slug: "feat4" }],
     createdAt: "2024-01-04T00:00:00.000Z",
   },
 ];

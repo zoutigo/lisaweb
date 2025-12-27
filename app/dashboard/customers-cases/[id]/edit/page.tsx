@@ -26,8 +26,14 @@ export default async function EditCustomerCasePage({
 
   const caseItem = await prisma.customerCase.findUnique({
     where: { id },
+    include: { results: true, features: true },
   });
   if (!caseItem) redirect("/dashboard/customers-cases");
+
+  const [allResults, allFeatures] = await Promise.all([
+    prisma.customerCaseResult.findMany({ orderBy: { order: "asc" } }),
+    prisma.customerCaseFeature.findMany({ orderBy: { order: "asc" } }),
+  ]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
@@ -38,21 +44,33 @@ export default async function EditCustomerCasePage({
           id: caseItem.id,
           title: caseItem.title,
           description: caseItem.description,
-          isOnLandingPage: caseItem.isOnLandingPage ?? false,
+          isFeatured: caseItem.isFeatured ?? false,
           customer: caseItem.customer ?? undefined,
           url: caseItem.url ?? undefined,
           imageUrl: caseItem.imageUrl ?? undefined,
-          result1: caseItem.result1 ?? undefined,
-          result2: caseItem.result2 ?? undefined,
-          result3: caseItem.result3 ?? undefined,
-          result4: caseItem.result4 ?? undefined,
-          result5: caseItem.result5 ?? undefined,
-          feature1: caseItem.feature1 ?? undefined,
-          feature2: caseItem.feature2 ?? undefined,
-          feature3: caseItem.feature3 ?? undefined,
-          feature4: caseItem.feature4 ?? undefined,
-          feature5: caseItem.feature5 ?? undefined,
+          results:
+            caseItem.results?.map((r) => ({
+              id: r.id,
+              label: r.label,
+              slug: r.slug,
+            })) ?? [],
+          features:
+            caseItem.features?.map((f) => ({
+              id: f.id,
+              label: f.label,
+              slug: f.slug,
+            })) ?? [],
         }}
+        availableResults={allResults.map((r) => ({
+          id: r.id,
+          label: r.label,
+          slug: r.slug,
+        }))}
+        availableFeatures={allFeatures.map((f) => ({
+          id: f.id,
+          label: f.label,
+          slug: f.slug,
+        }))}
       />
     </div>
   );

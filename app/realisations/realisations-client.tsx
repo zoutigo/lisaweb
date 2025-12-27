@@ -16,16 +16,8 @@ type CustomerCase = {
   description: string;
   url?: string;
   imageUrl?: string;
-  result1?: string;
-  result2?: string;
-  result3?: string;
-  result4?: string;
-  result5?: string;
-  feature1?: string;
-  feature2?: string;
-  feature3?: string;
-  feature4?: string;
-  feature5?: string;
+  results?: { label: string; id: string; slug: string }[];
+  features?: { label: string; id: string; slug: string }[];
   createdAt?: string;
 };
 
@@ -44,20 +36,8 @@ const FALLBACK_FEATURES = [
 ];
 
 function CaseCard({ item }: { item: CustomerCase }) {
-  const caseResults = [
-    item.result1,
-    item.result2,
-    item.result3,
-    item.result4,
-    item.result5,
-  ].filter(Boolean);
-  const caseFeatures = [
-    item.feature1,
-    item.feature2,
-    item.feature3,
-    item.feature4,
-    item.feature5,
-  ].filter(Boolean);
+  const caseResults = item.results?.map((r) => r.label).filter(Boolean) ?? [];
+  const caseFeatures = item.features?.map((f) => f.label).filter(Boolean) ?? [];
 
   const image = item.imageUrl || "/images/st-augustin.png";
 

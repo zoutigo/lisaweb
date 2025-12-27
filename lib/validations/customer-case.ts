@@ -14,17 +14,25 @@ export const customerCaseSchema = z.object({
       ])
       .optional(),
   ),
-  result1: z.string().optional(),
-  result2: z.string().optional(),
-  result3: z.string().optional(),
-  result4: z.string().optional(),
-  result5: z.string().optional(),
-  feature1: z.string().optional(),
-  feature2: z.string().optional(),
-  feature3: z.string().optional(),
-  feature4: z.string().optional(),
-  feature5: z.string().optional(),
-  isOnLandingPage: z.boolean().optional().default(false),
+  results: z
+    .array(
+      z.object({
+        label: z.string().min(2),
+        slug: z.string().optional(),
+      }),
+    )
+    .optional()
+    .default([]),
+  features: z
+    .array(
+      z.object({
+        label: z.string().min(2),
+        slug: z.string().optional(),
+      }),
+    )
+    .optional()
+    .default([]),
+  isFeatured: z.boolean().optional().default(false),
 });
 
 export type CustomerCaseInput = z.infer<typeof customerCaseSchema>;

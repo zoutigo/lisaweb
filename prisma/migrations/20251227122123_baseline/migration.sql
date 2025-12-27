@@ -64,17 +64,7 @@ CREATE TABLE `CustomerCase` (
     `description` VARCHAR(191) NOT NULL,
     `url` VARCHAR(191) NULL,
     `imageUrl` VARCHAR(191) NULL,
-    `isOnLandingPage` BOOLEAN NOT NULL DEFAULT false,
-    `result1` VARCHAR(191) NULL,
-    `result2` VARCHAR(191) NULL,
-    `result3` VARCHAR(191) NULL,
-    `result4` VARCHAR(191) NULL,
-    `result5` VARCHAR(191) NULL,
-    `feature1` VARCHAR(191) NULL,
-    `feature2` VARCHAR(191) NULL,
-    `feature3` VARCHAR(191) NULL,
-    `feature4` VARCHAR(191) NULL,
-    `feature5` VARCHAR(191) NULL,
+    `isFeatured` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
@@ -219,6 +209,50 @@ CREATE TABLE `OfferOption` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `CustomerCaseResult` (
+    `id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `label` VARCHAR(191) NOT NULL,
+    `order` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `CustomerCaseResult_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `CustomerCaseFeature` (
+    `id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `label` VARCHAR(191) NOT NULL,
+    `order` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `CustomerCaseFeature_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `_CustomerCaseToResults` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_CustomerCaseToResults_AB_unique`(`A`, `B`),
+    INDEX `_CustomerCaseToResults_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `_CustomerCaseToFeatures` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_CustomerCaseToFeatures_AB_unique`(`A`, `B`),
+    INDEX `_CustomerCaseToFeatures_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `_OfferOptionToServiceOffer` (
     `A` VARCHAR(191) NOT NULL,
     `B` VARCHAR(191) NOT NULL,
@@ -247,6 +281,18 @@ ALTER TABLE `ServiceOfferStep` ADD CONSTRAINT `ServiceOfferStep_offerId_fkey` FO
 
 -- AddForeignKey
 ALTER TABLE `ServiceOfferUseCase` ADD CONSTRAINT `ServiceOfferUseCase_offerId_fkey` FOREIGN KEY (`offerId`) REFERENCES `ServiceOffer`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_CustomerCaseToResults` ADD CONSTRAINT `_CustomerCaseToResults_A_fkey` FOREIGN KEY (`A`) REFERENCES `CustomerCase`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_CustomerCaseToResults` ADD CONSTRAINT `_CustomerCaseToResults_B_fkey` FOREIGN KEY (`B`) REFERENCES `CustomerCaseResult`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_CustomerCaseToFeatures` ADD CONSTRAINT `_CustomerCaseToFeatures_A_fkey` FOREIGN KEY (`A`) REFERENCES `CustomerCase`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_CustomerCaseToFeatures` ADD CONSTRAINT `_CustomerCaseToFeatures_B_fkey` FOREIGN KEY (`B`) REFERENCES `CustomerCaseFeature`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_OfferOptionToServiceOffer` ADD CONSTRAINT `_OfferOptionToServiceOffer_A_fkey` FOREIGN KEY (`A`) REFERENCES `OfferOption`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

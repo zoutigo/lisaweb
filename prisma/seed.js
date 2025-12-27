@@ -221,11 +221,8 @@ const customerCases = [
       "Refonte complète du site : navigation simplifiée, contenus parent, design clair.",
     url: "https://www.ecole-st-augustin.fr",
     imageUrl: "/images/st-augustin.png",
-    result1: "Navigation claire pour les parents",
-    result2: "Informations accessibles rapidement",
-    result3: "SEO local optimisé",
-    feature1: "Mobile first",
-    feature2: "Design épuré",
+    resultSlugs: ["nav-parents", "info-rapides", "seo-local", "mobile-rapide"],
+    featureSlugs: ["mobile-first", "design-epure", "seo-local"],
   },
   {
     title: "Site associatif avec agenda",
@@ -234,10 +231,8 @@ const customerCases = [
       "Site vitrine avec agenda d’événements et formulaire de contact clair.",
     url: "https://www.association-exemple.fr",
     imageUrl: "/images/placeholder-case.png",
-    result1: "Agenda lisible",
-    result2: "Demande de contact facilitée",
-    feature1: "SEO local",
-    feature2: "Formulaires ciblés",
+    resultSlugs: ["agenda-lisible", "contact-facile", "conversion-plus"],
+    featureSlugs: ["formulaires-cibles", "performance", "design-contemporain"],
   },
   {
     title: "Refonte pour un artisan",
@@ -246,11 +241,35 @@ const customerCases = [
       "Modernisation d’un site obsolète avec mise en avant des réalisations.",
     url: "https://www.artisan-exemple.fr",
     imageUrl: "/images/placeholder-case.png",
-    result1: "Portfolio clair",
-    result2: "Demandes entrantes en hausse",
-    feature1: "Performance renforcée",
-    feature2: "Design contemporain",
+    resultSlugs: ["portfolio-clair", "demandes-en-hausse"],
+    featureSlugs: ["accessibilite", "cms-simple", "support", "securite"],
   },
+];
+
+const caseResults = [
+  { slug: "nav-parents", label: "Navigation claire pour les parents" },
+  { slug: "info-rapides", label: "Informations accessibles rapidement" },
+  { slug: "seo-local", label: "SEO local optimisé" },
+  { slug: "mobile-rapide", label: "Site rapide et mobile" },
+  { slug: "contact-simple", label: "Formulaires de contact simplifiés" },
+  { slug: "agenda-lisible", label: "Agenda lisible" },
+  { slug: "contact-facile", label: "Demande de contact facilitée" },
+  { slug: "portfolio-clair", label: "Portfolio clair" },
+  { slug: "demandes-en-hausse", label: "Demandes entrantes en hausse" },
+  { slug: "conversion-plus", label: "Meilleure conversion" },
+];
+
+const caseFeatures = [
+  { slug: "mobile-first", label: "Mobile first" },
+  { slug: "design-epure", label: "Design épuré" },
+  { slug: "seo-local", label: "SEO local" },
+  { slug: "formulaires-cibles", label: "Formulaires ciblés" },
+  { slug: "performance", label: "Performance renforcée" },
+  { slug: "design-contemporain", label: "Design contemporain" },
+  { slug: "accessibilite", label: "Accessibilité soignée" },
+  { slug: "cms-simple", label: "CMS simple à gérer" },
+  { slug: "support", label: "Support et suivi" },
+  { slug: "securite", label: "Sécurité renforcée" },
 ];
 
 const offerOptions = [
@@ -526,12 +545,49 @@ async function main() {
     console.log("FAQ seeded.");
   }
 
+  // Upsert reference results and features
+  for (const r of caseResults) {
+    await prisma.customerCaseResult.upsert({
+      where: { slug: r.slug },
+      update: { label: r.label, order: r.order ?? 0 },
+      create: { ...r, order: r.order ?? 0 },
+    });
+  }
+  for (const f of caseFeatures) {
+    await prisma.customerCaseFeature.upsert({
+      where: { slug: f.slug },
+      update: { label: f.label, order: f.order ?? 0 },
+      create: { ...f, order: f.order ?? 0 },
+    });
+  }
+
   const customerCaseCount = await prisma.customerCase.count();
   if (customerCaseCount === 0) {
     for (const item of customerCases) {
-      await prisma.customerCase.create({
-        data: { ...item, isOnLandingPage: false },
+      const { resultSlugs = [], featureSlugs = [], ...data } = item;
+      const createdCase = await prisma.customerCase.create({
+        data: { ...data, isFeatured: false },
       });
+      if (resultSlugs.length) {
+        await prisma.customerCase.update({
+          where: { id: createdCase.id },
+          data: {
+            results: {
+              connect: resultSlugs.map((slug) => ({ slug })),
+            },
+          },
+        });
+      }
+      if (featureSlugs.length) {
+        await prisma.customerCase.update({
+          where: { id: createdCase.id },
+          data: {
+            features: {
+              connect: featureSlugs.map((slug) => ({ slug })),
+            },
+          },
+        });
+      }
     }
     console.log("Customer cases seeded.");
   }

@@ -12,6 +12,17 @@ import {
   type LandingServiceOffer,
 } from "@/components/landing-featured-offer";
 
+type LandingCustomerCase = {
+  id: string;
+  title: string;
+  customer?: string | null;
+  description: string;
+  url?: string | null;
+  imageUrl?: string | null;
+  results?: { id: string; label: string; slug: string }[];
+  features?: { id: string; label: string; slug: string }[];
+};
+
 const sectors = [
   {
     title: "Écoles",
@@ -61,48 +72,87 @@ const processSteps = [
 ];
 
 export default async function Home() {
-  let featuredCase = null;
+  let featuredCase: LandingCustomerCase | null = null;
   let featuredOffer: LandingServiceOffer | null = null;
   if (process.env.DATABASE_URL) {
-    featuredCase =
-      (await prisma.customerCase.findFirst({
-        where: { isOnLandingPage: true },
-        orderBy: { createdAt: "desc" },
-      })) ??
-      (await prisma.customerCase.findFirst({
-        orderBy: { createdAt: "desc" },
-      })) ??
-      null;
+    try {
+      const landingCaseRaw =
+        (await prisma.customerCase.findFirst({
+          where: { isFeatured: true },
+          orderBy: { createdAt: "desc" },
+          include: {
+            results: { orderBy: { order: "asc" } },
+            features: { orderBy: { order: "asc" } },
+          },
+        })) ??
+        (await prisma.customerCase.findFirst({
+          orderBy: { createdAt: "desc" },
+          include: {
+            results: { orderBy: { order: "asc" } },
+            features: { orderBy: { order: "asc" } },
+          },
+        })) ??
+        null;
 
-    const offer = await prisma.serviceOffer.findFirst({
-      where: { isFeatured: true },
-      orderBy: { order: "asc" },
-      include: {
-        features: { orderBy: { order: "asc" } },
-        steps: { orderBy: { order: "asc" } },
-        offerOptions: true,
-      },
-    });
-    if (offer) {
-      featuredOffer = {
-        title: offer.title,
-        subtitle: offer.subtitle,
-        shortDescription: offer.shortDescription,
-        targetAudience: offer.targetAudience,
-        priceLabel: offer.priceLabel,
-        durationLabel: offer.durationLabel,
-        engagementLabel: offer.engagementLabel,
-        ctaLabel: offer.ctaLabel,
-        ctaLink: offer.ctaLink,
-        features: offer.features,
-        steps: offer.steps,
-        offerOptions:
-          offer.offerOptions?.map((o) => ({
-            id: o.id,
-            title: o.title,
-            slug: o.slug,
-          })) ?? [],
-      };
+      if (landingCaseRaw) {
+        featuredCase = {
+          id: landingCaseRaw.id,
+          title: landingCaseRaw.title,
+          customer: landingCaseRaw.customer ?? null,
+          description: landingCaseRaw.description,
+          url: landingCaseRaw.url ?? null,
+          imageUrl: landingCaseRaw.imageUrl ?? null,
+          results:
+            landingCaseRaw.results?.map((r) => ({
+              id: r.id,
+              label: r.label,
+              slug: r.slug,
+            })) ?? [],
+          features:
+            landingCaseRaw.features?.map((f) => ({
+              id: f.id,
+              label: f.label,
+              slug: f.slug,
+            })) ?? [],
+        };
+      }
+
+      const offer = await prisma.serviceOffer.findFirst({
+        where: { isFeatured: true },
+        orderBy: { order: "asc" },
+        include: {
+          features: { orderBy: { order: "asc" } },
+          steps: { orderBy: { order: "asc" } },
+          offerOptions: true,
+        },
+      });
+      if (offer) {
+        featuredOffer = {
+          title: offer.title,
+          subtitle: offer.subtitle,
+          shortDescription: offer.shortDescription,
+          targetAudience: offer.targetAudience,
+          priceLabel: offer.priceLabel,
+          durationLabel: offer.durationLabel,
+          engagementLabel: offer.engagementLabel,
+          ctaLabel: offer.ctaLabel,
+          ctaLink: offer.ctaLink,
+          features: offer.features,
+          steps: offer.steps,
+          offerOptions:
+            offer.offerOptions?.map((o) => ({
+              id: o.id,
+              title: o.title,
+              slug: o.slug,
+            })) ?? [],
+        };
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV !== "test") {
+        console.error("Failed to load landing data", error);
+      }
+      featuredCase = null;
+      featuredOffer = null;
     }
   }
   return (

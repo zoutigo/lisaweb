@@ -4,14 +4,29 @@ import { prisma } from "@/lib/prisma";
 export const runtime = "nodejs";
 
 export async function GET() {
-  const featured =
-    (await prisma.customerCase.findFirst({
-      where: { isOnLandingPage: true },
-      orderBy: { createdAt: "desc" },
-    })) ??
-    (await prisma.customerCase.findFirst({
-      orderBy: { createdAt: "desc" },
-    }));
+  try {
+    const featured =
+      (await prisma.customerCase.findFirst({
+        where: { isFeatured: true },
+        orderBy: { createdAt: "desc" },
+        include: {
+          results: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" } },
+        },
+      })) ??
+      (await prisma.customerCase.findFirst({
+        orderBy: { createdAt: "desc" },
+        include: {
+          results: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" } },
+        },
+      }));
 
-  return NextResponse.json(featured ?? null);
+    return NextResponse.json(featured ?? null);
+  } catch (error) {
+    if (process.env.NODE_ENV !== "test") {
+      console.error("Failed to load featured customer case", error);
+    }
+    return NextResponse.json(null, { status: 200 });
+  }
 }

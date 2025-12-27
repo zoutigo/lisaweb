@@ -13,34 +13,26 @@ type LandingCase = {
   description: string;
   url?: string | null;
   imageUrl?: string | null;
-  result1?: string | null;
-  result2?: string | null;
-  result3?: string | null;
-  result4?: string | null;
-  result5?: string | null;
-  feature1?: string | null;
-  feature2?: string | null;
-  feature3?: string | null;
-  feature4?: string | null;
-  feature5?: string | null;
+  results?: { id: string; label: string; slug: string }[];
+  features?: { id: string; label: string; slug: string }[];
 };
 
 type Props = {
   initialCase: LandingCase | null;
 };
 
-const FALLBACK_RESULTS: string[] = [
-  "Navigation simplifiée pour les parents",
-  "Informations accessibles rapidement",
-  "Site optimisé mobile et ordinateur",
-  "Augmentation de la visibilité en ligne",
+const FALLBACK_RESULTS: { key: string; label: string }[] = [
+  { key: "fallback-res-1", label: "Navigation simplifiée pour les parents" },
+  { key: "fallback-res-2", label: "Informations accessibles rapidement" },
+  { key: "fallback-res-3", label: "Site optimisé mobile et ordinateur" },
+  { key: "fallback-res-4", label: "Augmentation de la visibilité en ligne" },
 ];
 
-const FALLBACK_FEATURES: string[] = [
-  "Navigation claire",
-  "Design moderne",
-  "SEO local",
-  "Mobile first",
+const FALLBACK_FEATURES: { key: string; label: string }[] = [
+  { key: "fallback-feat-1", label: "Navigation claire" },
+  { key: "fallback-feat-2", label: "Design moderne" },
+  { key: "fallback-feat-3", label: "SEO local" },
+  { key: "fallback-feat-4", label: "Mobile first" },
 ];
 
 export function LandingFeaturedCase({ initialCase }: Props) {
@@ -48,32 +40,35 @@ export function LandingFeaturedCase({ initialCase }: Props) {
     queryKey: ["landing-case"],
     queryFn: async () => {
       const res = await fetch("/api/customer-cases/featured", {
-        cache: "no-store",
+        cache: "force-cache",
       });
       if (!res.ok) return null;
       return (await res.json()) as LandingCase | null;
     },
     initialData: initialCase ?? undefined,
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const caseData = data ?? initialCase;
   if (!caseData) return null;
 
-  const caseResults = [
-    caseData.result1,
-    caseData.result2,
-    caseData.result3,
-    caseData.result4,
-    caseData.result5,
-  ].filter(Boolean);
-  const caseFeatures = [
-    caseData.feature1,
-    caseData.feature2,
-    caseData.feature3,
-    caseData.feature4,
-    caseData.feature5,
-  ].filter(Boolean);
+  const caseResults =
+    caseData.results
+      ?.map((r) => ({
+        key: r.slug || r.id || r.label,
+        label: r.label,
+      }))
+      .filter((r) => Boolean(r.label)) ?? [];
+  const caseFeatures =
+    caseData.features
+      ?.map((f) => ({
+        key: f.slug || f.id || f.label,
+        label: f.label,
+      }))
+      .filter((f) => Boolean(f.label)) ?? [];
 
   const caseTitle = caseData.title;
   const caseCustomer = caseData.customer;
@@ -96,12 +91,12 @@ export function LandingFeaturedCase({ initialCase }: Props) {
             </p>
             <ul className="space-y-1.5">
               {(caseResults.length ? caseResults : FALLBACK_RESULTS).map(
-                (item: string | null | undefined) => (
-                  <li key={item} className="flex items-center gap-2">
+                (item) => (
+                  <li key={item.key} className="flex items-center gap-2">
                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#3b5bff] text-[10px] font-bold text-white">
                       ✓
                     </span>
-                    <span>{item ?? ""}</span>
+                    <span>{item.label}</span>
                   </li>
                 ),
               )}
@@ -109,12 +104,12 @@ export function LandingFeaturedCase({ initialCase }: Props) {
           </div>
           <div className="flex flex-wrap gap-3 text-sm text-[#1b2653]">
             {(caseFeatures.length ? caseFeatures : FALLBACK_FEATURES).map(
-              (item: string | null | undefined) => (
+              (item) => (
                 <span
-                  key={item}
+                  key={item.key}
                   className="rounded-full bg-white/80 px-3 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
                 >
-                  {item ?? ""}
+                  {item.label}
                 </span>
               ),
             )}

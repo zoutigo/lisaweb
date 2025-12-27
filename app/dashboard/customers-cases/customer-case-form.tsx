@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   customerCaseSchema,
@@ -15,12 +15,21 @@ import { UploadImageInput } from "@/components/ui/upload-image-input";
 type FormProps = {
   mode: "create" | "edit";
   initialCase?: (CustomerCaseInput & { id: string }) | null;
+  availableResults?: { id: string; label: string; slug: string }[];
+  availableFeatures?: { id: string; label: string; slug: string }[];
 };
 
-export function CustomerCaseForm({ mode, initialCase }: FormProps) {
+export function CustomerCaseForm({
+  mode,
+  initialCase,
+  availableResults = [],
+  availableFeatures = [],
+}: FormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const resultInputRef = useRef<HTMLInputElement | null>(null);
+  const featureInputRef = useRef<HTMLInputElement | null>(null);
 
   const defaultValues = useMemo(
     () => ({
@@ -29,17 +38,9 @@ export function CustomerCaseForm({ mode, initialCase }: FormProps) {
       description: initialCase?.description ?? "",
       url: initialCase?.url ?? "",
       imageUrl: initialCase?.imageUrl ?? "",
-      result1: initialCase?.result1 ?? "",
-      result2: initialCase?.result2 ?? "",
-      result3: initialCase?.result3 ?? "",
-      result4: initialCase?.result4 ?? "",
-      result5: initialCase?.result5 ?? "",
-      feature1: initialCase?.feature1 ?? "",
-      feature2: initialCase?.feature2 ?? "",
-      feature3: initialCase?.feature3 ?? "",
-      feature4: initialCase?.feature4 ?? "",
-      feature5: initialCase?.feature5 ?? "",
-      isOnLandingPage: initialCase?.isOnLandingPage ?? false,
+      results: initialCase?.results ?? [],
+      features: initialCase?.features ?? [],
+      isFeatured: initialCase?.isFeatured ?? false,
     }),
     [initialCase],
   );
@@ -48,7 +49,8 @@ export function CustomerCaseForm({ mode, initialCase }: FormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
+    trigger,
     formState: { errors, isSubmitting, isValid },
     reset,
   } = useForm<CustomerCaseInput>({
@@ -56,6 +58,31 @@ export function CustomerCaseForm({ mode, initialCase }: FormProps) {
     defaultValues,
     mode: "onChange",
   });
+
+  useEffect(() => {
+    void trigger();
+  }, [trigger]);
+
+  const selectedResults = useWatch({ control, name: "results" }) ?? [];
+  const selectedFeatures = useWatch({ control, name: "features" }) ?? [];
+  const imageValue = useWatch({ control, name: "imageUrl" }) || undefined;
+
+  const addItem = (
+    type: "results" | "features",
+    label: string,
+    current: { label: string; slug?: string }[],
+  ) => {
+    const trimmed = label.trim();
+    if (!trimmed) return;
+    const slug = trimmed
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .slice(0, 80);
+    if (current.some((r) => r.label === trimmed || r.slug === slug)) return;
+    setValue(type, [...current, { label: trimmed, slug }], {
+      shouldDirty: true,
+    });
+  };
 
   const onSubmit = async (values: CustomerCaseInput) => {
     setError(null);
@@ -149,62 +176,192 @@ export function CustomerCaseForm({ mode, initialCase }: FormProps) {
           ) : null}
         </div>
         <input type="hidden" {...register("imageUrl")} />
-        {(() => {
-          // eslint-disable-next-line react-hooks/incompatible-library
-          const imageValue = watch("imageUrl") || undefined;
-          return (
-            <UploadImageInput
-              label="Image (optionnelle)"
-              value={imageValue}
-              onChange={(url) =>
-                setValue("imageUrl", url, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              onError={(msg) => (msg ? setError(msg) : setError(null))}
-              helperText="Upload ou remplacez le visuel (stocké dans /files)."
-            />
-          );
-        })()}
+        <UploadImageInput
+          label="Image (optionnelle)"
+          value={imageValue}
+          onChange={(url) =>
+            setValue("imageUrl", url, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+          onError={(msg) => (msg ? setError(msg) : setError(null))}
+          helperText="Upload ou remplacez le visuel (stocké dans /files)."
+        />
         {errors.imageUrl ? (
           <p className="text-xs text-red-600">{errors.imageUrl.message}</p>
         ) : null}
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[1, 2, 3, 4, 5].map((idx) => (
-            <div key={`result-${idx}`} className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-gray-800">
-                Résultat {idx} (optionnel)
-              </label>
-              <input
-                {...register(`result${idx}` as keyof CustomerCaseInput)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
-                placeholder="Ex: +30% de demandes"
-              />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-gray-800">
+              Résultats (multi-sélection)
+            </label>
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+              onChange={(e) => {
+                const slug = e.target.value;
+                const opt = availableResults.find((r) => r.slug === slug);
+                if (opt) addItem("results", opt.label, selectedResults);
+              }}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Sélectionner un résultat
+              </option>
+              {availableResults.map((r) => (
+                <option key={r.id} value={r.slug}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+            <div className="flex flex-wrap gap-2">
+              {selectedResults.map((r) => (
+                <span
+                  key={r.slug ?? r.label}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#f0f4ff] px-3 py-1 text-xs font-semibold text-[#1b2653]"
+                >
+                  {r.label}
+                  <button
+                    type="button"
+                    className="text-[#3b5bff]"
+                    onClick={() =>
+                      setValue(
+                        "results",
+                        selectedResults.filter(
+                          (it) => (it.slug ?? it.label) !== (r.slug ?? r.label),
+                        ),
+                        { shouldDirty: true },
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ajouter un nouveau résultat"
+                ref={resultInputRef}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addItem(
+                      "results",
+                      (e.target as HTMLInputElement).value,
+                      selectedResults,
+                    );
+                    (e.target as HTMLInputElement).value = "";
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                data-testid="add-result-btn"
+                onClick={() => {
+                  const input = resultInputRef.current;
+                  if (input) {
+                    addItem("results", input.value, selectedResults);
+                    input.value = "";
+                  }
+                }}
+              >
+                Ajouter
+              </Button>
+            </div>
+          </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[1, 2, 3, 4, 5].map((idx) => (
-            <div key={`feature-${idx}`} className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-gray-800">
-                Caractéristique {idx} (optionnel)
-              </label>
-              <input
-                {...register(`feature${idx}` as keyof CustomerCaseInput)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
-                placeholder="Ex: SEO local, Mobile first"
-              />
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-gray-800">
+              Caractéristiques (multi-sélection)
+            </label>
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+              onChange={(e) => {
+                const slug = e.target.value;
+                const opt = availableFeatures.find((f) => f.slug === slug);
+                if (opt) addItem("features", opt.label, selectedFeatures);
+              }}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Sélectionner une caractéristique
+              </option>
+              {availableFeatures.map((f) => (
+                <option key={f.id} value={f.slug}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+            <div className="flex flex-wrap gap-2">
+              {selectedFeatures.map((f) => (
+                <span
+                  key={f.slug ?? f.label}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#f0f4ff] px-3 py-1 text-xs font-semibold text-[#1b2653]"
+                >
+                  {f.label}
+                  <button
+                    type="button"
+                    className="text-[#3b5bff]"
+                    onClick={() =>
+                      setValue(
+                        "features",
+                        selectedFeatures.filter(
+                          (it) => (it.slug ?? it.label) !== (f.slug ?? f.label),
+                        ),
+                        { shouldDirty: true },
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
-          ))}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ajouter une caractéristique"
+                ref={featureInputRef}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addItem(
+                      "features",
+                      (e.target as HTMLInputElement).value,
+                      selectedFeatures,
+                    );
+                    (e.target as HTMLInputElement).value = "";
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                data-testid="add-feature-btn"
+                onClick={() => {
+                  const input = featureInputRef.current;
+                  if (input) {
+                    addItem("features", input.value, selectedFeatures);
+                    input.value = "";
+                  }
+                }}
+              >
+                Ajouter
+              </Button>
+            </div>
+          </div>
         </div>
 
         <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <input
             type="checkbox"
-            {...register("isOnLandingPage")}
+            {...register("isFeatured")}
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
           />
           Mettre en avant sur la landing (un seul cas client à la fois)

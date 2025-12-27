@@ -7,6 +7,10 @@ export async function GET() {
   try {
     const cases = await prisma.customerCase.findMany({
       orderBy: { createdAt: "desc" },
+      include: {
+        results: { orderBy: { order: "asc" } },
+        features: { orderBy: { order: "asc" } },
+      },
     });
     return NextResponse.json(cases);
   } catch (error) {

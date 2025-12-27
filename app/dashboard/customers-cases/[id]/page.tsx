@@ -27,23 +27,12 @@ export default async function CustomerCaseDetailPage({
 
   const customerCase = await prisma.customerCase.findUnique({
     where: { id },
+    include: { results: true, features: true },
   });
   if (!customerCase) redirect("/dashboard/customers-cases");
 
-  const results = [
-    customerCase.result1,
-    customerCase.result2,
-    customerCase.result3,
-    customerCase.result4,
-    customerCase.result5,
-  ].filter(Boolean);
-  const features = [
-    customerCase.feature1,
-    customerCase.feature2,
-    customerCase.feature3,
-    customerCase.feature4,
-    customerCase.feature5,
-  ].filter(Boolean);
+  const results = customerCase.results ?? [];
+  const features = customerCase.features ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
@@ -88,15 +77,12 @@ export default async function CustomerCaseDetailPage({
               Résultats
             </p>
             <ul className="space-y-1.5">
-              {results.map((val, idx) => (
-                <li
-                  key={`${customerCase.id}-res-${idx}`}
-                  className="flex gap-2"
-                >
+              {results.map((res) => (
+                <li key={res.id} className="flex gap-2">
                   <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#3b5bff] text-[9px] font-bold text-white">
                     ✓
                   </span>
-                  <span>{val}</span>
+                  <span>{res.label}</span>
                 </li>
               ))}
             </ul>
@@ -105,12 +91,12 @@ export default async function CustomerCaseDetailPage({
 
         {features.length ? (
           <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#1b2653]">
-            {features.map((val, idx) => (
+            {features.map((f) => (
               <span
-                key={`${customerCase.id}-feat-${idx}`}
+                key={f.id}
                 className="rounded-full bg-[#f0f4ff] px-3 py-1 shadow-[0_8px_18px_-16px_rgba(0,0,0,0.4)]"
               >
-                {val}
+                {f.label}
               </span>
             ))}
           </div>

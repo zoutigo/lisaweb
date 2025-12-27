@@ -18,16 +18,8 @@ type CustomerCasePayload = Prisma.CustomerCaseGetPayload<{
     description: true;
     url: true;
     imageUrl: true;
-    result1: true;
-    result2: true;
-    result3: true;
-    result4: true;
-    result5: true;
-    feature1: true;
-    feature2: true;
-    feature3: true;
-    feature4: true;
-    feature5: true;
+    results: true;
+    features: true;
     createdAt: true;
   };
 }>;
@@ -44,16 +36,8 @@ export default async function RealisationsPage() {
         description: true,
         url: true,
         imageUrl: true,
-        result1: true,
-        result2: true,
-        result3: true,
-        result4: true,
-        result5: true,
-        feature1: true,
-        feature2: true,
-        feature3: true,
-        feature4: true,
-        feature5: true,
+        results: true,
+        features: true,
         createdAt: true,
       },
     });
@@ -66,16 +50,8 @@ export default async function RealisationsPage() {
     customer: item.customer ?? undefined,
     url: item.url ?? undefined,
     imageUrl: item.imageUrl ?? undefined,
-    result1: item.result1 ?? undefined,
-    result2: item.result2 ?? undefined,
-    result3: item.result3 ?? undefined,
-    result4: item.result4 ?? undefined,
-    result5: item.result5 ?? undefined,
-    feature1: item.feature1 ?? undefined,
-    feature2: item.feature2 ?? undefined,
-    feature3: item.feature3 ?? undefined,
-    feature4: item.feature4 ?? undefined,
-    feature5: item.feature5 ?? undefined,
+    results: item.results ?? [],
+    features: item.features ?? [],
     createdAt:
       item.createdAt instanceof Date
         ? item.createdAt.toISOString()
