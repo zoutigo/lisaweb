@@ -16,6 +16,28 @@ describe("SiteFooter partners", () => {
     jest.resetAllMocks();
   });
 
+  it("affiche les liens de navigation attendus", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(null),
+    }) as unknown as typeof fetch;
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SiteFooter />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText(/Nos offres/i)).toHaveAttribute(
+      "href",
+      "/services-offers",
+    );
+    expect(screen.getByText(/Méthode/i)).toHaveAttribute("href", "/methode");
+  });
+
   it("affiche les logos partenaires avec leur lien", async () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },

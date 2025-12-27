@@ -12,7 +12,12 @@ export const metadata = {
 
 export default async function ServiceOffersLandingPage() {
   let offers: Prisma.ServiceOfferGetPayload<{
-    include: { features: true; steps: true; useCases: true };
+    include: {
+      features: true;
+      steps: true;
+      useCases: true;
+      offerOptions: true;
+    };
   }>[] = [];
   try {
     offers = await prisma.serviceOffer.findMany({
@@ -21,6 +26,7 @@ export default async function ServiceOffersLandingPage() {
         features: { orderBy: { order: "asc" } },
         steps: { orderBy: { order: "asc" } },
         useCases: true,
+        offerOptions: true,
       },
     });
   } catch (error) {
@@ -56,6 +62,12 @@ export default async function ServiceOffersLandingPage() {
       title: u.title,
       description: u.description,
     })),
+    offerOptions:
+      (offer.offerOptions ?? []).map((o) => ({
+        id: o.id,
+        title: o.title,
+        slug: o.slug,
+      })) ?? [],
   })) satisfies Parameters<typeof ServicesOffersClient>[0]["initialOffers"];
 
   return <ServicesOffersClient initialOffers={initialOffers} />;

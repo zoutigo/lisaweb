@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 
 type Feature = { label: string; icon?: string | null };
 type Step = { title: string; description: string };
+type Option = { id: string; title: string; slug: string };
 
 export type LandingServiceOffer = {
   title: string;
@@ -17,6 +18,7 @@ export type LandingServiceOffer = {
   ctaLink: string;
   features?: Feature[];
   steps?: Step[];
+  offerOptions?: Option[];
 };
 
 export function LandingFeaturedOffer({
@@ -28,6 +30,7 @@ export function LandingFeaturedOffer({
 
   const features = offer.features?.slice(0, 4) ?? [];
   const steps = offer.steps?.slice(0, 4) ?? [];
+  const options = offer.offerOptions ?? [];
 
   return (
     <div className="overflow-hidden rounded-[24px] bg-gradient-to-br from-[#f0f4ff] via-white to-[#e8edff] p-6 shadow-[0_18px_60px_-30px_rgba(27,38,83,0.45)] sm:p-10">
@@ -65,6 +68,27 @@ export function LandingFeaturedOffer({
               <p className="text-sm text-[#1b2653]">{offer.priceLabel}</p>
             </Card>
           </div>
+
+          {options.length ? (
+            <div className="rounded-2xl bg-[#eef2ff] p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-[#3b5bff]">
+                Options incluses
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {options.map((opt) => (
+                  <span
+                    key={opt.id}
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1b2653] shadow-sm"
+                  >
+                    🧩 {opt.title}
+                    <span className="text-[10px] text-[#6b7280]">
+                      ({opt.slug})
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap gap-2 text-sm text-[#1b2653]">
             <span className="rounded-full bg-white px-3 py-1 shadow-sm">

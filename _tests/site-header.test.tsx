@@ -67,7 +67,7 @@ describe("SiteHeader", () => {
       screen.getByRole("button", { name: /me contacter/i }),
     ).toBeInTheDocument();
 
-    const menuLinks = screen.getAllByRole("link", { name: /méthode/i });
+    const menuLinks = screen.getAllByRole("link", { name: /nos offres/i });
     await user.click(menuLinks[menuLinks.length - 1]);
     expect(
       screen.queryByRole("button", { name: /me contacter/i }),

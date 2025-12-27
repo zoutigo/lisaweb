@@ -253,6 +253,182 @@ const customerCases = [
   },
 ];
 
+const offerOptions = [
+  {
+    slug: "ecommerce",
+    title: "Boutique en ligne",
+    descriptionShort: "Vente de produits en ligne avec paiement sécurisé.",
+    descriptionLong:
+      "Vente de produits en ligne avec paiement sécurisé. Inclut : panier, paiement (Stripe), emails transactionnels. Notes : dépend du nombre de produits et livraisons.",
+    pricingType: "FROM",
+    priceFromCents: 90000,
+    order: 1,
+    constraintsJson:
+      '{"dependsOn":["transactional-emails"],"notes":"Prévoir coût Stripe + configuration des webhooks"}',
+  },
+  {
+    slug: "online-payment",
+    title: "Paiement en ligne",
+    descriptionShort:
+      "Paiement en ligne pour dons, inscriptions ou prestations.",
+    descriptionLong:
+      "Paiement en ligne pour dons, inscriptions ou prestations, sans boutique complète.",
+    pricingType: "FIXED",
+    priceCents: 25000,
+    order: 2,
+  },
+  {
+    slug: "advanced-form",
+    title: "Formulaire avancé / devis intelligent",
+    descriptionShort:
+      "Formulaire avec champs conditionnels, devis ou demandes ciblées.",
+    descriptionLong:
+      "Formulaire avec champs conditionnels, devis ou demandes ciblées, pour qualifier les leads.",
+    pricingType: "FIXED",
+    priceCents: 18000,
+    order: 3,
+  },
+  {
+    slug: "authentication",
+    title: "Espace membre / authentification",
+    descriptionShort: "Connexion sécurisée, rôles utilisateurs, accès privé.",
+    descriptionLong:
+      "Connexion sécurisée, gestion des rôles et accès privé pour des contenus ou espaces restreints.",
+    pricingType: "FROM",
+    priceFromCents: 60000,
+    order: 4,
+    constraintsJson:
+      '{"dependsOn":["transactional-emails"],"notes":"Prévoir Politique de mots de passe et RGPD"}',
+  },
+  {
+    slug: "oauth-google",
+    title: "Connexion Google / OAuth",
+    descriptionShort: "Connexion via Google (ou autre fournisseur).",
+    descriptionLong:
+      "Connexion via Google (ou autre fournisseur OAuth) pour simplifier l’inscription et l’accès.",
+    pricingType: "FIXED",
+    priceCents: 20000,
+    order: 5,
+    constraintsJson:
+      '{"dependsOn":["authentication"],"notes":"Nécessite clés OAuth et paramétrage des URLs de callback"}',
+  },
+  {
+    slug: "newsletter",
+    title: "Newsletter / email marketing",
+    descriptionShort:
+      "Inscription, gestion des abonnés, envoi de newsletters (hors coût fournisseur).",
+    descriptionLong:
+      "Inscription, gestion des abonnés et envoi de newsletters. Notes : hors coût du fournisseur (Mailjet, Brevo…).",
+    pricingType: "FROM",
+    priceFromCents: 25000,
+    order: 6,
+    constraintsJson:
+      '{"notes":"Hors coût fournisseur (Mailjet, Brevo…). Configuré et relié au site."}',
+  },
+  {
+    slug: "transactional-emails",
+    title: "Emails transactionnels",
+    descriptionShort: "Emails automatiques fiables et configurés (SPF, DKIM).",
+    descriptionLong:
+      "Emails automatiques fiables et configurés (SPF, DKIM) pour contact, commande ou inscription.",
+    pricingType: "FIXED",
+    priceCents: 18000,
+    order: 7,
+  },
+  {
+    slug: "booking",
+    title: "Réservation / prise de rendez-vous",
+    descriptionShort:
+      "Prise de rendez-vous en ligne (Calendly ou système intégré).",
+    descriptionLong:
+      "Prise de rendez-vous en ligne (Calendly ou système intégré), notifications et suivi.",
+    pricingType: "FROM",
+    priceFromCents: 30000,
+    order: 8,
+  },
+  {
+    slug: "seo-local-advanced",
+    title: "SEO local avancé",
+    descriptionShort:
+      "Optimisation SEO locale (villes, Google Business Profile).",
+    descriptionLong:
+      "Optimisation SEO locale : ciblage des villes, Google Business Profile, contenu localisé.",
+    pricingType: "FIXED",
+    priceCents: 35000,
+    order: 9,
+  },
+  {
+    slug: "extra-pages",
+    title: "Pages supplémentaires",
+    descriptionShort:
+      "Création de pages supplémentaires (contenu + intégration).",
+    descriptionLong:
+      "Création de pages supplémentaires (contenu + intégration) pour étendre le site.",
+    pricingType: "PER_UNIT",
+    unitLabel: "page",
+    unitPriceCents: 9000,
+    order: 10,
+  },
+  {
+    slug: "multilingual",
+    title: "Multilingue",
+    descriptionShort: "Site disponible en plusieurs langues.",
+    descriptionLong:
+      "Site disponible en plusieurs langues avec sélecteur et gestion des contenus localisés.",
+    pricingType: "PER_UNIT",
+    unitLabel: "langue",
+    unitPriceCents: 25000,
+    order: 11,
+  },
+  {
+    slug: "blog",
+    title: "Blog / actualités",
+    descriptionShort:
+      "Blog avec gestion des articles et catégories pour publier facilement.",
+    descriptionLong:
+      "Blog avec gestion des articles et catégories pour publier facilement et travailler le SEO.",
+    pricingType: "FIXED",
+    priceCents: 30000,
+    order: 12,
+  },
+  {
+    slug: "maintenance",
+    title: "Maintenance & mises à jour",
+    descriptionShort: "Sécurité, mises à jour, assistance légère (mensuel).",
+    descriptionLong:
+      "Sécurité, mises à jour, assistance légère. Forfait mensuel pour garder le site en forme.",
+    pricingType: "PER_UNIT",
+    unitLabel: "mois",
+    unitPriceCents: 3900,
+    order: 13,
+    constraintsJson:
+      '{"dependsOn":["hosting-monitoring"],"notes":"Contrat mensuel reconductible"}',
+  },
+  {
+    slug: "hosting-monitoring",
+    title: "Hébergement & monitoring",
+    descriptionShort:
+      "Hébergement optimisé, surveillance et sauvegardes (mensuel).",
+    descriptionLong:
+      "Hébergement optimisé, surveillance et sauvegardes, avec suivi des performances.",
+    pricingType: "PER_UNIT",
+    unitLabel: "mois",
+    unitPriceCents: 2500,
+    order: 14,
+  },
+  {
+    slug: "backups",
+    title: "Sauvegardes & restauration",
+    descriptionShort:
+      "Sauvegardes automatiques et restauration en cas de problème.",
+    descriptionLong:
+      "Sauvegardes automatiques et restauration en cas de problème, pour limiter les risques.",
+    pricingType: "FIXED",
+    priceCents: 12000,
+    order: 15,
+  },
+];
+
 async function main() {
   const existing = await prisma.serviceOffer.count();
   if (existing > 0) {
@@ -271,6 +447,57 @@ async function main() {
     }
 
     console.log("Service offers seeded.");
+  }
+
+  const offerOptionsCount = await prisma.offerOption.count();
+  for (const opt of offerOptions) {
+    await prisma.offerOption.upsert({
+      where: { slug: opt.slug },
+      update: { ...opt },
+      create: opt,
+    });
+  }
+  console.log(
+    offerOptionsCount === 0
+      ? "Offer options seeded."
+      : "Offer options upserted (prices refreshed).",
+  );
+
+  // Lier quelques options aux offres pour la landing
+  const links = [
+    {
+      offerSlug: "site-vitrine-cle-en-main",
+      optionSlugs: ["ecommerce", "online-payment", "advanced-form"],
+    },
+    {
+      offerSlug: "refonte-site-existant",
+      optionSlugs: ["seo-local-advanced", "transactional-emails", "blog"],
+    },
+    {
+      offerSlug: "accompagnement-evolution-continue",
+      optionSlugs: ["maintenance", "hosting-monitoring", "backups"],
+    },
+  ];
+
+  for (const link of links) {
+    const offer = await prisma.serviceOffer.findUnique({
+      where: { slug: link.offerSlug },
+    });
+    if (!offer) continue;
+    const optionIds = await prisma.offerOption.findMany({
+      where: { slug: { in: link.optionSlugs } },
+      select: { id: true },
+    });
+    if (optionIds.length === 0) continue;
+    await prisma.serviceOffer.update({
+      where: { id: offer.id },
+      data: {
+        offerOptions: {
+          set: [],
+          connect: optionIds.map((o) => ({ id: o.id })),
+        },
+      },
+    });
   }
 
   const faqCount = await prisma.faq.count();

@@ -1,2 +1,0 @@
--- placeholder for previously applied receipe migration
--- no-op: table already exists, checksum reset to avoid drift

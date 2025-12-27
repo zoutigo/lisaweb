@@ -62,6 +62,16 @@ export async function PUT(
       },
     });
 
+    await tx.serviceOffer.update({
+      where: { id },
+      data: {
+        offerOptions: {
+          set: [],
+          connect: (data.offerOptionIds ?? []).map((oid) => ({ id: oid })),
+        },
+      },
+    });
+
     await tx.serviceOfferFeature.deleteMany({ where: { offerId: id } });
     await tx.serviceOfferStep.deleteMany({ where: { offerId: id } });
     await tx.serviceOfferUseCase.deleteMany({ where: { offerId: id } });
@@ -98,7 +108,12 @@ export async function PUT(
 
     const fresh = await tx.serviceOffer.findUnique({
       where: { id: offer.id },
-      include: { features: true, steps: true, useCases: true },
+      include: {
+        features: true,
+        steps: true,
+        useCases: true,
+        offerOptions: true,
+      },
     });
     return fresh
       ? {
@@ -113,6 +128,7 @@ export async function PUT(
             order: s.order ?? 0,
           })),
           useCases: fresh.useCases,
+          offerOptions: fresh.offerOptions,
         }
       : null;
   });

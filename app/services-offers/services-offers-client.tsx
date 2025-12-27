@@ -24,6 +24,7 @@ type Offer = {
   features: { id: string; label: string; icon?: string | null }[];
   steps: { id: string; title: string; description: string; order?: number }[];
   useCases?: unknown[];
+  offerOptions: { id: string; title: string; slug: string }[];
 };
 
 async function fetchOffers(): Promise<Offer[]> {
@@ -39,8 +40,21 @@ export default function ServicesOffersClient({
 }) {
   const { data } = useQuery({
     queryKey: ["service-offers"],
-    queryFn: fetchOffers,
-    initialData: useMemo(() => initialOffers, [initialOffers]),
+    queryFn: async () => {
+      const json = await fetchOffers();
+      return json.map((o) => ({
+        ...o,
+        offerOptions: o.offerOptions ?? [],
+      }));
+    },
+    initialData: useMemo(
+      () =>
+        initialOffers.map((o) => ({
+          ...o,
+          offerOptions: o.offerOptions ?? [],
+        })),
+      [initialOffers],
+    ),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
@@ -131,6 +145,27 @@ export default function ServicesOffersClient({
                     {offer.engagementLabel}
                   </span>
                 </div>
+
+                {offer.offerOptions.length ? (
+                  <div className="grid gap-2 rounded-2xl bg-[#f0fdf4] p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[#15803d]">
+                      Options incluses
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {offer.offerOptions.map((opt) => (
+                        <span
+                          key={opt.id}
+                          className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#166534] shadow-sm"
+                        >
+                          🧩 {opt.title}
+                          <span className="text-[10px] text-[#4b5563]">
+                            ({opt.slug})
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 {offer.features.length ? (
                   <div className="grid gap-2 rounded-2xl bg-[#f9fafb] p-4">

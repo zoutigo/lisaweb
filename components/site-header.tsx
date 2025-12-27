@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 const links = [
-  { label: "Secteurs", href: "#sectors" },
+  { label: "Nos offres", href: "/services-offers" },
   { label: "Méthode", href: "/methode" },
   { label: "Réalisations", href: "/realisations" },
   { label: "Valeurs", href: "#values" },

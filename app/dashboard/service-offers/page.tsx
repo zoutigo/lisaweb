@@ -16,37 +16,15 @@ export default async function ServiceOffersPage() {
 
   const offers = await prisma.serviceOffer.findMany({
     orderBy: { order: "asc" },
-    include: { features: true, steps: true, useCases: true },
+    include: { features: { select: { id: true } } },
   });
 
   const initialOffers = offers.map((offer) => ({
-    ...offer,
-    subtitle: offer.subtitle ?? undefined,
-    createdAt:
-      offer.createdAt instanceof Date
-        ? offer.createdAt.toISOString()
-        : String(offer.createdAt),
-    updatedAt:
-      offer.updatedAt instanceof Date
-        ? offer.updatedAt.toISOString()
-        : String(offer.updatedAt),
-    features: (offer.features ?? []).map((f) => ({
-      id: f.id,
-      label: f.label,
-      icon: f.icon ?? undefined,
-      order: f.order ?? undefined,
-    })),
-    steps: (offer.steps ?? []).map((s) => ({
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      order: s.order ?? undefined,
-    })),
-    useCases: (offer.useCases ?? []).map((u) => ({
-      id: u.id,
-      title: u.title,
-      description: u.description,
-    })),
+    id: offer.id,
+    slug: offer.slug,
+    shortDescription: offer.shortDescription,
+    title: offer.title,
+    featuresCount: offer.features?.length ?? 0,
   })) satisfies Parameters<typeof ServiceOffersClient>[0]["initialOffers"];
 
   return <ServiceOffersClient initialOffers={initialOffers} />;

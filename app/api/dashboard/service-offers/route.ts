@@ -66,6 +66,16 @@ export async function POST(req: Request) {
         ctaLink: data.ctaLink,
       },
     });
+    if (data.offerOptionIds?.length) {
+      await tx.serviceOffer.update({
+        where: { id: offer.id },
+        data: {
+          offerOptions: {
+            connect: data.offerOptionIds.map((id) => ({ id })),
+          },
+        },
+      });
+    }
     if (data.features?.length) {
       await tx.serviceOfferFeature.createMany({
         data: data.features.map((f, idx) => ({
@@ -97,7 +107,12 @@ export async function POST(req: Request) {
     }
     const fresh = await tx.serviceOffer.findUnique({
       where: { id: offer.id },
-      include: { features: true, steps: true, useCases: true },
+      include: {
+        features: true,
+        steps: true,
+        useCases: true,
+        offerOptions: true,
+      },
     });
     return fresh
       ? {
@@ -112,6 +127,7 @@ export async function POST(req: Request) {
             order: s.order ?? 0,
           })),
           useCases: fresh.useCases,
+          offerOptions: fresh.offerOptions,
         }
       : null;
   });

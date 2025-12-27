@@ -11,6 +11,7 @@ export async function GET() {
         features: { orderBy: { order: "asc" } },
         steps: { orderBy: { order: "asc" } },
         useCases: true,
+        offerOptions: true,
       },
     });
     return NextResponse.json(offers);

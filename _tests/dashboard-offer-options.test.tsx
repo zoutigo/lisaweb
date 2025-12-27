@@ -1,17 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import ServiceOffersPage from "@/app/dashboard/service-offers/page";
+import OfferOptionsPage from "@/app/dashboard/offer-options/page";
 import { prisma } from "@/lib/prisma";
 
 const redirectMock = jest.fn();
-const pushMock = jest.fn();
-const refreshMock = jest.fn();
 
 jest.mock("next/navigation", () => ({
   __esModule: true,
   redirect: (...args: unknown[]) => redirectMock(...args),
   useRouter: () => ({
-    push: pushMock,
-    refresh: refreshMock,
+    push: jest.fn(),
+    refresh: jest.fn(),
   }),
 }));
 
@@ -26,11 +24,11 @@ jest.mock("next-auth", () => ({
 }));
 
 jest.mock("@/lib/prisma", () => {
-  const serviceOffer = { findMany: jest.fn() };
-  return { __esModule: true, prisma: { serviceOffer } };
+  const offerOption = { findMany: jest.fn() };
+  return { __esModule: true, prisma: { offerOption } };
 });
 
-describe("Dashboard service offers page", () => {
+describe("Dashboard offer options page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     getServerSessionMock.mockResolvedValue({
@@ -38,29 +36,32 @@ describe("Dashboard service offers page", () => {
     });
   });
 
-  it("affiche les offres et les actions", async () => {
-    (prisma.serviceOffer.findMany as jest.Mock).mockResolvedValue([
+  it("affiche les options et les actions", async () => {
+    (prisma.offerOption.findMany as jest.Mock).mockResolvedValue([
       {
-        id: "id1",
-        slug: "site-vitrine",
-        title: "Site vitrine clé en main",
-        shortDescription: "Desc courte",
-        features: [{ id: "f1" }],
+        id: "opt1",
+        slug: "boutique",
+        title: "Boutique",
+        descriptionShort: "Desc courte",
+        pricingType: "FIXED",
+        priceCents: 10000,
+        priceFromCents: null,
+        unitLabel: null,
+        unitPriceCents: null,
         order: 1,
       },
     ]);
 
-    const ui = await ServiceOffersPage();
+    const ui = await OfferOptionsPage();
     render(ui);
 
     expect(
-      screen.getByRole("heading", { name: /services/i }),
+      screen.getByRole("heading", { name: /modules et options/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/site-vitrine/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/boutique/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/desc courte/i)).toBeInTheDocument();
-    expect(screen.getByText(/1 éléments/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Nouvelle offre/i }),
+      screen.getByRole("button", { name: /nouvelle option/i }),
     ).toBeInTheDocument();
   });
 });

@@ -160,6 +160,7 @@ model ServiceOffer {
   features         ServiceOfferFeature[]
   steps            ServiceOfferStep[]
   useCases         ServiceOfferUseCase[]
+  offerOptions     OfferOption[]
 }
 
 model ServiceOfferFeature {
@@ -186,4 +187,30 @@ model ServiceOfferUseCase {
   title       String
   description String        @db.Text
   offer       ServiceOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+}
+
+model OfferOption {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  title            String
+  descriptionShort String   @db.Text
+  descriptionLong  String   @db.Text
+  pricingType      PricingType
+  priceCents       Int?
+  priceFromCents   Int?
+  unitLabel        String?
+  unitPriceCents   Int?
+  isPopular        Boolean  @default(false)
+  order            Int      @default(0)
+  constraintsJson  String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  serviceOffers    ServiceOffer[]
+}
+
+enum PricingType {
+  FIXED
+  FROM
+  PER_UNIT
+  QUOTE_ONLY
 }

@@ -80,6 +80,7 @@ export default async function Home() {
       include: {
         features: { orderBy: { order: "asc" } },
         steps: { orderBy: { order: "asc" } },
+        offerOptions: true,
       },
     });
     if (offer) {
@@ -95,6 +96,12 @@ export default async function Home() {
         ctaLink: offer.ctaLink,
         features: offer.features,
         steps: offer.steps,
+        offerOptions:
+          offer.offerOptions?.map((o) => ({
+            id: o.id,
+            title: o.title,
+            slug: o.slug,
+          })) ?? [],
       };
     }
   }
@@ -116,7 +123,7 @@ export default async function Home() {
                 <p className="text-lg text-white/90">
                   J’accompagne les écoles, associations, artisans et TPE de
                   Pont-de-Chéruy, Tignieu et Crémieu dans la création de sites
-                  web clairs, efficaces et simples à gérer.
+                  web modernes, clairs, efficaces et simples à gérer.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
@@ -125,12 +132,12 @@ export default async function Home() {
                   >
                     Prendre un rendez-vous
                   </Link>
-                  <Link href="/contact">
+                  <Link href="/realisations" className="cursor-pointer">
                     <Button
                       variant="ghost"
                       className="border border-white/40 bg-white/10 text-white"
                     >
-                      Me contacter
+                      Mes realisations
                     </Button>
                   </Link>
                 </div>
