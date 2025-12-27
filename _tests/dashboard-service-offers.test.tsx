@@ -1,13 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import ServiceOffersPage from "@/app/dashboard/service-offers/page";
 import { prisma } from "@/lib/prisma";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const redirectMock = jest.fn();
+const pushMock = jest.fn();
+const refreshMock = jest.fn();
 
 jest.mock("next/navigation", () => ({
   __esModule: true,
   redirect: (...args: unknown[]) => redirectMock(...args),
+  useRouter: () => ({
+    push: pushMock,
+    refresh: refreshMock,
+  }),
 }));
 
 const getServerSessionMock = jest.fn();
@@ -39,35 +44,21 @@ describe("Dashboard service offers page", () => {
         id: "id1",
         slug: "site-vitrine",
         title: "Site vitrine clé en main",
-        subtitle: "",
         shortDescription: "Desc courte",
-        longDescription: "Une longue description",
-        targetAudience: "TPE",
-        priceLabel: "Sur devis",
-        durationLabel: "2 semaines",
-        engagementLabel: "Forfait",
-        isFeatured: true,
+        features: [{ id: "f1" }],
         order: 1,
-        ctaLabel: "CTA",
-        ctaLink: "/contact",
-        features: [],
-        steps: [],
-        useCases: [],
       },
     ]);
 
     const ui = await ServiceOffersPage();
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    render(
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-    );
+    render(ui);
 
     expect(
       screen.getByRole("heading", { name: /services/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/site vitrine clé en main/i)).toBeInTheDocument();
+    expect(screen.getByText(/site-vitrine/i)).toBeInTheDocument();
+    expect(screen.getByText(/desc courte/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 éléments/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Nouvelle offre/i }),
     ).toBeInTheDocument();
