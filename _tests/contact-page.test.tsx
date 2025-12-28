@@ -46,7 +46,8 @@ describe("Page /contact", () => {
     render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
 
     expect(screen.getByText(/contact@lisaweb.fr/i)).toBeInTheDocument();
-    expect(screen.getByText(/0650597839/i)).toBeInTheDocument();
+    const phoneLink = screen.getByRole("link", { name: /0650597839/i });
+    expect(phoneLink).toHaveAttribute("href", "tel:0650597839");
     await waitFor(() =>
       expect(
         screen.getByTitle(/localisation/i) as HTMLIFrameElement,

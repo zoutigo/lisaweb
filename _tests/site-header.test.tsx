@@ -29,7 +29,7 @@ describe("SiteHeader", () => {
     useSessionMock.mockReturnValue({ data: null });
   });
 
-  it("affiche le logo et le bouton de prise de rendez-vous", () => {
+  it("affiche le logo et le menu", () => {
     render(<SiteHeader />);
 
     expect(screen.getByAltText(/plisa/i)).toBeInTheDocument();
@@ -49,13 +49,15 @@ describe("SiteHeader", () => {
     expect(pushMock).toHaveBeenCalledWith("/");
   });
 
-  it("redirige vers /contact quand on clique sur le bouton", async () => {
+  it("affiche les liens principaux dans le menu", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
-    await user.click(screen.getByRole("button", { name: /me contacter/i }));
-    expect(pushMock).toHaveBeenCalledWith("/contact");
+    const contactLink = screen.getAllByRole("link", { name: /contact/i })[0];
+    const faqLink = screen.getAllByRole("link", { name: /faq/i })[0];
+    expect(contactLink).toHaveAttribute("href", "/contact");
+    expect(faqLink).toHaveAttribute("href", "/faq");
   });
 
   it("ferme le menu quand on clique sur un lien du menu", async () => {
@@ -64,13 +66,13 @@ describe("SiteHeader", () => {
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
     expect(
-      screen.getByRole("button", { name: /me contacter/i }),
+      screen.getAllByRole("link", { name: /nos offres/i })[0],
     ).toBeInTheDocument();
 
     const menuLinks = screen.getAllByRole("link", { name: /nos offres/i });
     await user.click(menuLinks[menuLinks.length - 1]);
     expect(
-      screen.queryByRole("button", { name: /me contacter/i }),
+      screen.queryByRole("button", { name: /fermer le menu/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -80,12 +82,12 @@ describe("SiteHeader", () => {
 
     await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
     expect(
-      screen.getByRole("button", { name: /me contacter/i }),
+      screen.getAllByRole("link", { name: /nos offres/i })[0],
     ).toBeInTheDocument();
 
     await user.click(document.body);
     expect(
-      screen.queryByRole("button", { name: /me contacter/i }),
+      screen.queryByRole("button", { name: /fermer le menu/i }),
     ).not.toBeInTheDocument();
   });
 

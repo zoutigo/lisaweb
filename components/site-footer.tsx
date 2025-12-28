@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Section } from "@/components/section";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ const navLinks = [
   { label: "Méthode", href: "/methode" },
   { label: "FAQ", href: "/faq" },
   { label: "Réalisations", href: "/realisations" },
+  { label: "Demande de devis", href: "/demande-devis" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -50,10 +52,12 @@ export function SiteFooter() {
 
   return (
     <Section as="footer" className="pb-16 pt-0">
-      <div className="grid gap-10 rounded-[24px] bg-white/90 p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.3)] sm:grid-cols-[1.1fr_0.9fr] lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-10 rounded-[24px] bg-[#f0f4ff] p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.25)] sm:grid-cols-[1.1fr_0.9fr] lg:grid-cols-[1.2fr_0.8fr]">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Logo size={80} />
+            <Link href="/" className="cursor-pointer">
+              <Logo size={80} />
+            </Link>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b2653]">
                 LISAWEB

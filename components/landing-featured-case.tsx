@@ -79,12 +79,15 @@ export function LandingFeaturedCase({ initialCase }: Props) {
   return (
     <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#e5e9ff] to-[#e8d9ff] p-8 shadow-[0_18px_50px_-24px_rgba(59,91,255,0.35)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.18),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(232,217,255,0.22),transparent_30%)]" />
-      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-        <div className="flex-1 space-y-4">
+      <div className="relative grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="space-y-3 lg:col-span-2">
           <Badge className="bg-white text-[#1b2653]">Cas client</Badge>
           <h3 className="text-3xl font-semibold text-[#1b2653]">{caseTitle}</h3>
           <p className="text-base text-[#374151]">{caseCustomer}</p>
           <p className="text-base text-[#374151]">{caseDescription}</p>
+        </div>
+
+        <div className="space-y-4">
           <div className="space-y-2 rounded-2xl bg-white/60 p-4 text-sm text-[#1b2653] shadow-[0_10px_28px_-22px_rgba(27,38,83,0.45)]">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#3b5bff]">
               Résultat
@@ -126,7 +129,8 @@ export function LandingFeaturedCase({ initialCase }: Props) {
             </Button>
           )}
         </div>
-        <div className="flex-1">
+
+        <div className="flex items-center">
           <div className="relative overflow-hidden rounded-[18px] border border-white/50 bg-white/80 shadow-[0_10px_28px_-20px_rgba(27,38,83,0.35)]">
             <Image
               src={caseImage}

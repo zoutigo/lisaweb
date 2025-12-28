@@ -114,7 +114,19 @@ export default function ContactClient({
               Coordonnées
             </p>
             <p>Email : {siteInfo?.email || "contact@lisaweb.fr"}</p>
-            <p>Tél : {siteInfo?.phone || "Non renseigné"}</p>
+            <p>
+              Tél :{" "}
+              {siteInfo?.phone ? (
+                <a
+                  href={`tel:${siteInfo.phone}`}
+                  className="text-[#3b5bff] underline-offset-2 hover:underline"
+                >
+                  {siteInfo.phone}
+                </a>
+              ) : (
+                "Non renseigné"
+              )}
+            </p>
             <p>
               Adresse :{" "}
               {formatAddress(siteInfo ?? undefined) || "Non renseignée"}

@@ -12,7 +12,7 @@ const baseOffer = {
   durationLabel: "2 à 4 semaines",
   engagementLabel: "Forfait",
   ctaLabel: "Demander",
-  ctaLink: "/contact",
+  ctaLink: "/demande-devis",
   features: [{ label: "Feature 1", icon: "✅" }],
   steps: [{ title: "Analyse", description: "Comprendre" }],
 };

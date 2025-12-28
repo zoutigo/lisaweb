@@ -10,8 +10,9 @@ const links = [
   { label: "Nos offres", href: "/services-offers" },
   { label: "Méthode", href: "/methode" },
   { label: "Réalisations", href: "/realisations" },
-
+  { label: "Demande de devis", href: "/demande-devis" },
   { label: "Contact", href: "/contact" },
+  { label: "FAQ", href: "/faq" },
 ];
 
 export function SiteHeader() {
@@ -108,15 +109,6 @@ export function SiteHeader() {
                   {link.label}
                 </a>
               ))}
-              <Button
-                className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
-                onClick={() => {
-                  router.push("/contact");
-                  setOpen(false);
-                }}
-              >
-                Me contacter
-              </Button>
               <Button
                 className="h-9 w-full justify-center px-4 py-0 text-xs cursor-pointer"
                 onClick={() => {

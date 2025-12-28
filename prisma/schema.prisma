@@ -22,23 +22,31 @@ model Rendezvous {
   userId       String?
   status       RendezvousStatus @default(PENDING)
   pendingToken String?          @unique
+  QuoteRequest QuoteRequest[]
+}
+
+enum QuoteStatus {
+  NEW
+  SENT
+  REVIEWED
 }
 
 // NextAuth-compatible models (Prisma adapter). IDs are strings (cuid()) to match NextAuth defaults.
 model User {
-  id            String       @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
   firstName     String?
   lastName      String?
-  email         String?      @unique
-  phone         String?      @db.VarChar(32)
+  email         String?        @unique
+  phone         String?        @db.VarChar(32)
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   rendezvous    Rendezvous[]
-  isAdmin       Boolean      @default(false)
-  createdAt     DateTime     @default(now())
+  isAdmin       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  QuoteRequest  QuoteRequest[]
 }
 
 model Partner {
@@ -153,6 +161,7 @@ model ServiceOffer {
   steps            ServiceOfferStep[]
   useCases         ServiceOfferUseCase[]
   offerOptions     OfferOption[]
+  QuoteRequest     QuoteRequest[]
 }
 
 model ServiceOfferFeature {
@@ -198,6 +207,7 @@ model OfferOption {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   serviceOffers    ServiceOffer[]
+  quotes           QuoteRequest[]
 }
 
 model CustomerCaseResult {
@@ -218,6 +228,26 @@ model CustomerCaseFeature {
   cases     CustomerCase[] @relation("CustomerCaseToFeatures")
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+}
+
+model QuoteRequest {
+  id                  String        @id @default(uuid())
+  user                User?         @relation(fields: [userId], references: [id])
+  userId              String?
+  firstName           String?
+  lastName            String?
+  email               String
+  phone               String?
+  projectDescription  String        @db.Text
+  desiredDeliveryDate DateTime?
+  serviceOffer        ServiceOffer? @relation(fields: [serviceOfferId], references: [id])
+  serviceOfferId      String?
+  offerOptions        OfferOption[]
+  rendezvous          Rendezvous?   @relation(fields: [rendezvousId], references: [id])
+  rendezvousId        String?
+  status              QuoteStatus   @default(NEW)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 enum PricingType {

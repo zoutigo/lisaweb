@@ -545,6 +545,36 @@ async function main() {
     console.log("FAQ seeded.");
   }
 
+  // Seed sample quote request if none exists
+  const quoteCount = await prisma.quoteRequest.count();
+  if (quoteCount === 0) {
+    const firstOffer = await prisma.serviceOffer.findFirst({
+      orderBy: { order: "asc" },
+      select: { id: true },
+    });
+    const someOptions = await prisma.offerOption.findMany({
+      orderBy: { order: "asc" },
+      take: 2,
+      select: { id: true },
+    });
+    await prisma.quoteRequest.create({
+      data: {
+        firstName: "Alice",
+        lastName: "Martin",
+        email: "alice@example.com",
+        phone: "+33600000000",
+        projectDescription:
+          "Site vitrine pour présenter mon activité locale, design moderne et options de paiement simple.",
+        serviceOfferId: firstOffer?.id,
+        offerOptions: {
+          connect: someOptions.map((o) => ({ id: o.id })),
+        },
+        status: "NEW",
+      },
+    });
+    console.log("Quote request seeded.");
+  }
+
   // Upsert reference results and features
   for (const r of caseResults) {
     await prisma.customerCaseResult.upsert({

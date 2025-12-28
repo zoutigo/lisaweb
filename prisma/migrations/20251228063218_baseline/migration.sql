@@ -235,6 +235,25 @@ CREATE TABLE `CustomerCaseFeature` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `QuoteRequest` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NULL,
+    `firstName` VARCHAR(191) NULL,
+    `lastName` VARCHAR(191) NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(191) NULL,
+    `projectDescription` TEXT NOT NULL,
+    `desiredDeliveryDate` DATETIME(3) NULL,
+    `serviceOfferId` VARCHAR(191) NULL,
+    `rendezvousId` VARCHAR(191) NULL,
+    `status` ENUM('NEW', 'SENT', 'REVIEWED') NOT NULL DEFAULT 'NEW',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `_CustomerCaseToResults` (
     `A` VARCHAR(191) NOT NULL,
     `B` VARCHAR(191) NOT NULL,
@@ -261,6 +280,15 @@ CREATE TABLE `_OfferOptionToServiceOffer` (
     INDEX `_OfferOptionToServiceOffer_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `_OfferOptionToQuoteRequest` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_OfferOptionToQuoteRequest_AB_unique`(`A`, `B`),
+    INDEX `_OfferOptionToQuoteRequest_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Rendezvous` ADD CONSTRAINT `Rendezvous_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -283,6 +311,15 @@ ALTER TABLE `ServiceOfferStep` ADD CONSTRAINT `ServiceOfferStep_offerId_fkey` FO
 ALTER TABLE `ServiceOfferUseCase` ADD CONSTRAINT `ServiceOfferUseCase_offerId_fkey` FOREIGN KEY (`offerId`) REFERENCES `ServiceOffer`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `QuoteRequest` ADD CONSTRAINT `QuoteRequest_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `QuoteRequest` ADD CONSTRAINT `QuoteRequest_serviceOfferId_fkey` FOREIGN KEY (`serviceOfferId`) REFERENCES `ServiceOffer`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `QuoteRequest` ADD CONSTRAINT `QuoteRequest_rendezvousId_fkey` FOREIGN KEY (`rendezvousId`) REFERENCES `Rendezvous`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `_CustomerCaseToResults` ADD CONSTRAINT `_CustomerCaseToResults_A_fkey` FOREIGN KEY (`A`) REFERENCES `CustomerCase`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -299,3 +336,9 @@ ALTER TABLE `_OfferOptionToServiceOffer` ADD CONSTRAINT `_OfferOptionToServiceOf
 
 -- AddForeignKey
 ALTER TABLE `_OfferOptionToServiceOffer` ADD CONSTRAINT `_OfferOptionToServiceOffer_B_fkey` FOREIGN KEY (`B`) REFERENCES `ServiceOffer`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_OfferOptionToQuoteRequest` ADD CONSTRAINT `_OfferOptionToQuoteRequest_A_fkey` FOREIGN KEY (`A`) REFERENCES `OfferOption`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_OfferOptionToQuoteRequest` ADD CONSTRAINT `_OfferOptionToQuoteRequest_B_fkey` FOREIGN KEY (`B`) REFERENCES `QuoteRequest`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

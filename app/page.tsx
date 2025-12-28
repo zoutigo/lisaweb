@@ -136,7 +136,7 @@ export default async function Home() {
           durationLabel: offer.durationLabel,
           engagementLabel: offer.engagementLabel,
           ctaLabel: offer.ctaLabel,
-          ctaLink: offer.ctaLink,
+          ctaLink: "/demande-devis",
           features: offer.features,
           steps: offer.steps,
           offerOptions:
@@ -243,9 +243,11 @@ export default async function Home() {
             ))}
           </div>
           <div className="mt-6">
-            <Button variant="ghost" className="px-0 text-[#1b2653]">
-              Voir les pages dédiées →
-            </Button>
+            <Link href="/contact">
+              <Button className="bg-[#3b5bff] text-white hover:bg-[#304bdb]">
+                Me contacter →
+              </Button>
+            </Link>
           </div>
         </Section>
 
@@ -347,12 +349,14 @@ export default async function Home() {
                 Je vous accompagne de A à Z. Réponse garantie sous 24h.
               </p>
               <div className="flex flex-wrap items-center gap-4">
-                <Button
-                  variant="secondary"
-                  className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]"
-                >
-                  Demander un devis gratuit
-                </Button>
+                <Link href="/demande-devis">
+                  <Button
+                    variant="secondary"
+                    className="bg-white text-[#1b2653] hover:bg-[#f2f4ff]"
+                  >
+                    Demander un devis gratuit
+                  </Button>
+                </Link>
               </div>
               <div className="flex flex-wrap gap-4 text-sm text-white/80">
                 <span className="rounded-full border border-white/30 px-3 py-1">
