@@ -22,8 +22,13 @@ export async function seedQuoteRequests() {
       projectDescription:
         "Site vitrine pour présenter mon activité locale, besoin d'un design moderne et d'options de paiement simple.",
       serviceOfferId: firstOffer?.id,
-      offerOptions: {
-        connect: optIds,
+      quoteOptions: {
+        createMany: {
+          data: optIds.map((opt) => ({
+            offerOptionId: opt.id,
+            quantity: 1,
+          })),
+        },
       },
       status: "NEW",
     },

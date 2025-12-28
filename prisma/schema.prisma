@@ -1,7 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  // Explicit output to ensure the client is generated in the expected location
-  output        = "../node_modules/.prisma/client"
   // Ship engines for local dev and o2switch (OpenSSL 1.0.x) + newer Debian (3.0.x)
   binaryTargets = ["native", "debian-openssl-1.0.x", "debian-openssl-3.0.x"]
 }
@@ -207,7 +205,7 @@ model OfferOption {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   serviceOffers    ServiceOffer[]
-  quotes           QuoteRequest[]
+  quoteOptions     QuoteRequestOption[]
 }
 
 model CustomerCaseResult {
@@ -242,12 +240,23 @@ model QuoteRequest {
   desiredDeliveryDate DateTime?
   serviceOffer        ServiceOffer? @relation(fields: [serviceOfferId], references: [id])
   serviceOfferId      String?
-  offerOptions        OfferOption[]
+  quoteOptions        QuoteRequestOption[]
   rendezvous          Rendezvous?   @relation(fields: [rendezvousId], references: [id])
   rendezvousId        String?
   status              QuoteStatus   @default(NEW)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
+}
+
+model QuoteRequestOption {
+  id             String        @id @default(uuid())
+  quoteRequest   QuoteRequest  @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  quoteRequestId String
+  option         OfferOption   @relation(fields: [offerOptionId], references: [id], onDelete: Cascade)
+  offerOptionId  String
+  quantity       Int           @default(1)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 enum PricingType {

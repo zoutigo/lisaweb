@@ -70,13 +70,18 @@ export async function POST(req: Request) {
         : null,
       serviceOfferId: data.serviceOfferId || null,
       rendezvousId,
-      offerOptions: {
-        connect: (data.offerOptionIds ?? []).map((id) => ({ id })),
+      quoteOptions: {
+        createMany: {
+          data: (data.offerOptionIds ?? []).map((id) => ({
+            offerOptionId: id,
+            quantity: 1,
+          })),
+        },
       },
     },
     include: {
       serviceOffer: true,
-      offerOptions: true,
+      quoteOptions: { include: { option: true } },
     },
   });
 
@@ -86,7 +91,7 @@ export async function POST(req: Request) {
     lastName: data.lastName,
     projectDescription: data.projectDescription,
     serviceOfferTitle: created.serviceOffer?.title,
-    optionTitles: created.offerOptions?.map((o) => o.title) ?? [],
+    optionTitles: created.quoteOptions?.map((o) => o.option?.title ?? "") ?? [],
   });
 
   return NextResponse.json({ ok: true, id: created.id }, { status: 201 });

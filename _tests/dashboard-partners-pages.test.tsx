@@ -150,7 +150,6 @@ describe("Dashboard partners pages", () => {
       },
     ]);
     const user = userEvent.setup();
-    global.confirm = jest.fn(() => true);
     global.fetch = jest
       .fn()
       .mockResolvedValue({ ok: true, json: () => ({}) } as Response);
@@ -160,7 +159,15 @@ describe("Dashboard partners pages", () => {
 
     const deleteBtns = screen.getAllByRole("button", { name: /supprimer/i });
     expect(deleteBtns.length).toBeGreaterThan(0);
+    // first click opens modal
     await user.click(deleteBtns[0]);
+    // modal confirm is the last "Supprimer"
+    const modalConfirm = screen
+      .getAllByRole("button", {
+        name: /supprimer/i,
+      })
+      .at(-1)!;
+    await user.click(modalConfirm);
 
     await waitFor(() =>
       expect(global.fetch).toHaveBeenCalledWith(

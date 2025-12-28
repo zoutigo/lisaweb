@@ -99,8 +99,19 @@ export default function QuoteWizard({
   const prev = () => setStep((s) => Math.max(s - 1, 0) as Step);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (
+      typeof window !== "undefined" &&
+      typeof window.scrollTo === "function" &&
+      !(
+        typeof navigator !== "undefined" &&
+        navigator.userAgent?.includes("jsdom")
+      )
+    ) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        // noop in non-browser environments (e.g., jsdom tests)
+      }
     }
   }, [step]);
 

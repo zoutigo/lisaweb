@@ -14,7 +14,10 @@ export async function GET() {
 
   const quotes = await prisma.quoteRequest.findMany({
     orderBy: { createdAt: "desc" },
-    include: { serviceOffer: true, offerOptions: true },
+    include: {
+      serviceOffer: true,
+      quoteOptions: { include: { option: true } },
+    },
   });
   return NextResponse.json(quotes);
 }

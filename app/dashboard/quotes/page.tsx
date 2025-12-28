@@ -13,13 +13,21 @@ export default async function QuotesPage() {
   const isAdmin = (session.user as { isAdmin?: boolean }).isAdmin ?? false;
   if (!isAdmin) redirect("/");
 
-  const quotes = await prisma.quoteRequest.findMany({
+  const quotesRaw = await prisma.quoteRequest.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       serviceOffer: true,
-      offerOptions: true,
+      quoteOptions: { include: { option: true } },
     },
   });
+
+  const quotes = quotesRaw.map((q) => ({
+    ...q,
+    offerOptions: q.quoteOptions.map((qo) => ({
+      ...qo.option,
+      quantity: qo.quantity,
+    })),
+  }));
 
   return <QuotesClient initialQuotes={quotes} />;
 }
