@@ -132,14 +132,11 @@ export function LandingFeaturedCase({ initialCase }: Props) {
 
         <div className="flex items-center">
           <div className="relative overflow-hidden rounded-[18px] border border-white/50 bg-white/80 shadow-[0_10px_28px_-20px_rgba(27,38,83,0.35)]">
-            <Image
+            <img
               src={caseImage}
               alt="Aperçu du site"
-              width={1200}
-              height={800}
               className="h-full w-full object-cover"
               loading="lazy"
-              unoptimized
             />
           </div>
         </div>
