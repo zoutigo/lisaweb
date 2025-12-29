@@ -12,7 +12,7 @@ const offers = [
     longDescription:
       "Un accompagnement complet : structure claire, design moderne, développement Next.js rapide et sécurisé, SEO local et prise en main simple pour rester autonome.",
     targetAudience: "Écoles, associations, artisans, TPE",
-    priceLabel: "À partir de … €",
+    priceLabel: "À partir de 1 200 €",
     durationDays: 28,
     durationLabel: "2 à 4 semaines",
     engagementLabel: "Forfait, sans engagement",
@@ -69,7 +69,7 @@ const offers = [
     longDescription:
       "Audit rapide, nouvelle expérience utilisateur, performances améliorées, sécurité renforcée et migration accompagnée pour ne rien perdre.",
     targetAudience: "Clients déjà équipés, site obsolète ou lent",
-    priceLabel: "Sur devis",
+    priceLabel: "Sur devis (base 1 800 €)",
     durationDays: 30,
     durationLabel: "2 à 6 semaines selon l’existant",
     engagementLabel: "Refonte guidée",
@@ -126,7 +126,7 @@ const offers = [
     longDescription:
       "Un partenariat souple : petites évolutions régulières, optimisations ciblées, conseils et suivi pour un site qui reste performant.",
     targetAudience: "Clients souhaitant faire évoluer leur site régulièrement",
-    priceLabel: "Formule souple",
+    priceLabel: "À partir de 390 €/mois",
     durationDays: 14,
     durationLabel: "Mission récurrente ou ponctuelle",
     engagementLabel: "Sans engagement long terme",
@@ -165,6 +165,62 @@ const offers = [
       {
         title: "Amélioration continue",
         description: "Renforcer le SEO local, optimiser le parcours.",
+      },
+    ],
+  },
+  {
+    slug: "application-mobile-sur-mesure",
+    title: "Application mobile sur mesure",
+    subtitle: "PWA ou app hybride pour vos services métiers",
+    shortDescription:
+      "Concevoir et développer une application mobile rapide, installable et pensée pour vos utilisateurs.",
+    longDescription:
+      "Cadrage fonctionnel, maquettes mobiles, développement Next.js/PWA ou hybride, notifications push, publication stores et suivi des usages.",
+    targetAudience: "Commerces, associations, services locaux, TPE",
+    priceLabel: "À partir de 4 500 €",
+    durationDays: 45,
+    durationLabel: "6 à 10 semaines",
+    engagementLabel: "Forfait + support/maintenance en option",
+    isFeatured: false,
+    order: 4,
+    ctaLabel: "Discuter de mon app",
+    ctaLink: "/demande-devis",
+    features: [
+      { label: "Design mobile-first", icon: "📱", order: 0 },
+      { label: "Installable (PWA) ou stores", icon: "⬇️", order: 1 },
+      { label: "Notifications push", icon: "🔔", order: 2 },
+      { label: "Suivi analytics & crash reporting", icon: "📊", order: 3 },
+    ],
+    steps: [
+      {
+        title: "Cadrage & parcours",
+        description: "Clarifier les rôles, permissions et parcours mobiles.",
+        order: 0,
+      },
+      {
+        title: "Maquettes mobiles",
+        description: "UI mobile-first, accessibilité et micro-interactions.",
+        order: 1,
+      },
+      {
+        title: "Développement & tests",
+        description: "PWA/Hybride, push, stockage offline, QA sur devices.",
+        order: 2,
+      },
+      {
+        title: "Publication & support",
+        description: "Stores ou déploiement interne, monitoring, évolutions.",
+        order: 3,
+      },
+    ],
+    useCases: [
+      {
+        title: "Application de service local",
+        description: "Réservations, notifications et suivi client sur mobile.",
+      },
+      {
+        title: "Outil métier",
+        description: "Checklists, formulaires offline, synchro sécurisée.",
       },
     ],
   },
@@ -214,6 +270,106 @@ const faqs = [
       "Je propose un accompagnement souple : petites évolutions, SEO progressif, ajout de pages. Pas d’engagement lourd.",
     categoryName: "Après la mise en ligne",
   },
+  // Général
+  {
+    question: "Pouvez-vous travailler avec mes contenus existants ?",
+    answer:
+      "Oui. On part de vos textes et visuels, je les optimise pour le web et le SEO local avant intégration.",
+    categoryName: "Général",
+  },
+  {
+    question: "Faut-il prévoir un shooting photo ?",
+    answer:
+      "Des photos de qualité aident. Si vous n’en avez pas, je peux vous conseiller ou utiliser des visuels libres adaptés.",
+    categoryName: "Général",
+  },
+  {
+    question: "Proposez-vous des sites multilingues ?",
+    answer:
+      "Oui, gestion des langues, sélecteur, URLs localisées et balises SEO adaptées.",
+    categoryName: "Général",
+  },
+  {
+    question: "Y a-t-il un engagement long terme ?",
+    answer:
+      "Non. Les prestations sont claires et sans engagement long. Support et évolutions restent optionnels.",
+    categoryName: "Général",
+  },
+  // Méthode
+  {
+    question: "Comment se passe la phase de cadrage ?",
+    answer:
+      "Un atelier pour définir objectifs, publics, contenus clés et priorités. On valide une feuille de route simple.",
+    categoryName: "Méthode & organisation",
+  },
+  {
+    question: "À quelle fréquence avons-nous des points ?",
+    answer:
+      "Des points courts chaque semaine ou quinzaine selon le rythme, avec démonstrations intermédiaires.",
+    categoryName: "Méthode & organisation",
+  },
+  {
+    question: "Comment validez-vous le design ?",
+    answer:
+      "Je partage des maquettes (Figma) centrées sur le mobile, puis les déclinaisons desktop. Validation étape par étape.",
+    categoryName: "Méthode & organisation",
+  },
+  {
+    question: "Puis-je ajouter des demandes en cours de route ?",
+    answer:
+      "Oui, on priorise : ce qui rentre dans le budget/tempo actuel, et ce qui passe en évolution ultérieure.",
+    categoryName: "Méthode & organisation",
+  },
+  // Technique
+  {
+    question: "Le site sera-t-il rapide sur mobile ?",
+    answer:
+      "Oui. Next.js, optimisation des images, cache, audit performance et bonne pratique mobile-first.",
+    categoryName: "Technique & sécurité",
+  },
+  {
+    question: "Gérez-vous les emails transactionnels ?",
+    answer:
+      "Oui, configuration SPF/DKIM, envoi fiable (contact, formulaires, commandes) et tests.",
+    categoryName: "Technique & sécurité",
+  },
+  {
+    question: "Comment sécurisez-vous les formulaires ?",
+    answer:
+      "Validation côté client/serveur, protections anti-spam, stockage conforme et sauvegardes régulières.",
+    categoryName: "Technique & sécurité",
+  },
+  {
+    question: "Est-ce compatible avec le RGPD ?",
+    answer:
+      "Oui : mentions légales, consentements, gestion des cookies et demande d’accès/suppression de données.",
+    categoryName: "Technique & sécurité",
+  },
+  // Après la mise en ligne
+  {
+    question: "Aidez-vous pour le référencement local ?",
+    answer:
+      "Oui, optimisation technique + contenu local, Google Business Profile et suivi des requêtes locales.",
+    categoryName: "Après la mise en ligne",
+  },
+  {
+    question: "Proposez-vous de la maintenance ?",
+    answer:
+      "Mises à jour, surveillance, sauvegardes et petites évolutions, au mois ou à la carte.",
+    categoryName: "Après la mise en ligne",
+  },
+  {
+    question: "Puis-je demander de nouvelles pages plus tard ?",
+    answer:
+      "Oui, ajout de pages ou fonctionnalités supplémentaires avec chiffrage simple et délai annoncé.",
+    categoryName: "Après la mise en ligne",
+  },
+  {
+    question: "Fournissez-vous des statistiques ?",
+    answer:
+      "Suivi d’audience et des conversions principales, avec points réguliers pour ajuster si besoin.",
+    categoryName: "Après la mise en ligne",
+  },
 ];
 
 const customerCases = [
@@ -247,6 +403,21 @@ const customerCases = [
     resultSlugs: ["portfolio-clair", "demandes-en-hausse"],
     featureSlugs: ["accessibilite", "cms-simple", "support", "securite"],
   },
+  {
+    title: "Application mobile pour une salle de sport",
+    customer: "CoachFit",
+    description:
+      "Application mobile pour réservations, notifications et suivi des membres.",
+    url: "https://www.coachfit-app.fr",
+    imageUrl: "/images/placeholder-mobile-app.png",
+    resultSlugs: [
+      "engagement-mobile",
+      "notifications",
+      "reservations-simplifiees",
+      "feedback-temps-reel",
+    ],
+    featureSlugs: ["pwa-offline", "push-ready", "store-ready", "design-epure"],
+  },
 ];
 
 const caseResults = [
@@ -260,6 +431,10 @@ const caseResults = [
   { slug: "portfolio-clair", label: "Portfolio clair" },
   { slug: "demandes-en-hausse", label: "Demandes entrantes en hausse" },
   { slug: "conversion-plus", label: "Meilleure conversion" },
+  { slug: "engagement-mobile", label: "Engagement mobile en hausse" },
+  { slug: "notifications", label: "Notifications ciblées" },
+  { slug: "reservations-simplifiees", label: "Réservations simplifiées" },
+  { slug: "feedback-temps-reel", label: "Retours en temps réel" },
 ];
 
 const caseFeatures = [
@@ -273,6 +448,9 @@ const caseFeatures = [
   { slug: "cms-simple", label: "CMS simple à gérer" },
   { slug: "support", label: "Support et suivi" },
   { slug: "securite", label: "Sécurité renforcée" },
+  { slug: "pwa-offline", label: "PWA et mode hors ligne" },
+  { slug: "push-ready", label: "Prête pour notifications push" },
+  { slug: "store-ready", label: "Publication stores accompagnée" },
 ];
 
 const offerOptions = [
@@ -464,9 +642,111 @@ const offerOptions = [
     durationDays: 2,
     order: 15,
   },
+  {
+    slug: "push-notifications",
+    title: "Notifications push",
+    descriptionShort: "Alertes temps réel (PWA ou stores) avec ciblage.",
+    descriptionLong:
+      "Mise en place des notifications push (web/app), segmentation simple, consentement et tableau de diffusion.",
+    pricingType: "FIXED",
+    priceCents: 15000,
+    durationDays: 3,
+    order: 16,
+  },
+  {
+    slug: "app-store-publishing",
+    title: "Publication App Store / Play Store",
+    descriptionShort: "Accompagnement publication et fiches stores.",
+    descriptionLong:
+      "Préparation des fiches stores, génération builds, signature, soumission et itérations de validation.",
+    pricingType: "FIXED",
+    priceCents: 18000,
+    durationDays: 5,
+    order: 17,
+    constraintsJson:
+      '{"notes":"Nécessite comptes développeur Apple/Google et accès aux assets de marque"}',
+  },
+  {
+    slug: "offline-mode",
+    title: "Mode hors ligne",
+    descriptionShort: "Consultation et saisie offline avec synchro.",
+    descriptionLong:
+      "Cache des contenus clés, file d’attente des actions et synchronisation sécurisée dès le retour réseau.",
+    pricingType: "FROM",
+    priceFromCents: 25000,
+    durationDays: 7,
+    order: 18,
+  },
+  {
+    slug: "mobile-analytics",
+    title: "Analytics & crash reporting",
+    descriptionShort: "Suivi usage, événements et rapports de crash.",
+    descriptionLong:
+      "Instrumentation analytics mobile/PWA, suivi des conversions, crash reporting et alertes basiques.",
+    pricingType: "FIXED",
+    priceCents: 8000,
+    durationDays: 2,
+    order: 19,
+  },
+  {
+    slug: "biometric-auth",
+    title: "Authentification biométrique",
+    descriptionShort: "FaceID / empreinte pour un accès simplifié.",
+    descriptionLong:
+      "Activation de l’authentification biométrique (FaceID/TouchID) pour sécuriser l’accès à l’app.",
+    pricingType: "FROM",
+    priceFromCents: 18000,
+    durationDays: 4,
+    order: 20,
+    constraintsJson:
+      '{"dependsOn":["authentication"],"notes":"Requiert un espace membre déjà en place"}',
+  },
 ];
 
 async function main() {
+  // Validate offer seeds: every offer needs a duration and a readable price label
+  offers.forEach((offer) => {
+    if (!offer.durationDays || offer.durationDays <= 0) {
+      throw new Error(`Offer "${offer.slug}" missing durationDays`);
+    }
+    if (!offer.priceLabel || !offer.priceLabel.trim()) {
+      throw new Error(`Offer "${offer.slug}" missing priceLabel`);
+    }
+  });
+
+  // Validate offer options: durationDays + price depending on pricingType
+  offerOptions.forEach((opt) => {
+    if (opt.durationDays == null || opt.durationDays <= 0) {
+      throw new Error(`OfferOption "${opt.slug}" missing durationDays`);
+    }
+    switch (opt.pricingType) {
+      case "FIXED":
+        if (opt.priceCents == null) {
+          throw new Error(`OfferOption "${opt.slug}" FIXED needs priceCents`);
+        }
+        break;
+      case "FROM":
+        if (opt.priceFromCents == null) {
+          throw new Error(
+            `OfferOption "${opt.slug}" FROM needs priceFromCents`,
+          );
+        }
+        break;
+      case "PER_UNIT":
+        if (opt.unitPriceCents == null || !opt.unitLabel) {
+          throw new Error(
+            `OfferOption "${opt.slug}" PER_UNIT needs unitPriceCents and unitLabel`,
+          );
+        }
+        break;
+      case "QUOTE_ONLY":
+        // no numeric price required
+        break;
+      default:
+        throw new Error(`OfferOption "${opt.slug}" has unknown pricingType`);
+    }
+  });
+
   const existing = await prisma.serviceOffer.count();
   if (existing > 0) {
     console.log("Service offers already seeded, skipping.");
@@ -513,6 +793,16 @@ async function main() {
     {
       offerSlug: "accompagnement-evolution-continue",
       optionSlugs: ["maintenance", "hosting-monitoring", "backups"],
+    },
+    {
+      offerSlug: "application-mobile-sur-mesure",
+      optionSlugs: [
+        "push-notifications",
+        "app-store-publishing",
+        "offline-mode",
+        "mobile-analytics",
+        "biometric-auth",
+      ],
     },
   ];
 
@@ -583,10 +873,20 @@ async function main() {
         phone: "+33600000000",
         projectDescription:
           "Site vitrine pour présenter mon activité locale, design moderne et options de paiement simple.",
-        serviceOfferId: firstOffer?.id,
-        offerOptions: {
-          connect: someOptions.map((o) => ({ id: o.id })),
-        },
+        serviceOffer: firstOffer
+          ? {
+              connect: { id: firstOffer.id },
+            }
+          : undefined,
+        quoteOptions:
+          someOptions.length > 0
+            ? {
+                create: someOptions.map((o) => ({
+                  offerOption: { connect: { id: o.id } },
+                  quantity: 1,
+                })),
+              }
+            : undefined,
         status: "NEW",
       },
     });
