@@ -23,7 +23,7 @@ type FaqPreviewResponse = {
 
 export function LandingFaqPreview() {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery<FaqPreviewResponse>({
+  const { data } = useQuery<FaqPreviewResponse>({
     queryKey: ["faq-preview"],
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: true,
@@ -33,11 +33,36 @@ export function LandingFaqPreview() {
     },
   });
 
+  const fallbackFaqs: FaqPreviewItem[] = [
+    {
+      id: "fallback-1",
+      question: "Combien coûte un site web ?",
+      answer:
+        "Un cadrage rapide permet d’établir une fourchette selon le périmètre (pages, options, SEO).",
+      category: { id: "cat-general", name: "Général" },
+    },
+    {
+      id: "fallback-2",
+      question: "Combien de temps faut-il ?",
+      answer:
+        "Environ 2 à 4 semaines pour un site vitrine, selon la disponibilité des contenus et des validations.",
+      category: { id: "cat-method", name: "Méthode & organisation" },
+    },
+    {
+      id: "fallback-3",
+      question: "Qui gère la technique et le SEO ?",
+      answer:
+        "Je m’occupe du développement, de la performance et du SEO de base, avec des options pour aller plus loin.",
+      category: { id: "cat-tech", name: "Technique & sécurité" },
+    },
+  ];
+
   const faqs = (() => {
-    if (!data?.faqs) return [];
+    const source =
+      data?.faqs && data.faqs.length > 0 ? data.faqs : fallbackFaqs;
     const picked: FaqPreviewItem[] = [];
     const seen = new Set<string>();
-    for (const faq of data.faqs) {
+    for (const faq of source) {
       const catId = faq.category?.id;
       if (catId && !seen.has(catId)) {
         picked.push(faq);
@@ -50,16 +75,6 @@ export function LandingFaqPreview() {
 
   // expose an invalidate helper (can be used via queryClient.invalidateQueries in dashboard)
   queryClient.getQueryCache();
-
-  if (isLoading) {
-    return (
-      <div className="grid gap-6 md:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="h-32 animate-pulse bg-[#f4f6fb]" />
-        ))}
-      </div>
-    );
-  }
 
   return (
     <>

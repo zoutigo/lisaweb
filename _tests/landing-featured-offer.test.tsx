@@ -42,4 +42,34 @@ describe("LandingFeaturedOffer", () => {
     expect(screen.queryByText(/options incluses/i)).not.toBeInTheDocument();
     expect(screen.getByText(/site vitrine clé en main/i)).toBeInTheDocument();
   });
+
+  it("affiche l'offre mise à jour si les données changent", () => {
+    const { rerender } = render(
+      <LandingFeaturedOffer
+        offer={{
+          ...baseOffer,
+          offerOptions: [{ id: "opt1", title: "Ecommerce", slug: "ecommerce" }],
+        }}
+      />,
+    );
+    expect(screen.getByText(/site vitrine clé en main/i)).toBeInTheDocument();
+
+    rerender(
+      <LandingFeaturedOffer
+        offer={{
+          ...baseOffer,
+          title: "Application mobile",
+          shortDescription: "Une app dédiée",
+          offerOptions: [{ id: "mob", title: "Push", slug: "push" }],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/application mobile/i)).toBeInTheDocument();
+    expect(
+      screen
+        .getAllByText(/push/i)
+        .some((el) => el.textContent?.toLowerCase().includes("push")),
+    ).toBe(true);
+  });
 });

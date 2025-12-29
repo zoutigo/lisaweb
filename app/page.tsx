@@ -83,13 +83,22 @@ export const metadata: Metadata = {
     "site vitrine artisan Isère",
     "refonte site école",
     "seo local crémieu",
-    "developpeur next.js lyon est",
+    "developpeur lyon est",
   ],
 };
 
 export default async function Home() {
   let featuredCase: LandingCustomerCase | null = null;
   let featuredOffer: LandingServiceOffer | null = null;
+  let siteInfo: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  } | null = null;
   if (process.env.DATABASE_URL) {
     try {
       const landingCaseRaw =
@@ -167,16 +176,120 @@ export default async function Home() {
             })) ?? [],
         };
       }
+
+      siteInfo = await prisma.siteInfo.findFirst();
     } catch (error) {
       if (process.env.NODE_ENV !== "test") {
         console.error("Failed to load landing data", error);
       }
       featuredCase = null;
       featuredOffer = null;
+      siteInfo = null;
     }
+  }
+
+  if (!featuredOffer) {
+    featuredOffer = {
+      title: "Site vitrine clé en main",
+      subtitle: "Un site moderne, rapide et prêt à l’emploi",
+      shortDescription:
+        "Structure claire, design soigné, SEO local et prise en main simple pour écoles, associations, artisans et TPE.",
+      targetAudience: "Écoles, associations, artisans, TPE",
+      priceLabel: "À partir de 800 €",
+      durationLabel: "2 à 4 semaines",
+      engagementLabel: "Forfait, sans engagement long terme",
+      ctaLabel: "Demander un devis",
+      ctaLink: "/demande-devis",
+      features: [
+        { label: "Design moderne & responsive", icon: "🖥️" },
+        { label: "SEO local inclus", icon: "📍" },
+        { label: "Sécurité & performance", icon: "🔒" },
+        { label: "Interface simple à gérer", icon: "✅" },
+      ],
+      steps: [
+        { title: "Analyse des besoins", description: "Objectifs et publics." },
+        { title: "Structure & maquette", description: "Parcours clairs." },
+        { title: "Développement", description: "Site rapide, mobile, SEO." },
+        { title: "Mise en ligne", description: "Handover et suivi." },
+      ],
+      offerOptions: [
+        {
+          id: "opt-fallback-1",
+          title: "Formulaire avancé",
+          slug: "advanced-form",
+        },
+        {
+          id: "opt-fallback-2",
+          title: "SEO local avancé",
+          slug: "seo-local-advanced",
+        },
+      ],
+    };
+  }
+
+  const ldJson = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: siteInfo?.name ?? "LISAWEB",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lisaweb.fr",
+    email: siteInfo?.email ?? "contact@lisaweb.fr",
+    telephone: siteInfo?.phone ?? "+33650597839",
+    image:
+      (process.env.NEXT_PUBLIC_SITE_URL ?? "https://lisaweb.fr") + "/logo.svg",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: siteInfo?.address ?? "89C rue du travail",
+      postalCode: siteInfo?.postalCode ?? "38230",
+      addressLocality: siteInfo?.city ?? "Pont-de-Chéruy",
+      addressCountry: siteInfo?.country ?? "France",
+    },
+    areaServed: [
+      "Pont-de-Chéruy",
+      "Tignieu-Jameyzieu",
+      "Crémieu",
+      "Meyzieu",
+      "Bourgoin-Jallieu",
+      "charvieu",
+      "Lyon Est",
+    ],
+  };
+
+  if (!featuredCase) {
+    featuredCase = {
+      id: "fallback-case",
+      title: "Site vitrine moderne pour une école",
+      customer: "École locale",
+      description:
+        "Navigation simplifiée, contenus parent clairs, design moderne et optimisé mobile.",
+      url: "https://www.ecole-st-augustin.fr",
+      imageUrl: "/images/st-augustin.png",
+      results: [
+        {
+          id: "res-f1",
+          label: "Navigation claire pour les parents",
+          slug: "nav-parents",
+        },
+        {
+          id: "res-f2",
+          label: "Informations accessibles rapidement",
+          slug: "info-rapides",
+        },
+        { id: "res-f3", label: "SEO local optimisé", slug: "seo-local" },
+        { id: "res-f4", label: "Site rapide et mobile", slug: "mobile-rapide" },
+      ],
+      features: [
+        { id: "feat-f1", label: "Mobile first", slug: "mobile-first" },
+        { id: "feat-f2", label: "Design épuré", slug: "design-epure" },
+        { id: "feat-f3", label: "SEO local", slug: "seo-local" },
+      ],
+    };
   }
   return (
     <div className="min-h-screen bg-linear-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
+      />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.15),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.16),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.18),transparent_25%)] blur-3xl" />
       <main>
         <Section className="pt-12 sm:pt-20">
