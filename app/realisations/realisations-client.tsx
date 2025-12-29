@@ -106,7 +106,7 @@ function CaseCard({ item }: { item: CustomerCase }) {
           </div>
         </div>
 
-        <div className="order-3 flex">
+        <div className="order-3 flex flex-wrap gap-3">
           {item.url ? (
             <Link href={item.url} target="_blank" className="w-fit">
               <Button variant="secondary" className="w-fit">
@@ -118,6 +118,11 @@ function CaseCard({ item }: { item: CustomerCase }) {
               Voir la réalisation
             </Button>
           )}
+          <Link href="/rendezvous" className="w-fit">
+            <Button variant="primary" className="w-fit">
+              Discutons de votre projet
+            </Button>
+          </Link>
         </div>
       </div>
     </article>

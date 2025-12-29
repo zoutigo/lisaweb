@@ -18,6 +18,7 @@ export const offerOptionSchema = z
     priceFromCents: z.number().int().nonnegative().optional(),
     unitLabel: z.string().optional(),
     unitPriceCents: z.number().int().nonnegative().optional(),
+    durationDays: z.number().int().nonnegative().default(2),
     isPopular: z.boolean().optional().default(false),
     order: z.number().int().default(0),
     constraintsJson: z.string().optional(),

@@ -186,6 +186,26 @@ export default async function DashboardPage() {
           </Link>
 
           <Link
+            href="/dashboard/quotes"
+            className="group rounded-2xl border border-[#e5e7eb] bg-white/90 p-6 shadow-[0_14px_38px_-24px_rgba(27,38,83,0.35)] transition hover:-translate-y-1 hover:shadow-[0_20px_60px_-30px_rgba(27,38,83,0.45)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#1d4ed8]">
+                📄
+              </div>
+              <span className="text-xs uppercase tracking-[0.18em] text-[#6b7280]">
+                Devis
+              </span>
+            </div>
+            <h2 className="mt-4 text-lg font-semibold text-[#1b2653]">
+              Demandes de devis
+            </h2>
+            <p className="mt-1 text-sm text-[#4b5563]">
+              Consultez les demandes soumises, formats choisis et options.
+            </p>
+          </Link>
+
+          <Link
             href="/dashboard/rendezvous"
             className="group rounded-2xl border border-[#e5e7eb] bg-white/90 p-6 shadow-[0_14px_38px_-24px_rgba(27,38,83,0.35)] transition hover:-translate-y-1 hover:shadow-[0_20px_60px_-30px_rgba(27,38,83,0.45)]"
           >

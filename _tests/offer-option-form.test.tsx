@@ -77,6 +77,7 @@ describe("OfferOptionForm", () => {
             "Description longue suffisamment détaillée pour valider",
           pricingType: "FROM",
           priceFromCents: 12000,
+          durationDays: 2,
           isPopular: true,
           order: 1,
           priceCents: undefined,

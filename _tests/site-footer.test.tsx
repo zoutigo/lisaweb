@@ -36,6 +36,10 @@ describe("SiteFooter partners", () => {
       "/services-offers",
     );
     expect(screen.getByText(/Méthode/i)).toHaveAttribute("href", "/methode");
+    expect(screen.getByText(/FAQ/i)).toHaveAttribute("href", "/faq");
+    // logo cliquable
+    const logoLink = screen.getByRole("link", { name: /plisa/i });
+    expect(logoLink).toHaveAttribute("href", "/");
   });
 
   it("affiche les logos partenaires avec leur lien", async () => {

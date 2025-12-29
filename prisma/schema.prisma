@@ -1,7 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  // Explicit output to ensure the client is generated in the expected location
-  output        = "../node_modules/.prisma/client"
   // Ship engines for local dev and o2switch (OpenSSL 1.0.x) + newer Debian (3.0.x)
   binaryTargets = ["native", "debian-openssl-1.0.x", "debian-openssl-3.0.x"]
 }
@@ -22,23 +20,31 @@ model Rendezvous {
   userId       String?
   status       RendezvousStatus @default(PENDING)
   pendingToken String?          @unique
+  QuoteRequest QuoteRequest[]
+}
+
+enum QuoteStatus {
+  NEW
+  SENT
+  REVIEWED
 }
 
 // NextAuth-compatible models (Prisma adapter). IDs are strings (cuid()) to match NextAuth defaults.
 model User {
-  id            String       @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
   firstName     String?
   lastName      String?
-  email         String?      @unique
-  phone         String?      @db.VarChar(32)
+  email         String?        @unique
+  phone         String?        @db.VarChar(32)
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   rendezvous    Rendezvous[]
-  isAdmin       Boolean      @default(false)
-  createdAt     DateTime     @default(now())
+  isAdmin       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  QuoteRequest  QuoteRequest[]
 }
 
 model Partner {
@@ -141,6 +147,7 @@ model ServiceOffer {
   longDescription  String                @db.Text
   targetAudience   String
   priceLabel       String
+  durationDays     Int                   @default(0)
   durationLabel    String
   engagementLabel  String
   isFeatured       Boolean               @default(false)
@@ -153,6 +160,7 @@ model ServiceOffer {
   steps            ServiceOfferStep[]
   useCases         ServiceOfferUseCase[]
   offerOptions     OfferOption[]
+  QuoteRequest     QuoteRequest[]
 }
 
 model ServiceOfferFeature {
@@ -192,12 +200,14 @@ model OfferOption {
   priceFromCents   Int?
   unitLabel        String?
   unitPriceCents   Int?
+  durationDays     Int            @default(2)
   isPopular        Boolean        @default(false)
   order            Int            @default(0)
   constraintsJson  String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   serviceOffers    ServiceOffer[]
+  quoteOptions     QuoteRequestOption[]
 }
 
 model CustomerCaseResult {
@@ -218,6 +228,37 @@ model CustomerCaseFeature {
   cases     CustomerCase[] @relation("CustomerCaseToFeatures")
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+}
+
+model QuoteRequest {
+  id                  String        @id @default(uuid())
+  user                User?         @relation(fields: [userId], references: [id])
+  userId              String?
+  firstName           String?
+  lastName            String?
+  email               String
+  phone               String?
+  projectDescription  String        @db.Text
+  desiredDeliveryDate DateTime?
+  serviceOffer        ServiceOffer? @relation(fields: [serviceOfferId], references: [id])
+  serviceOfferId      String?
+  quoteOptions        QuoteRequestOption[]
+  rendezvous          Rendezvous?   @relation(fields: [rendezvousId], references: [id])
+  rendezvousId        String?
+  status              QuoteStatus   @default(NEW)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model QuoteRequestOption {
+  id             String        @id @default(uuid())
+  quoteRequest   QuoteRequest  @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  quoteRequestId String
+  option         OfferOption   @relation(fields: [offerOptionId], references: [id], onDelete: Cascade)
+  offerOptionId  String
+  quantity       Int           @default(1)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 enum PricingType {

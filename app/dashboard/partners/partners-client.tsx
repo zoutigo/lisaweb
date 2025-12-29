@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/pagination";
 import { ActionIconButton } from "@/components/ui/action-icon-button";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/confirm-modal";
+import { ConfirmMessage } from "@/components/confirm-message";
 
 type PartnerItem = {
   id: string;
@@ -26,29 +28,36 @@ export function PartnersClient({
   placeholderLogo,
 }: PartnersClientProps) {
   const router = useRouter();
+  const [items, setItems] = useState<PartnerItem[]>(partners);
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const paged = useMemo(
-    () => partners.slice((page - 1) * pageSize, page * pageSize),
-    [partners, page, pageSize],
+    () => items.slice((page - 1) * pageSize, page * pageSize),
+    [items, page, pageSize],
   );
 
   const handleDelete = async (id: string) => {
     if (deletingId) return;
-    const confirmed =
-      typeof window === "undefined"
-        ? true
-        : window.confirm("Supprimer ce partenaire ?");
-    if (!confirmed) return;
+    setConfirmId(null);
+    setMessage(null);
+    setError(null);
     setDeletingId(id);
     const res = await fetch(`/api/dashboard/partners/${id}`, {
       method: "DELETE",
     });
     setDeletingId(null);
-    if (res.ok) {
-      router.refresh();
+    if (!res.ok) {
+      setError("Suppression impossible.");
+      return;
     }
+    setItems((prev) => prev.filter((p) => p.id !== id));
+    setPage(1);
+    setMessage("Partenaire supprimé.");
+    router.refresh();
   };
 
   return (
@@ -112,7 +121,7 @@ export function PartnersClient({
                 label="Supprimer"
                 tone="danger"
                 disabled={deletingId === p.id}
-                onClick={() => handleDelete(p.id)}
+                onClick={() => setConfirmId(p.id)}
               />
             </div>
           </Card>
@@ -120,7 +129,7 @@ export function PartnersClient({
         <Pagination
           currentPage={page}
           pageSize={pageSize}
-          totalCount={partners.length}
+          totalCount={items.length}
           onPageChange={setPage}
         />
       </div>
@@ -188,7 +197,7 @@ export function PartnersClient({
                       label="Supprimer"
                       tone="danger"
                       disabled={deletingId === p.id}
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => setConfirmId(p.id)}
                       className="text-xs px-3 py-1.5"
                     />
                   </div>
@@ -201,11 +210,31 @@ export function PartnersClient({
           <Pagination
             currentPage={page}
             pageSize={pageSize}
-            totalCount={partners.length}
+            totalCount={items.length}
             onPageChange={setPage}
           />
         </div>
       </Card>
+
+      {message ? (
+        <div className="mt-4">
+          <ConfirmMessage type="success" message={message} />
+        </div>
+      ) : null}
+      {error ? (
+        <div className="mt-4">
+          <ConfirmMessage type="error" message={error} />
+        </div>
+      ) : null}
+
+      <ConfirmModal
+        open={confirmId !== null}
+        onCancel={() => setConfirmId(null)}
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+        title="Supprimer ce partenaire ?"
+        description="Cette action est définitive."
+        confirmLabel="Supprimer"
+      />
     </>
   );
 }

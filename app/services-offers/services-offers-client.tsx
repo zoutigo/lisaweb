@@ -219,16 +219,13 @@ export default function ServicesOffersClient({
                 ) : null}
 
                 <div className="mt-auto flex flex-wrap items-center gap-3 pt-2">
-                  <Link href={offer.ctaLink}>
+                  <Link href="/demande-devis">
                     <Button className="shadow-[0_12px_30px_rgba(59,91,255,0.25)]">
                       {offer.ctaLabel}
                     </Button>
                   </Link>
-                  <Link
-                    href="/rendezvous"
-                    className="text-sm font-semibold text-[#1b2653] underline-offset-4 hover:underline"
-                  >
-                    Parler de mon projet →
+                  <Link href="/rendezvous">
+                    <Button variant="secondary">Prendre un rendez-vous</Button>
                   </Link>
                 </div>
               </Card>

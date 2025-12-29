@@ -58,6 +58,7 @@ export async function POST(req: Request) {
         longDescription: data.longDescription,
         targetAudience: data.targetAudience,
         priceLabel: data.priceLabel,
+        durationDays: data.durationDays ?? 0,
         durationLabel: data.durationLabel,
         engagementLabel: data.engagementLabel,
         isFeatured: data.isFeatured ?? false,

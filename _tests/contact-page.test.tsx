@@ -46,7 +46,8 @@ describe("Page /contact", () => {
     render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
 
     expect(screen.getByText(/contact@lisaweb.fr/i)).toBeInTheDocument();
-    expect(screen.getByText(/0650597839/i)).toBeInTheDocument();
+    const phoneLink = screen.getByRole("link", { name: /0650597839/i });
+    expect(phoneLink).toHaveAttribute("href", "tel:0650597839");
     await waitFor(() =>
       expect(
         screen.getByTitle(/localisation/i) as HTMLIFrameElement,
@@ -73,8 +74,7 @@ describe("Page /contact", () => {
       "Un message assez long",
     );
     const question = screen.getByLabelText("question-anti-robot");
-    const text = question.textContent || "";
-    const expected = parseInt(text.match(/(\d+)\s+\?/i)?.[1] || "0", 10);
+    const expected = Number(question.getAttribute("data-expected") || "0");
     await userEvent.clear(screen.getByRole("spinbutton"));
     await userEvent.type(
       screen.getByRole("spinbutton"),

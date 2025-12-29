@@ -111,4 +111,51 @@ describe("Page /services-offers", () => {
     expect(screen.getByText(/fallback opt/i)).toBeInTheDocument();
     expect(screen.getByText(/mis en avant/i)).toBeInTheDocument();
   });
+
+  it("affiche les deux boutons d’action vers devis et rendez-vous", async () => {
+    const sample = [
+      {
+        id: "id1",
+        slug: "site-vitrine",
+        title: "Site vitrine clé en main",
+        subtitle: "",
+        shortDescription: "Desc courte",
+        targetAudience: "TPE",
+        priceLabel: "Sur devis",
+        durationLabel: "2 semaines",
+        engagementLabel: "Forfait",
+        ctaLabel: "Demander un devis",
+        ctaLink: "/contact",
+        isFeatured: true,
+        offerOptions: [],
+        features: [],
+        steps: [],
+        useCases: [],
+      },
+    ];
+    (prisma.serviceOffer.findMany as jest.Mock).mockResolvedValue(sample);
+    (global.fetch as unknown) = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(sample),
+    });
+
+    const ui = await ServiceOffersLandingPage();
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+    );
+
+    const primary = screen.getByRole("button", { name: /demander un devis/i });
+    const primaryLink = primary.closest("a");
+    expect(primaryLink).toHaveAttribute("href", "/demande-devis");
+
+    const secondary = screen.getByRole("button", {
+      name: /prendre un rendez-vous/i,
+    });
+    const secondaryLink = secondary.closest("a");
+    expect(secondaryLink).toHaveAttribute("href", "/rendezvous");
+  });
 });

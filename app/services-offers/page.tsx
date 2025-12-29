@@ -5,9 +5,16 @@ import { prisma } from "@/lib/prisma";
 import ServicesOffersClient from "./services-offers-client";
 
 export const metadata = {
-  title: "Formats d'accompagnement",
+  title:
+    "Formats d’accompagnement web | Sites vitrines et refontes à Pont-de-Chéruy",
   description:
-    "Découvrez les offres d'accompagnement web : sites vitrines, refontes et évolutions continues, claires et adaptées à vos besoins.",
+    "Choisissez le format adapté : site vitrine, refonte ou évolution continue pour écoles, associations, artisans et TPE en Isère (Pont-de-Chéruy, Tignieu, Crémieu). Tarifs clairs, options modulaires, délais annoncés.",
+  keywords: [
+    "offres site vitrine pont-de-chéruy",
+    "refonte site tpe isère",
+    "accompagnement web crémieu",
+    "service creation site tignieu",
+  ],
 };
 
 export default async function ServiceOffersLandingPage() {

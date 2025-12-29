@@ -3,6 +3,18 @@ import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { Badge } from "@/components/ui/badge";
 
+export const metadata = {
+  title:
+    "Méthode de création de site web | LisaWeb développeur à Pont-de-Chéruy",
+  description:
+    "Processus en 5 étapes pour concevoir et déployer un site rapide, mobile et SEO local pour écoles, associations, artisans et TPE en Isère (Pont-de-Chéruy, Tignieu, Crémieu).",
+  keywords: [
+    "méthode création site pont-de-chéruy",
+    "processus développement web isère",
+    "site vitrine étape par étape",
+  ],
+};
+
 const steps = [
   {
     title: "1. Analyse du besoin",
@@ -80,12 +92,6 @@ const impacts = [
   "Site fiable et sécurisé.",
   "Un site pensé pour durer.",
 ];
-
-export const metadata = {
-  title: "Ma méthode de travail | LisaWeb",
-  description:
-    "Une méthode de travail claire et humaine pour créer votre site web : approche agile simplifiée, étapes, stack moderne et proximité locale.",
-};
 
 export default function MethodePage() {
   return (
