@@ -63,4 +63,88 @@ describe("Page /realisations", () => {
       screen.getByRole("button", { name: /voir la réalisation/i }),
     ).toBeInTheDocument();
   });
+
+  it("rafraîchit avec de nouvelles données (pas de cache figé)", async () => {
+    (prisma.customerCase.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: "1",
+        title: "Case initial",
+        customer: "Client A",
+        description: "Desc A",
+        url: null,
+        imageUrl: null,
+        results: [],
+        features: [],
+        createdAt: new Date("2024-01-01"),
+      },
+    ]);
+
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve([
+            {
+              id: "1",
+              title: "Case initial",
+              customer: "Client A",
+              description: "Desc A",
+              url: null,
+              imageUrl: null,
+              results: [],
+              features: [],
+            },
+          ]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve([
+            {
+              id: "2",
+              title: "Case rafraîchi",
+              customer: "Client B",
+              description: "Desc B",
+              url: null,
+              imageUrl: null,
+              results: [],
+              features: [],
+            },
+          ]),
+      });
+    (global.fetch as unknown) = fetchMock;
+
+    const ui = await RealisationsPage();
+    const qc = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+
+    await waitFor(() =>
+      expect(screen.getByText(/case initial/i)).toBeInTheDocument(),
+    );
+
+    // force un update de la query
+    qc.setQueryData(
+      ["customer-cases-public"],
+      [
+        {
+          id: "2",
+          title: "Case rafraîchi",
+          customer: "Client B",
+          description: "Desc B",
+          url: null,
+          imageUrl: null,
+          results: [],
+          features: [],
+        },
+      ],
+    );
+    render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+
+    await waitFor(() =>
+      expect(screen.getByText(/case rafraîchi/i)).toBeInTheDocument(),
+    );
+  });
 });

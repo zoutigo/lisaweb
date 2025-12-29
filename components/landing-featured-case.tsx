@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -132,12 +131,17 @@ export function LandingFeaturedCase({ initialCase }: Props) {
 
         <div className="flex items-center">
           <div className="relative overflow-hidden rounded-[18px] border border-white/50 bg-white/80 shadow-[0_10px_28px_-20px_rgba(27,38,83,0.35)]">
-            <img
-              src={caseImage}
-              alt="Aperçu du site"
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
+            <picture>
+              <source srcSet={caseImage} />
+              <img
+                src={caseImage}
+                alt="Aperçu du site"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                fetchPriority="low"
+                decoding="async"
+              />
+            </picture>
           </div>
         </div>
       </div>

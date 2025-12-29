@@ -141,17 +141,16 @@ export default function RealisationsClient({
     queryKey: ["customer-cases-public"],
     queryFn: async () => {
       const res = await fetch("/api/customer-cases", {
-        next: { revalidate: 300 },
-        cache: "force-cache",
+        cache: "no-store",
       });
       if (!res.ok) return initialCases;
       return (await res.json()) as CustomerCase[];
     },
     initialData: initialCases,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
     retry: false,
   });
 

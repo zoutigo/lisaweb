@@ -281,7 +281,7 @@ jobs:
         run: |
           set -euo pipefail
           SSH_OPTS="-4 -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          rsync -az --delete \
+          rsync -az --delete --exclude 'files/' \
             -e "ssh $SSH_OPTS -p ${O2_SSH_PORT}" \
             deploy/ \
             "${O2_SSH_USER}@${O2_SSH_HOST}:${O2_TARGET_DIR}/"
@@ -340,6 +340,9 @@ jobs:
           fi
           ln -sfn "$VENV/lib/node_modules" node_modules
           echo "node_modules -> $(readlink node_modules || true)"
+
+          # Ensure shared upload dir is kept across deploys
+          mkdir -p "$O2_TARGET_DIR/files"
 
           npm ci --include=dev
           npx --no-install prisma generate

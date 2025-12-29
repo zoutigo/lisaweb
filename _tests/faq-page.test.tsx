@@ -56,4 +56,40 @@ describe("Page /faq", () => {
     expect(html).toContain("Questions fréquentes");
     expect(html).toContain("Combien ça coûte");
   });
+
+  it("rafraîchit avec de nouvelles questions (pas de cache figé)", async () => {
+    prismaMock.faqCategory.findMany.mockResolvedValueOnce([
+      { id: "cat1", name: "Général", order: 1 },
+    ]);
+    prismaMock.faq.findMany.mockResolvedValueOnce([
+      {
+        id: "bbb",
+        question: "Question initiale ?",
+        answer: "Réponse A",
+        categoryId: "cat1",
+        createdAt: new Date(),
+        category: { id: "cat1", name: "Général", order: 1 },
+      },
+    ]);
+    const ui1 = await FAQPage();
+    const html1 = renderToString(ui1 as unknown as React.ReactElement);
+    expect(html1).toContain("Question initiale ?");
+
+    prismaMock.faqCategory.findMany.mockResolvedValueOnce([
+      { id: "cat1", name: "Général", order: 1 },
+    ]);
+    prismaMock.faq.findMany.mockResolvedValueOnce([
+      {
+        id: "ccc",
+        question: "Question rafraîchie ?",
+        answer: "Réponse B",
+        categoryId: "cat1",
+        createdAt: new Date(),
+        category: { id: "cat1", name: "Général", order: 1 },
+      },
+    ]);
+    const ui2 = await FAQPage();
+    const html2 = renderToString(ui2 as unknown as React.ReactElement);
+    expect(html2).toContain("Question rafraîchie ?");
+  });
 });

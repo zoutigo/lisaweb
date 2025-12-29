@@ -55,8 +55,10 @@ export default function ServicesOffersClient({
         })),
       [initialOffers],
     ),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 
   const offers = data ?? [];
