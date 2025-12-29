@@ -139,6 +139,7 @@ export function LandingFeaturedCase({ initialCase }: Props) {
               height={800}
               className="h-full w-full object-cover"
               loading="lazy"
+              unoptimized
             />
           </div>
         </div>
