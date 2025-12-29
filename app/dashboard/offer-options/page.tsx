@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = "nodejs";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -15,6 +16,7 @@ type OfferOption = {
   priceFromCents: number | null;
   unitLabel: string | null;
   unitPriceCents: number | null;
+  durationDays?: number;
 };
 
 export default async function OfferOptionsPage() {
@@ -36,6 +38,7 @@ export default async function OfferOptionsPage() {
     priceFromCents: opt.priceFromCents ?? null,
     unitLabel: opt.unitLabel ?? null,
     unitPriceCents: opt.unitPriceCents ?? null,
+    durationDays: (opt as any).durationDays ?? 0,
   }));
 
   return <OfferOptionsClient initialOptions={initialOptions} />;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
@@ -22,13 +23,14 @@ export default async function QuoteEditPage({ params }: Props) {
 
   const resolved = await params;
 
-  const quote = await prisma.quoteRequest.findUnique({
+  const quote = (await prisma.quoteRequest.findUnique({
     where: { id: resolved.id },
     include: {
       serviceOffer: {
         select: {
           title: true,
           priceLabel: true,
+          durationDays: true,
           offerOptions: {
             select: {
               id: true,
@@ -38,6 +40,7 @@ export default async function QuoteEditPage({ params }: Props) {
               priceFromCents: true,
               unitLabel: true,
               unitPriceCents: true,
+              durationDays: true,
             },
           },
         },
@@ -53,24 +56,26 @@ export default async function QuoteEditPage({ params }: Props) {
               priceFromCents: true,
               unitLabel: true,
               unitPriceCents: true,
+              durationDays: true,
             },
           },
         },
       },
       rendezvous: true,
     },
-  });
+  } as any)) as any;
 
-  const [availableOffers, availableOptions] = await Promise.all([
+  const [availableOffers, availableOptions] = (await Promise.all([
     prisma.serviceOffer.findMany({
       orderBy: { title: "asc" },
       select: {
         id: true,
         title: true,
         priceLabel: true,
+        durationDays: true,
         offerOptions: { select: { id: true } },
       },
-    }),
+    } as any),
     prisma.offerOption.findMany({
       orderBy: { title: "asc" },
       select: {
@@ -81,9 +86,10 @@ export default async function QuoteEditPage({ params }: Props) {
         priceFromCents: true,
         unitLabel: true,
         unitPriceCents: true,
+        durationDays: true,
       },
-    }),
-  ]);
+    } as any),
+  ])) as any;
 
   if (!quote) {
     redirect("/dashboard/quotes");
@@ -118,19 +124,20 @@ export default async function QuoteEditPage({ params }: Props) {
           id: quote.id,
           projectDescription: quote.projectDescription,
           serviceOfferId: quote.serviceOfferId,
-          options: quote.quoteOptions.map((qo) => ({
+          options: (quote.quoteOptions as any[]).map((qo: any) => ({
             ...qo.option,
             quantity: qo.quantity,
           })),
           status: quote.status,
         }}
-        offers={availableOffers.map((o) => ({
+        offers={(availableOffers as any[]).map((o: any) => ({
           id: o.id,
           title: o.title,
           priceLabel: o.priceLabel,
-          includedOptionIds: o.offerOptions?.map((opt) => opt.id) ?? [],
+          durationDays: o.durationDays,
+          includedOptionIds: o.offerOptions?.map((opt: any) => opt.id) ?? [],
         }))}
-        options={availableOptions}
+        options={availableOptions as any}
       />
     </Section>
   );

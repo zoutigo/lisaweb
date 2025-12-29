@@ -15,6 +15,7 @@ type QuoteDetailProps = {
   projectDescription: string;
   desiredDeliveryDate?: string | null;
   serviceOfferTitle?: string | null;
+  serviceOfferDurationDays?: number;
   serviceOfferPriceLabel?: string | null;
   serviceOfferOptions: QuoteOption[];
   offerOptions: QuoteOption[];
@@ -37,6 +38,7 @@ type QuoteOption = {
   unitLabel: string | null;
   unitPriceCents: number | null;
   quantity?: number;
+  durationDays?: number;
 };
 
 const statusLabels: Record<QuoteStatus, string> = {
@@ -112,6 +114,13 @@ export function QuoteDetailClient({ quote }: { quote: QuoteDetailProps }) {
     totals.monthly > 0
       ? `${(totals.monthly / 100).toFixed(0)} €/mois`
       : "Aucun";
+
+  const baseDuration = quote.serviceOfferDurationDays ?? 0;
+  const optionsDuration = [...includedOptions, ...quote.offerOptions].reduce(
+    (acc, opt) => acc + (opt.durationDays ?? 0) * (opt.quantity ?? 1),
+    0,
+  );
+  const totalDuration = baseDuration + optionsDuration;
 
   const save = async () => {
     setMessage(null);
@@ -270,6 +279,29 @@ export function QuoteDetailClient({ quote }: { quote: QuoteDetailProps }) {
         <p className="text-xs text-gray-500">
           Estimation indicative. Les tarifs définitifs seront confirmés lors de
           l&apos;échange.
+        </p>
+      </div>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-2">
+        <p className="text-xs uppercase tracking-[0.12em] text-gray-500">
+          Synthèse des délais
+        </p>
+        <div className="flex items-center justify-between text-sm text-gray-800">
+          <span>Format</span>
+          <span>{baseDuration > 0 ? `${baseDuration} j` : "À définir"}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm text-gray-800">
+          <span>Options</span>
+          <span>
+            {optionsDuration > 0 ? `${optionsDuration} j` : "Inclus/Aucun"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
+          <span>Total estimé</span>
+          <span>{totalDuration > 0 ? `${totalDuration} j` : "À définir"}</span>
+        </div>
+        <p className="text-xs text-gray-500">
+          Durées exprimées en jours calendaires, à ajuster selon le périmètre
+          final.
         </p>
       </div>
       <div className="flex justify-end">

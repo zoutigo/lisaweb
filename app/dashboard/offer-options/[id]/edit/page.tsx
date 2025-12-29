@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function EditOfferOptionPage({
           unitPriceCents: option.unitPriceCents ?? undefined,
           constraintsJson: option.constraintsJson ?? undefined,
           unitLabel: option.unitLabel ?? undefined,
+          durationDays: (option as any).durationDays ?? 2,
         }}
       />
     </div>

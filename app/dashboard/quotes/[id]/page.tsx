@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -22,13 +23,14 @@ export default async function QuoteDetailPage({ params }: Props) {
 
   const resolved = await params;
 
-  const quote = await prisma.quoteRequest.findUnique({
+  const quote = (await prisma.quoteRequest.findUnique({
     where: { id: resolved.id },
     include: {
       serviceOffer: {
         select: {
           title: true,
           priceLabel: true,
+          durationDays: true,
           offerOptions: {
             select: {
               id: true,
@@ -38,6 +40,7 @@ export default async function QuoteDetailPage({ params }: Props) {
               priceFromCents: true,
               unitLabel: true,
               unitPriceCents: true,
+              durationDays: true,
             },
           },
         },
@@ -53,13 +56,14 @@ export default async function QuoteDetailPage({ params }: Props) {
               priceFromCents: true,
               unitLabel: true,
               unitPriceCents: true,
+              durationDays: true,
             },
           },
         },
       },
       rendezvous: true,
     },
-  });
+  } as any)) as any;
 
   if (!quote) {
     redirect("/dashboard/quotes");
@@ -98,9 +102,10 @@ export default async function QuoteDetailPage({ params }: Props) {
           projectDescription: quote.projectDescription,
           desiredDeliveryDate: quote.desiredDeliveryDate?.toISOString() ?? null,
           serviceOfferTitle: quote.serviceOffer?.title ?? null,
+          serviceOfferDurationDays: quote.serviceOffer?.durationDays ?? 0,
           serviceOfferPriceLabel: quote.serviceOffer?.priceLabel ?? null,
           serviceOfferOptions: quote.serviceOffer?.offerOptions ?? [],
-          offerOptions: quote.quoteOptions.map((qo) => ({
+          offerOptions: (quote.quoteOptions as any[]).map((qo: any) => ({
             ...qo.option,
             quantity: qo.quantity,
           })),

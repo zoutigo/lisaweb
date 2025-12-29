@@ -25,6 +25,7 @@ const options = [
     priceFromCents: null,
     unitLabel: null,
     unitPriceCents: null,
+    durationDays: 2,
   },
   {
     id: "opt2",
@@ -36,6 +37,7 @@ const options = [
     priceFromCents: 20000,
     unitLabel: null,
     unitPriceCents: null,
+    durationDays: 2,
   },
   {
     id: "opt3",
@@ -47,6 +49,7 @@ const options = [
     priceFromCents: null,
     unitLabel: "page",
     unitPriceCents: 1500,
+    durationDays: 2,
   },
   {
     id: "opt4",
@@ -58,6 +61,7 @@ const options = [
     priceFromCents: null,
     unitLabel: null,
     unitPriceCents: null,
+    durationDays: 2,
   },
   {
     id: "opt5",
@@ -69,6 +73,7 @@ const options = [
     priceFromCents: 5000,
     unitLabel: null,
     unitPriceCents: null,
+    durationDays: 2,
   },
   {
     id: "opt6",
@@ -80,6 +85,7 @@ const options = [
     priceFromCents: null,
     unitLabel: null,
     unitPriceCents: null,
+    durationDays: 2,
   },
   {
     id: "opt7",
@@ -91,6 +97,7 @@ const options = [
     priceFromCents: null,
     unitLabel: "mois",
     unitPriceCents: 3900,
+    durationDays: 2,
   },
 ];
 

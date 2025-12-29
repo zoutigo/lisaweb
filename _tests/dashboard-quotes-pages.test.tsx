@@ -85,6 +85,7 @@ describe("Dashboard quotes pages", () => {
       serviceOffer: {
         title: "Offre B",
         priceLabel: "900 €",
+        durationDays: 12,
         offerOptions: [
           {
             id: "opt-included",
@@ -94,6 +95,7 @@ describe("Dashboard quotes pages", () => {
             priceFromCents: null,
             unitLabel: null,
             unitPriceCents: null,
+            durationDays: 0,
           },
         ],
       },
@@ -108,6 +110,7 @@ describe("Dashboard quotes pages", () => {
             priceFromCents: null,
             unitLabel: null,
             unitPriceCents: null,
+            durationDays: 4,
           },
         },
       ],
@@ -166,6 +169,7 @@ describe("Dashboard quotes pages", () => {
       serviceOffer: {
         title: "Offre C",
         priceLabel: "1200 €",
+        durationDays: 10,
         offerOptions: [],
       },
       quoteOptions: [],
@@ -174,7 +178,7 @@ describe("Dashboard quotes pages", () => {
       rendezvous: null,
     });
     prismaServiceOfferMock.findMany.mockResolvedValue([
-      { id: "so1", title: "Offre C", priceLabel: "1200 €" },
+      { id: "so1", title: "Offre C", priceLabel: "1200 €", durationDays: 10 },
     ]);
     prismaOptionMock.findMany.mockResolvedValue([
       {
@@ -185,6 +189,7 @@ describe("Dashboard quotes pages", () => {
         priceFromCents: null,
         unitLabel: null,
         unitPriceCents: null,
+        durationDays: 2,
       },
     ]);
 
@@ -221,6 +226,7 @@ describe("Dashboard quotes pages", () => {
       serviceOffer: {
         title: "Offre D",
         priceLabel: "1500 €",
+        durationDays: 5,
         offerOptions: [],
       },
       quoteOptions: [
@@ -234,6 +240,7 @@ describe("Dashboard quotes pages", () => {
             priceFromCents: null,
             unitLabel: null,
             unitPriceCents: null,
+            durationDays: 2,
           },
         },
       ],
@@ -242,8 +249,13 @@ describe("Dashboard quotes pages", () => {
       rendezvous: null,
     });
     prismaServiceOfferMock.findMany.mockResolvedValue([
-      { id: "so1", title: "Offre D", priceLabel: "1500 €" },
-      { id: "so2", title: "Offre E", priceLabel: "2000 €" },
+      {
+        id: "so1",
+        title: "Offre D",
+        priceLabel: "1500 €",
+        durationDays: 5,
+      },
+      { id: "so2", title: "Offre E", priceLabel: "2000 €", durationDays: 7 },
     ]);
     prismaOptionMock.findMany.mockResolvedValue([
       {
@@ -254,6 +266,7 @@ describe("Dashboard quotes pages", () => {
         priceFromCents: null,
         unitLabel: null,
         unitPriceCents: null,
+        durationDays: 2,
       },
       {
         id: "opt-z",
@@ -263,6 +276,7 @@ describe("Dashboard quotes pages", () => {
         priceFromCents: null,
         unitLabel: "page",
         unitPriceCents: 2500,
+        durationDays: 1,
       },
     ]);
 
@@ -287,6 +301,9 @@ describe("Dashboard quotes pages", () => {
         .find((el) => el.parentElement?.className.includes("justify-between"))
         ?.nextSibling?.textContent,
     ).toMatch(/50/i);
+    expect(screen.getAllByText(/synthèse des délais/i).length).toBeGreaterThan(
+      0,
+    );
 
     fireEvent.change(screen.getByLabelText(/format choisi/i), {
       target: { value: "so2" },

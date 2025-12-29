@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,7 @@ export default async function EditServiceOfferPage({
         mode="edit"
         initialOffer={{
           ...offer,
+          durationDays: (offer as any).durationDays ?? 0,
           subtitle: offer.subtitle ?? undefined,
           features:
             offer.features?.map((f, idx) => ({

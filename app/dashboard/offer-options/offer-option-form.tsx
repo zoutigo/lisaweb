@@ -39,6 +39,7 @@ export function OfferOptionForm({ mode, initialOption }: FormProps) {
       priceFromCents: initialOption?.priceFromCents ?? undefined,
       unitLabel: initialOption?.unitLabel ?? "",
       unitPriceCents: initialOption?.unitPriceCents ?? undefined,
+      durationDays: initialOption?.durationDays ?? 2,
       isPopular: initialOption?.isPopular ?? false,
       order: initialOption?.order ?? 0,
       constraintsJson: initialOption?.constraintsJson ?? "",
@@ -179,6 +180,26 @@ export function OfferOptionForm({ mode, initialOption }: FormProps) {
               Populaire
             </span>
           </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-gray-800">
+              Durée (jours)
+            </label>
+            <input
+              type="number"
+              {...register("durationDays", { valueAsNumber: true })}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+              placeholder="2"
+            />
+            {errors.durationDays ? (
+              <p className="text-xs text-red-600">
+                {errors.durationDays.message}
+              </p>
+            ) : null}
+          </div>
+          <div />
         </div>
 
         {pricingType === "FIXED" ? (

@@ -147,6 +147,7 @@ model ServiceOffer {
   longDescription  String                @db.Text
   targetAudience   String
   priceLabel       String
+  durationDays     Int                   @default(0)
   durationLabel    String
   engagementLabel  String
   isFeatured       Boolean               @default(false)
@@ -199,6 +200,7 @@ model OfferOption {
   priceFromCents   Int?
   unitLabel        String?
   unitPriceCents   Int?
+  durationDays     Int            @default(2)
   isPopular        Boolean        @default(false)
   order            Int            @default(0)
   constraintsJson  String?

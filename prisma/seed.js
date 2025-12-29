@@ -13,6 +13,7 @@ const offers = [
       "Un accompagnement complet : structure claire, design moderne, développement Next.js rapide et sécurisé, SEO local et prise en main simple pour rester autonome.",
     targetAudience: "Écoles, associations, artisans, TPE",
     priceLabel: "À partir de … €",
+    durationDays: 28,
     durationLabel: "2 à 4 semaines",
     engagementLabel: "Forfait, sans engagement",
     isFeatured: true,
@@ -69,6 +70,7 @@ const offers = [
       "Audit rapide, nouvelle expérience utilisateur, performances améliorées, sécurité renforcée et migration accompagnée pour ne rien perdre.",
     targetAudience: "Clients déjà équipés, site obsolète ou lent",
     priceLabel: "Sur devis",
+    durationDays: 30,
     durationLabel: "2 à 6 semaines selon l’existant",
     engagementLabel: "Refonte guidée",
     isFeatured: false,
@@ -125,6 +127,7 @@ const offers = [
       "Un partenariat souple : petites évolutions régulières, optimisations ciblées, conseils et suivi pour un site qui reste performant.",
     targetAudience: "Clients souhaitant faire évoluer leur site régulièrement",
     priceLabel: "Formule souple",
+    durationDays: 14,
     durationLabel: "Mission récurrente ou ponctuelle",
     engagementLabel: "Sans engagement long terme",
     isFeatured: false,
@@ -281,6 +284,7 @@ const offerOptions = [
       "Vente de produits en ligne avec paiement sécurisé. Inclut : panier, paiement (Stripe), emails transactionnels. Notes : dépend du nombre de produits et livraisons.",
     pricingType: "FROM",
     priceFromCents: 90000,
+    durationDays: 10,
     order: 1,
     constraintsJson:
       '{"dependsOn":["transactional-emails"],"notes":"Prévoir coût Stripe + configuration des webhooks"}',
@@ -294,6 +298,7 @@ const offerOptions = [
       "Paiement en ligne pour dons, inscriptions ou prestations, sans boutique complète.",
     pricingType: "FIXED",
     priceCents: 25000,
+    durationDays: 2,
     order: 2,
   },
   {
@@ -305,6 +310,7 @@ const offerOptions = [
       "Formulaire avec champs conditionnels, devis ou demandes ciblées, pour qualifier les leads.",
     pricingType: "FIXED",
     priceCents: 18000,
+    durationDays: 3,
     order: 3,
   },
   {
@@ -315,6 +321,7 @@ const offerOptions = [
       "Connexion sécurisée, gestion des rôles et accès privé pour des contenus ou espaces restreints.",
     pricingType: "FROM",
     priceFromCents: 60000,
+    durationDays: 7,
     order: 4,
     constraintsJson:
       '{"dependsOn":["transactional-emails"],"notes":"Prévoir Politique de mots de passe et RGPD"}',
@@ -327,6 +334,7 @@ const offerOptions = [
       "Connexion via Google (ou autre fournisseur OAuth) pour simplifier l’inscription et l’accès.",
     pricingType: "FIXED",
     priceCents: 20000,
+    durationDays: 2,
     order: 5,
     constraintsJson:
       '{"dependsOn":["authentication"],"notes":"Nécessite clés OAuth et paramétrage des URLs de callback"}',
@@ -340,6 +348,7 @@ const offerOptions = [
       "Inscription, gestion des abonnés et envoi de newsletters. Notes : hors coût du fournisseur (Mailjet, Brevo…).",
     pricingType: "FROM",
     priceFromCents: 25000,
+    durationDays: 3,
     order: 6,
     constraintsJson:
       '{"notes":"Hors coût fournisseur (Mailjet, Brevo…). Configuré et relié au site."}',
@@ -352,6 +361,7 @@ const offerOptions = [
       "Emails automatiques fiables et configurés (SPF, DKIM) pour contact, commande ou inscription.",
     pricingType: "FIXED",
     priceCents: 18000,
+    durationDays: 2,
     order: 7,
   },
   {
@@ -363,6 +373,7 @@ const offerOptions = [
       "Prise de rendez-vous en ligne (Calendly ou système intégré), notifications et suivi.",
     pricingType: "FROM",
     priceFromCents: 30000,
+    durationDays: 4,
     order: 8,
   },
   {
@@ -374,6 +385,7 @@ const offerOptions = [
       "Optimisation SEO locale : ciblage des villes, Google Business Profile, contenu localisé.",
     pricingType: "FIXED",
     priceCents: 35000,
+    durationDays: 5,
     order: 9,
   },
   {
@@ -386,6 +398,7 @@ const offerOptions = [
     pricingType: "PER_UNIT",
     unitLabel: "page",
     unitPriceCents: 9000,
+    durationDays: 1,
     order: 10,
   },
   {
@@ -397,6 +410,7 @@ const offerOptions = [
     pricingType: "PER_UNIT",
     unitLabel: "langue",
     unitPriceCents: 25000,
+    durationDays: 2,
     order: 11,
   },
   {
@@ -408,6 +422,7 @@ const offerOptions = [
       "Blog avec gestion des articles et catégories pour publier facilement et travailler le SEO.",
     pricingType: "FIXED",
     priceCents: 30000,
+    durationDays: 3,
     order: 12,
   },
   {
@@ -419,6 +434,7 @@ const offerOptions = [
     pricingType: "PER_UNIT",
     unitLabel: "mois",
     unitPriceCents: 3900,
+    durationDays: 2,
     order: 13,
     constraintsJson:
       '{"dependsOn":["hosting-monitoring"],"notes":"Contrat mensuel reconductible"}',
@@ -433,6 +449,7 @@ const offerOptions = [
     pricingType: "PER_UNIT",
     unitLabel: "mois",
     unitPriceCents: 2500,
+    durationDays: 2,
     order: 14,
   },
   {
@@ -444,6 +461,7 @@ const offerOptions = [
       "Sauvegardes automatiques et restauration en cas de problème, pour limiter les risques.",
     pricingType: "FIXED",
     priceCents: 12000,
+    durationDays: 2,
     order: 15,
   },
 ];

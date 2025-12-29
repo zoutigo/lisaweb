@@ -25,6 +25,7 @@ export const serviceOfferSchema = z.object({
   longDescription: z.string().min(20),
   targetAudience: z.string().min(3),
   priceLabel: z.string().min(2),
+  durationDays: z.number().int().nonnegative().default(0),
   durationLabel: z.string().min(2),
   engagementLabel: z.string().min(2),
   isFeatured: z.boolean().optional().default(false),

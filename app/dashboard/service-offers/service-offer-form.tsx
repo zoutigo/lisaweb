@@ -102,6 +102,7 @@ export function ServiceOfferForm({
       longDescription: initialOffer?.longDescription ?? "",
       targetAudience: initialOffer?.targetAudience ?? "",
       priceLabel: initialOffer?.priceLabel ?? "",
+      durationDays: initialOffer?.durationDays ?? 0,
       durationLabel: initialOffer?.durationLabel ?? "",
       engagementLabel: initialOffer?.engagementLabel ?? "",
       isFeatured: initialOffer?.isFeatured ?? false,
@@ -310,12 +311,28 @@ export function ServiceOfferForm({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-800">Durée</label>
+            <label className="text-sm font-semibold text-gray-800">
+              Durée (libellé)
+            </label>
             <input
               {...register("durationLabel")}
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
               placeholder="2 à 4 semaines"
             />
+            <label className="text-sm font-semibold text-gray-800">
+              Durée (jours)
+            </label>
+            <input
+              type="number"
+              {...register("durationDays", { valueAsNumber: true })}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+              placeholder="14"
+            />
+            {errors.durationDays ? (
+              <p className="text-xs text-red-600">
+                {errors.durationDays.message as string}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-gray-800">

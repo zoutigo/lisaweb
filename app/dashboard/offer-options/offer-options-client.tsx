@@ -18,6 +18,7 @@ type OfferOptionItem = {
   priceFromCents: number | null;
   unitLabel: string | null;
   unitPriceCents: number | null;
+  durationDays?: number;
 };
 
 type Props = { initialOptions: OfferOptionItem[] };

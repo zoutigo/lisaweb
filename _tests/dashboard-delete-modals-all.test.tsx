@@ -77,6 +77,7 @@ describe("ConfirmModal delete flows across dashboard lists", () => {
             priceFromCents: null,
             unitLabel: null,
             unitPriceCents: null,
+            durationDays: 2,
           },
         ]}
       />,

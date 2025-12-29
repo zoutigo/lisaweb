@@ -81,6 +81,7 @@ describe("ServiceOfferForm", () => {
       const [, options] = (global.fetch as jest.Mock).mock.calls[0];
       const parsed = JSON.parse((options as RequestInit).body as string);
       expect(parsed.offerOptionIds).toContain("opt-1");
+      expect(parsed.durationDays).toBeGreaterThanOrEqual(0);
       expect(pushMock).toHaveBeenCalledWith("/dashboard/service-offers");
       expect(refreshMock).toHaveBeenCalled();
     });
@@ -99,6 +100,7 @@ describe("ServiceOfferForm", () => {
           longDescription: "Description détaillée suffisamment longue",
           targetAudience: "TPE",
           priceLabel: "Prix",
+          durationDays: 0,
           durationLabel: "Durée",
           engagementLabel: "Engagement",
           isFeatured: false,

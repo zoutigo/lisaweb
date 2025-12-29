@@ -24,6 +24,7 @@ export type QuoteWizardOption = {
   priceFromCents: number | null;
   unitLabel: string | null;
   unitPriceCents: number | null;
+  durationDays?: number;
 };
 
 function formatOptionPrice(opt: QuoteWizardOption) {

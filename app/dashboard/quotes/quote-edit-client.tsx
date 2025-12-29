@@ -8,6 +8,7 @@ type SelectOption = {
   id: string;
   title: string;
   priceLabel?: string | null;
+  durationDays?: number;
   includedOptionIds?: string[];
 };
 
@@ -19,6 +20,7 @@ type QuoteOption = {
   priceFromCents: number | null;
   unitLabel: string | null;
   unitPriceCents: number | null;
+  durationDays?: number;
 };
 
 export function QuoteEditClient({
@@ -110,6 +112,15 @@ export function QuoteEditClient({
     includedOptionIds.includes(o.id),
   );
   const extraOptions = options.filter((o) => !includedOptionIds.includes(o.id));
+  const durationFromOptions = offerOptionIds.reduce((acc, id) => {
+    const opt = options.find((o) => o.id === id);
+    if (!opt) return acc;
+    const qty = Math.max(1, optionQuantities[id] ?? 1);
+    return acc + (opt.durationDays ?? 0) * qty;
+  }, 0);
+  const baseDuration =
+    offers.find((o) => o.id === serviceOfferId)?.durationDays ?? 0;
+  const totalDuration = baseDuration + durationFromOptions;
 
   const toggleOption = (id: string) => {
     if (includedOptionIds.includes(id)) return;
@@ -345,6 +356,32 @@ export function QuoteEditClient({
               {totals.monthly > 0
                 ? `${(totals.monthly / 100).toFixed(0)} €/mois`
                 : "Aucune"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-600">
+          Synthèse des délais
+        </p>
+        <div className="mt-2 space-y-2 text-sm text-gray-800">
+          <div className="flex items-center justify-between">
+            <span>Format</span>
+            <span>{baseDuration > 0 ? `${baseDuration} j` : "À définir"}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Options</span>
+            <span>
+              {durationFromOptions > 0
+                ? `${durationFromOptions} j`
+                : "Inclus/Aucun"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between font-semibold">
+            <span>Total estimé</span>
+            <span>
+              {totalDuration > 0 ? `${totalDuration} j` : "À définir"}
             </span>
           </div>
         </div>

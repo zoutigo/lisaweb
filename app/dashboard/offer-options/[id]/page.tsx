@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,7 @@ export default async function OfferOptionDetailPage({
           {option.unitPriceCents ? (
             <p>Prix unitaire: {option.unitPriceCents} cents</p>
           ) : null}
+          <p>Durée estimée: {(option as any).durationDays ?? 0} jours</p>
           <p>Populaire: {option.isPopular ? "Oui" : "Non"}</p>
           {option.constraintsJson ? (
             <p>Contraintes: {option.constraintsJson}</p>
