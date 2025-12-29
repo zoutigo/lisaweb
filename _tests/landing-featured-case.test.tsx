@@ -36,6 +36,43 @@ describe("LandingFeaturedCase", () => {
     ).toHaveAttribute("href", "https://exemple.com");
   });
 
+  it("rafraîchit avec le cas mis en avant renvoyé par l'API", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const originalFetch = global.fetch;
+    (global as unknown as { fetch: jest.Mock }).fetch = jest
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: "case-2",
+          title: "Cas API",
+          customer: "Client B",
+          description: "Desc API",
+          url: "https://api-case.com",
+          results: [{ id: "r1", label: "Résultat API", slug: "res-api" }],
+          features: [{ id: "f1", label: "Feature API", slug: "feat-api" }],
+        }),
+      } as unknown as Response);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <LandingFeaturedCase initialCase={null} />
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/résultat api/i)).toBeInTheDocument(),
+    );
+    expect(screen.getByText(/cas api/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /voir la réalisation/i }),
+    ).toHaveAttribute("href", "https://api-case.com");
+
+    (global as unknown as { fetch: typeof fetch }).fetch = originalFetch;
+  });
+
   it("affiche les fallbacks quand aucune donnée n'est liée", async () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },

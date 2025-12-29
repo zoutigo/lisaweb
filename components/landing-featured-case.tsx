@@ -40,16 +40,16 @@ export function LandingFeaturedCase({ initialCase }: Props) {
     queryKey: ["landing-case"],
     queryFn: async () => {
       const res = await fetch("/api/customer-cases/featured", {
-        cache: "force-cache",
+        cache: "no-store",
       });
       if (!res.ok) return null;
       return (await res.json()) as LandingCase | null;
     },
     initialData: initialCase ?? undefined,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
   });
 
   const caseData = data ?? initialCase;

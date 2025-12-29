@@ -71,6 +71,7 @@ describe("API customer-cases", () => {
 
   it("POST creates case", async () => {
     prismaMock.create.mockResolvedValue({ id: "c1", title: "Case" });
+    prismaMock.updateMany.mockResolvedValue({ count: 1 });
     const res = await postCase({
       json: async () => ({
         title: "Case",
@@ -82,11 +83,15 @@ describe("API customer-cases", () => {
       }),
     } as unknown as Request);
     expect(res.status).toBe(201);
-    expect(prismaMock.updateMany).toHaveBeenCalled();
+    expect(prismaMock.updateMany).toHaveBeenCalledWith({
+      data: { isFeatured: false },
+      where: { isFeatured: true },
+    });
   });
 
   it("PUT updates case", async () => {
     prismaMock.update.mockResolvedValue({ id: "c1", title: "Upd" });
+    prismaMock.updateMany.mockResolvedValue({ count: 1 });
     const res = await putCase(
       {
         json: async () => ({
@@ -98,7 +103,29 @@ describe("API customer-cases", () => {
       { params: { id: "1" } },
     );
     expect(res.status).toBe(200);
-    expect(prismaMock.updateMany).toHaveBeenCalled();
+    expect(prismaMock.updateMany).toHaveBeenCalledWith({
+      data: { isFeatured: false },
+      where: { isFeatured: true, NOT: { id: "1" } },
+    });
+  });
+
+  it("force l'unicité du cas mis en avant (PUT avec un autre id)", async () => {
+    prismaMock.update.mockResolvedValue({ id: "c2", title: "Case 2" });
+    prismaMock.updateMany.mockResolvedValue({ count: 1 });
+    await putCase(
+      {
+        json: async () => ({
+          title: "Case 2",
+          description: "Desc suffisante",
+          isFeatured: true,
+        }),
+      } as unknown as Request,
+      { params: { id: "c2" } },
+    );
+    expect(prismaMock.updateMany).toHaveBeenCalledWith({
+      data: { isFeatured: false },
+      where: { isFeatured: true, NOT: { id: "c2" } },
+    });
   });
 
   it("DELETE removes case", async () => {
