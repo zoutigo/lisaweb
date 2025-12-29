@@ -167,7 +167,7 @@ export default function RendezvousPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.12),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.15),transparent_25%)] blur-3xl" />
       <main>
-        <Section className="pt-16 sm:pt-24">
+        <Section className="pt-10 sm:pt-16">
           <div className="mx-auto max-w-4xl rounded-[28px] bg-white/80 p-8 shadow-[0_25px_80px_-35px_rgba(0,0,0,0.25)] backdrop-blur sm:p-10">
             <SectionHeading
               eyebrow="Prendre rendez-vous"

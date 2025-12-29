@@ -11,7 +11,7 @@ export function Section({
   return (
     <Tag
       className={cn(
-        "relative mx-auto w-full max-w-6xl px-6 py-16 sm:px-8",
+        "relative mx-auto w-full max-w-6xl px-6 py-10 sm:px-8 sm:py-12",
         className,
       )}
       {...props}

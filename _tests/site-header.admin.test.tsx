@@ -41,7 +41,9 @@ describe("SiteHeader admin visibility", () => {
     render(<SiteHeader />);
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(
+      screen.getByRole("button", { name: /ouvrir le menu utilisateur/i }),
+    );
 
     expect(screen.queryByRole("button", { name: /dashboard/i })).toBeNull();
   });
@@ -61,7 +63,9 @@ describe("SiteHeader admin visibility", () => {
 
     render(<SiteHeader />);
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(
+      screen.getByRole("button", { name: /ouvrir le menu utilisateur/i }),
+    );
 
     expect(screen.queryByRole("button", { name: /dashboard/i })).toBeNull();
   });
@@ -81,7 +85,9 @@ describe("SiteHeader admin visibility", () => {
 
     render(<SiteHeader />);
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(
+      screen.getByRole("button", { name: /ouvrir le menu utilisateur/i }),
+    );
 
     const dash = screen.getByRole("button", { name: /dashboard/i });
     expect(dash).toBeInTheDocument();
