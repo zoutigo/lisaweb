@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +72,21 @@ const processSteps = [
   },
 ];
 
+export const metadata: Metadata = {
+  title:
+    "Création de sites web à Pont-de-Chéruy, Tignieu, Crémieu | LisaWeb développeur web & mobile",
+  description:
+    "Sites vitrines et refontes modernes pour écoles, associations, artisans et TPE autour de Pont-de-Chéruy, Tignieu-Jameyzieu, Crémieu et l’Isère : rapides, SEO local, sécurisés et faciles à gérer.",
+  keywords: [
+    "création site web Pont-de-Chéruy",
+    "développeur web Tignieu",
+    "site vitrine artisan Isère",
+    "refonte site école",
+    "seo local crémieu",
+    "developpeur next.js lyon est",
+  ],
+};
+
 export default async function Home() {
   let featuredCase: LandingCustomerCase | null = null;
   let featuredOffer: LandingServiceOffer | null = null;
@@ -79,17 +95,17 @@ export default async function Home() {
       const landingCaseRaw =
         (await prisma.customerCase.findFirst({
           where: { isFeatured: true },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "desc" as const },
           include: {
-            results: { orderBy: { order: "asc" } },
-            features: { orderBy: { order: "asc" } },
+            results: { orderBy: { order: "asc" as const } },
+            features: { orderBy: { order: "asc" as const } },
           },
         })) ??
         (await prisma.customerCase.findFirst({
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "desc" as const },
           include: {
-            results: { orderBy: { order: "asc" } },
-            features: { orderBy: { order: "asc" } },
+            results: { orderBy: { order: "asc" as const } },
+            features: { orderBy: { order: "asc" as const } },
           },
         })) ??
         null;
@@ -103,26 +119,30 @@ export default async function Home() {
           url: landingCaseRaw.url ?? null,
           imageUrl: landingCaseRaw.imageUrl ?? null,
           results:
-            landingCaseRaw.results?.map((r) => ({
-              id: r.id,
-              label: r.label,
-              slug: r.slug,
-            })) ?? [],
+            landingCaseRaw.results?.map(
+              (r: { id: string; label: string; slug: string }) => ({
+                id: r.id,
+                label: r.label,
+                slug: r.slug,
+              }),
+            ) ?? [],
           features:
-            landingCaseRaw.features?.map((f) => ({
-              id: f.id,
-              label: f.label,
-              slug: f.slug,
-            })) ?? [],
+            landingCaseRaw.features?.map(
+              (f: { id: string; label: string; slug: string }) => ({
+                id: f.id,
+                label: f.label,
+                slug: f.slug,
+              }),
+            ) ?? [],
         };
       }
 
       const offer = await prisma.serviceOffer.findFirst({
         where: { isFeatured: true },
-        orderBy: { order: "asc" },
+        orderBy: { order: "asc" as const },
         include: {
-          features: { orderBy: { order: "asc" } },
-          steps: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" as const } },
+          steps: { orderBy: { order: "asc" as const } },
           offerOptions: true,
         },
       });
@@ -156,11 +176,11 @@ export default async function Home() {
     }
   }
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
+    <div className="min-h-screen bg-linear-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(59,91,255,0.15),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.16),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(200,243,211,0.18),transparent_25%)] blur-3xl" />
       <main>
         <Section className="pt-12 sm:pt-20">
-          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1b2653] to-[#3b5bff] px-6 py-10 text-white shadow-[0_25px_80px_-35px_rgba(0,0,0,0.55)] sm:px-10 sm:py-12 lg:px-16">
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#1b2653] to-[#3b5bff] px-6 py-10 text-white shadow-[0_25px_80px_-35px_rgba(0,0,0,0.55)] sm:px-10 sm:py-12 lg:px-16">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.08),transparent_30%),linear-gradient(120deg,rgba(255,255,255,0.08),transparent_40%)]" />
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="flex flex-col gap-6">
@@ -178,7 +198,7 @@ export default async function Home() {
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
                     href="/rendezvous"
-                    className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-white px-5 py-3 text-sm font-semibold text-[#1b2653] shadow-[0_12px_30px_rgba(59,91,255,0.25)] transition hover:bg-[#f2f4ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B5BFF]"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-[#1b2653] shadow-[0_12px_30px_rgba(59,91,255,0.25)] transition hover:bg-[#f2f4ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B5BFF]"
                   >
                     Prendre un rendez-vous
                   </Link>
@@ -310,7 +330,7 @@ export default async function Home() {
         </Section>
 
         <Section id="values" className="pb-16">
-          <div className="overflow-hidden rounded-[24px] bg-[#edf1ff] p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.4)]">
+          <div className="overflow-hidden rounded-3xl bg-[#edf1ff] p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.4)]">
             <SectionHeading
               eyebrow="Mes valeurs"
               title="Je mets l’humain au centre de chaque projet."
@@ -328,7 +348,7 @@ export default async function Home() {
               ].map((value) => (
                 <div
                   key={value}
-                  className="rounded-[16px] bg-white/80 p-4 text-sm text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.04)]"
+                  className="rounded-2xl bg-white/80 p-4 text-sm text-[#1b2653] shadow-[0_8px_24px_rgba(0,0,0,0.04)]"
                 >
                   {value}
                 </div>
@@ -338,7 +358,7 @@ export default async function Home() {
         </Section>
 
         <Section id="cta" className="pb-24">
-          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-[#2f48ff] to-[#151e5a] px-10 py-12 text-white shadow-[0_25px_80px_-35px_rgba(0,0,0,0.6)]">
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-[#2f48ff] to-[#151e5a] px-10 py-12 text-white shadow-[0_25px_80px_-35px_rgba(0,0,0,0.6)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_25%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.08),transparent_35%)]" />
             <div className="relative flex flex-col gap-6">
               <h2 className="text-3xl font-semibold">

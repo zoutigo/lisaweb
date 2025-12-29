@@ -39,6 +39,18 @@ function buildMapSrc(info?: SiteInfo) {
   return `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 }
 
+function generateCaptcha() {
+  const a = Math.floor(Math.random() * 6) + 5; // 5..10
+  const b = Math.floor(Math.random() * 6) + 2; // 2..7
+  const c = Math.floor(Math.random() * 4) + 1; // 1..4
+  const useMinus = Math.random() > 0.5;
+  const captchaExpected = useMinus ? a + b - c : a + b + c;
+  const captchaQuestion = useMinus
+    ? `Combien font ${a} + ${b} - ${c} ?`
+    : `Combien font ${a} + ${b} + ${c} ?`;
+  return { captchaQuestion, captchaExpected };
+}
+
 export default function ContactClient({
   initialSiteInfo,
 }: {
@@ -61,6 +73,8 @@ export default function ContactClient({
     handleSubmit,
     reset,
     watch,
+    setValue,
+    resetField,
     formState: { errors, isSubmitting, isValid },
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
@@ -70,10 +84,14 @@ export default function ContactClient({
       phone: "",
       reason: "",
       message: "",
+      botField: "",
       captchaAnswer: undefined,
-      captchaExpected: Math.floor(Math.random() * 10) + 5, // 5..14
+      ...generateCaptcha(),
     },
   });
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const captchaExpected = watch("captchaExpected");
+  const captchaQuestion = watch("captchaQuestion");
 
   const [status, setStatus] = useState<"success" | "error" | null>(null);
 
@@ -94,8 +112,9 @@ export default function ContactClient({
       phone: "",
       reason: "",
       message: "",
+      botField: "",
       captchaAnswer: undefined,
-      captchaExpected: Math.floor(Math.random() * 10) + 5,
+      ...generateCaptcha(),
     });
   };
 
@@ -237,21 +256,48 @@ export default function ContactClient({
             >
               Vérification anti-robot
             </label>
-            <div className="flex items-center gap-2 rounded-xl bg-[#f9fafb] px-3 py-2 text-sm text-[#111827]">
+            <div className="flex flex-wrap items-center gap-2 rounded-xl bg-[#f9fafb] px-3 py-2 text-sm text-[#111827]">
               <span
                 className="text-sm text-[#374151]"
                 aria-label="question-anti-robot"
+                data-expected={captchaExpected}
               >
-                {/* eslint-disable-next-line react-hooks/incompatible-library */}
-                Combien vaut {watch("captchaExpected") ?? 0} ?
+                {captchaQuestion}
               </span>
               <input
                 id="contact-captcha"
                 type="number"
+                inputMode="numeric"
                 {...register("captchaAnswer", { valueAsNumber: true })}
-                className="w-20 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#111827] focus:border-[#3b5bff] focus:outline-none"
+                className="w-24 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#111827] focus:border-[#3b5bff] focus:outline-none"
               />
+              <Button
+                type="button"
+                variant="secondary"
+                className="ml-auto px-3 py-2 text-xs"
+                onClick={() => {
+                  const next = generateCaptcha();
+                  resetField("captchaAnswer", { defaultValue: undefined });
+                  setValue("captchaExpected", next.captchaExpected, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                  setValue("captchaQuestion", next.captchaQuestion, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                }}
+              >
+                Nouvelle question
+              </Button>
             </div>
+            <input
+              type="text"
+              aria-hidden="true"
+              tabIndex={-1}
+              className="hidden"
+              {...register("botField")}
+            />
             {errors.captchaAnswer ? (
               <p className="text-xs text-red-600">
                 {errors.captchaAnswer.message}

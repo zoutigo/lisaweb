@@ -16,6 +16,8 @@ export const contactSchema = z
       })
       .int(),
     captchaExpected: z.coerce.number().int(),
+    captchaQuestion: z.string().min(5, "Question invalide"),
+    botField: z.string().trim().max(0, "Vérification anti-robot invalide"),
   })
   .refine(
     (data) => data.captchaAnswer === data.captchaExpected,

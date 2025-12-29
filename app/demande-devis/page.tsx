@@ -5,6 +5,18 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import QuoteWizard from "./quote-wizard";
 
+export const metadata = {
+  title:
+    "Demande de devis site web | LisaWeb développeur à Pont-de-Chéruy, Tignieu, Crémieu",
+  description:
+    "Formulaire guidé pour estimer votre site vitrine ou refonte : choix du format, options, rendez-vous. Réponse rapide pour écoles, associations, artisans et TPE en Isère.",
+  keywords: [
+    "devis site web pont-de-chéruy",
+    "demande devis site vitrine isère",
+    "prix création site tignieu",
+  ],
+};
+
 export default async function DemandeDevisPage() {
   const session = await getServerSession(authOptions);
   const [offersRaw, options] = await Promise.all([

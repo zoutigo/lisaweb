@@ -93,7 +93,7 @@ export function SiteHeader() {
         </button>
 
         {open ? (
-          <div className="absolute right-3 top-[calc(100%+8px)] w-[220px] rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+          <div className="absolute right-3 top-[calc(100%+8px)] w-56 rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
             <div className="flex flex-col gap-3 text-sm font-semibold text-[#1b2653]">
               {links.map((link) => (
                 <a

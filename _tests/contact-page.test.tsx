@@ -74,8 +74,7 @@ describe("Page /contact", () => {
       "Un message assez long",
     );
     const question = screen.getByLabelText("question-anti-robot");
-    const text = question.textContent || "";
-    const expected = parseInt(text.match(/(\d+)\s+\?/i)?.[1] || "0", 10);
+    const expected = Number(question.getAttribute("data-expected") || "0");
     await userEvent.clear(screen.getByRole("spinbutton"));
     await userEvent.type(
       screen.getByRole("spinbutton"),

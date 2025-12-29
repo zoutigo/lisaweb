@@ -52,7 +52,7 @@ export function SiteFooter() {
 
   return (
     <Section as="footer" className="pb-16 pt-0">
-      <div className="grid gap-10 rounded-[24px] bg-[#f0f4ff] p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.25)] sm:grid-cols-[1.1fr_0.9fr] lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-10 rounded-3xl bg-[#f0f4ff] p-10 shadow-[0_16px_50px_-32px_rgba(27,38,83,0.25)] sm:grid-cols-[1.1fr_0.9fr] lg:grid-cols-[1.2fr_0.8fr]">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="cursor-pointer">

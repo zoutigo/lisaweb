@@ -3,9 +3,15 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Questions fréquentes | LisaWeb",
+  title: "FAQ sites web & SEO local | LisaWeb développeur web à Pont-de-Chéruy",
   description:
-    "Toutes les réponses avant de lancer votre site : coûts, délais, méthode, technique et suivi. Une FAQ claire et rassurante pour vos projets web.",
+    "Questions fréquentes sur les tarifs, délais, méthode, technique et suivi pour sites vitrines autour de Pont-de-Chéruy, Tignieu-Jameyzieu, Crémieu. Réponses simples pour écoles, associations, artisans et TPE.",
+  keywords: [
+    "faq site web pont-de-chéruy",
+    "prix site vitrine isère",
+    "délais création site crémieu",
+    "questions seo local tpe",
+  ],
 };
 
 type FaqRepo = {
@@ -104,7 +110,7 @@ export default async function FAQPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/rendezvous"
+                  href="/faq#questions"
                   className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-white px-5 py-3 text-sm font-semibold text-[#1b2653] shadow-[0_12px_30px_rgba(59,91,255,0.25)] transition hover:bg-[#f2f4ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3B5BFF]"
                 >
                   Poser une question
@@ -222,17 +228,21 @@ export default async function FAQPage() {
                 </Link>
               </div>
             </div>
-            <div className="rounded-3xl border border-[#e5e7eb] bg-white p-6 shadow-[0_14px_40px_-28px_rgba(27,38,83,0.32)]">
+            <div
+              id="questions"
+              className="rounded-3xl border border-[#e5e7eb] bg-white p-6 shadow-[0_14px_40px_-28px_rgba(27,38,83,0.32)]"
+            >
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#1b2653]">
-                Pour le SEO (FAQ riche)
+                Pourquoi cette FAQ ?
               </p>
               <ul className="mt-3 space-y-2 text-sm text-[#374151]">
-                <li>Questions courtes, réponses claires.</li>
+                <li>Des réponses directes pour préparer votre projet.</li>
                 <li>
-                  Sans jargon, avec mots-clés naturels (prix, délai, site
-                  vitrine...).
+                  Du vocabulaire simple, rien de technique ou de marketing.
                 </li>
-                <li>Vous pouvez enrichir au fil du temps.</li>
+                <li>
+                  Des exemples concrets sur les prix, délais et accompagnements.
+                </li>
               </ul>
             </div>
           </div>

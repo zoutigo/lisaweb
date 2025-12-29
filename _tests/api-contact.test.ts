@@ -58,6 +58,8 @@ describe("API /api/contact", () => {
           message: "Un message assez long",
           captchaAnswer: 10,
           captchaExpected: 10,
+          captchaQuestion: "Combien font 5 + 5 ?",
+          botField: "",
         }),
       }),
     );

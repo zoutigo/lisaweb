@@ -3,9 +3,14 @@ import { Section } from "@/components/section";
 import ContactClient from "./contact-client";
 
 export const metadata = {
-  title: "Contact",
+  title: "Contact LisaWeb | Développeur web à Pont-de-Chéruy, Tignieu, Crémieu",
   description:
-    "Échangeons sur votre projet web : coordonnées, localisation et formulaire de contact.",
+    "Coordonnées, téléphone cliquable et carte pour échanger sur votre site vitrine ou refonte en Isère. Réponse rapide pour écoles, associations, artisans et TPE.",
+  keywords: [
+    "contact développeur web pont-de-chéruy",
+    "prendre rendez-vous site vitrine isère",
+    "création site tpe crémieu contact",
+  ],
 };
 
 export default async function ContactPage() {
