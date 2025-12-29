@@ -22,6 +22,7 @@ jest.mock("next-auth/react", () => ({
   signIn: jest.fn(),
   signOut: jest.fn(),
 }));
+const { signIn, signOut } = jest.requireMock("next-auth/react");
 
 describe("SiteHeader", () => {
   beforeEach(() => {
@@ -34,7 +35,7 @@ describe("SiteHeader", () => {
 
     expect(screen.getByAltText(/plisa/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /ouvrir le menu/i }),
+      screen.getByRole("button", { name: /^ouvrir le menu$/i }),
     ).toBeVisible();
   });
 
@@ -53,18 +54,30 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(screen.getByRole("button", { name: /^ouvrir le menu$/i }));
     const contactLink = screen.getAllByRole("link", { name: /contact/i })[0];
     const faqLink = screen.getAllByRole("link", { name: /faq/i })[0];
     expect(contactLink).toHaveAttribute("href", "/contact");
     expect(faqLink).toHaveAttribute("href", "/faq");
   });
 
+  it("affiche les liens principaux sur desktop dont Prendre RDV", () => {
+    render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: /nos offres/i })).toHaveAttribute(
+      "href",
+      "/services-offers",
+    );
+    expect(screen.getByRole("link", { name: /prendre rdv/i })).toHaveAttribute(
+      "href",
+      "/rendezvous",
+    );
+  });
+
   it("ferme le menu quand on clique sur un lien du menu", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(screen.getByRole("button", { name: /^ouvrir le menu$/i }));
     expect(
       screen.getAllByRole("link", { name: /nos offres/i })[0],
     ).toBeInTheDocument();
@@ -80,7 +93,7 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
+    await user.click(screen.getByRole("button", { name: /^ouvrir le menu$/i }));
     expect(
       screen.getAllByRole("link", { name: /nos offres/i })[0],
     ).toBeInTheDocument();
@@ -95,11 +108,50 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    const toggle = screen.getByRole("button", { name: /ouvrir le menu/i });
+    const toggle = screen.getByRole("button", { name: /^ouvrir le menu$/i });
     expect(toggle).toBeInTheDocument();
     await user.click(toggle);
     expect(
       screen.getByRole("button", { name: /fermer le menu/i }),
     ).toBeInTheDocument();
+  });
+
+  it("compte : affiche l'icône rouge et permet de se connecter quand déconnecté", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    const accountBtn = screen.getByRole("button", {
+      name: /ouvrir le menu utilisateur/i,
+    });
+    const icon = accountBtn.querySelector("svg");
+    expect(icon?.className.baseVal || icon?.className).toContain(
+      "text-red-500",
+    );
+
+    await user.click(accountBtn);
+    const connect = screen.getByRole("button", { name: /se connecter/i });
+    await user.click(connect);
+    expect(signIn).toHaveBeenCalled();
+  });
+
+  it("compte : affiche l'icône verte et les actions quand connecté", async () => {
+    useSessionMock.mockReturnValue({
+      data: { user: { name: "User", email: "u@example.com" } },
+    });
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    const accountBtn = screen.getByRole("button", {
+      name: /ouvrir le menu utilisateur/i,
+    });
+    const icon = accountBtn.querySelector("svg");
+    expect(icon?.className.baseVal || icon?.className).toContain(
+      "text-emerald-500",
+    );
+
+    await user.click(accountBtn);
+    expect(screen.getByRole("button", { name: /profil/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /se déconnecter/i }));
+    expect(signOut).toHaveBeenCalled();
   });
 });

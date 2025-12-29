@@ -28,7 +28,7 @@ export default async function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f7f9fc] via-white to-[#eef2ff] text-[#111827]">
-      <Section className="pt-12 sm:pt-16">
+      <Section className="pt-8 sm:pt-12">
         <div className="overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1b2653] to-[#3b5bff] px-6 py-10 text-white shadow-[0_25px_80px_-35px_rgba(0,0,0,0.55)] sm:px-12 sm:py-12">
           <div className="flex flex-col gap-4 max-w-3xl">
             <p className="text-xs uppercase tracking-[0.26em] text-white/70">
