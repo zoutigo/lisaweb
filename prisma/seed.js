@@ -882,7 +882,7 @@ async function main() {
           someOptions.length > 0
             ? {
                 create: someOptions.map((o) => ({
-                  offerOption: { connect: { id: o.id } },
+                  option: { connect: { id: o.id } },
                   quantity: 1,
                 })),
               }
