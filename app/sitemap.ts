@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/demande-devis",
     "/contact",
     "/faq",
+    "rendezvous",
   ];
 
   const now = new Date();
@@ -19,5 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return pages.map((path) => ({
     url: `${siteUrl}${path}`,
     lastModified: now,
+    changeFrequency: "monthly",
+    priority: path === "/" ? 1 : 0.7,
   }));
 }
