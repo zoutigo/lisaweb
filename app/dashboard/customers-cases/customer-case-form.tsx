@@ -40,6 +40,7 @@ export function CustomerCaseForm({
       imageUrl: initialCase?.imageUrl ?? "",
       results: initialCase?.results ?? [],
       features: initialCase?.features ?? [],
+      isActive: initialCase?.isActive ?? true,
       isFeatured: initialCase?.isFeatured ?? false,
     }),
     [initialCase],
@@ -358,14 +359,25 @@ export function CustomerCaseForm({
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-          <input
-            type="checkbox"
-            {...register("isFeatured")}
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
-          />
-          Mettre en avant sur la landing (un seul cas client à la fois)
-        </label>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+            <input
+              type="checkbox"
+              {...register("isActive")}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
+            />
+            Afficher sur la page Réalisations
+          </label>
+
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+            <input
+              type="checkbox"
+              {...register("isFeatured")}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-400"
+            />
+            Mettre en avant sur la landing (un seul cas client à la fois)
+          </label>
+        </div>
 
         {message ? <ConfirmMessage type="success" message={message} /> : null}
         {error ? <ConfirmMessage type="error" message={error} /> : null}

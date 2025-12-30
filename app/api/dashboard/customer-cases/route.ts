@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { customerCaseSchema } from "@/lib/validations/customer-case";
 import { getServerSession } from "next-auth";
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
 
   const data = {
     ...parsed.data,
+    isActive: parsed.data.isActive ?? true,
     isFeatured: parsed.data.isFeatured ?? false,
     customer: parsed.data.customer || null,
     url: parsed.data.url || null,
@@ -57,48 +59,51 @@ export async function POST(req: Request) {
     features: parsed.data.features ?? [],
   };
 
-  const created = await prisma.$transaction(async (tx) => {
-    if (data.isFeatured) {
-      await tx.customerCase.updateMany({
-        data: { isFeatured: false },
-        where: { isFeatured: true },
+  const created = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      if (data.isFeatured) {
+        await tx.customerCase.updateMany({
+          data: { isFeatured: false },
+          where: { isFeatured: true },
+        });
+      }
+      const createdCase = await tx.customerCase.create({
+        data: {
+          title: data.title,
+          customer: data.customer,
+          description: data.description,
+          url: data.url,
+          imageUrl: data.imageUrl,
+          isActive: data.isActive,
+          isFeatured: data.isFeatured,
+          results: {
+            connectOrCreate: data.results.map((r, idx) => ({
+              where: { slug: r.slug ?? slugifyLabel(r.label) },
+              create: {
+                slug: r.slug ?? slugifyLabel(r.label),
+                label: r.label,
+                order: idx,
+              },
+            })),
+          },
+          features: {
+            connectOrCreate: data.features.map((f, idx) => ({
+              where: { slug: f.slug ?? slugifyLabel(f.label) },
+              create: {
+                slug: f.slug ?? slugifyLabel(f.label),
+                label: f.label,
+                order: idx,
+              },
+            })),
+          },
+        },
+        include: {
+          results: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" } },
+        },
       });
-    }
-    const createdCase = await tx.customerCase.create({
-      data: {
-        title: data.title,
-        customer: data.customer,
-        description: data.description,
-        url: data.url,
-        imageUrl: data.imageUrl,
-        isFeatured: data.isFeatured,
-        results: {
-          connectOrCreate: data.results.map((r, idx) => ({
-            where: { slug: r.slug ?? slugifyLabel(r.label) },
-            create: {
-              slug: r.slug ?? slugifyLabel(r.label),
-              label: r.label,
-              order: idx,
-            },
-          })),
-        },
-        features: {
-          connectOrCreate: data.features.map((f, idx) => ({
-            where: { slug: f.slug ?? slugifyLabel(f.label) },
-            create: {
-              slug: f.slug ?? slugifyLabel(f.label),
-              label: f.label,
-              order: idx,
-            },
-          })),
-        },
-      },
-      include: {
-        results: { orderBy: { order: "asc" } },
-        features: { orderBy: { order: "asc" } },
-      },
-    });
-    return createdCase;
-  });
+      return createdCase;
+    },
+  );
   return NextResponse.json(created, { status: 201 });
 }

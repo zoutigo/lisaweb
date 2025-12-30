@@ -4,6 +4,8 @@ import DashboardPage from "@/app/dashboard/page";
 
 const redirectMock = jest.fn();
 
+jest.mock("@/lib/prisma", () => ({ prisma: {} }));
+
 jest.mock("next/navigation", () => ({
   __esModule: true,
   redirect: (...args: unknown[]) => redirectMock(...args),

@@ -15,6 +15,7 @@ type CustomerCaseItem = {
   description: string;
   url?: string;
   createdAt: string;
+  isActive: boolean;
 };
 
 type Props = {
@@ -95,6 +96,7 @@ export default function CustomersCasesClient({ initialCases }: Props) {
                   <th className="px-4 py-3 text-left">Titre</th>
                   <th className="px-4 py-3 text-left">Description</th>
                   <th className="px-4 py-3 text-left">URL</th>
+                  <th className="px-4 py-3 text-left">Statut</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -123,6 +125,23 @@ export default function CustomersCasesClient({ initialCases }: Props) {
                         ) : (
                           "—"
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                            item.isActive
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-red-50 text-red-700"
+                          }`}
+                        >
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              item.isActive ? "bg-emerald-500" : "bg-red-500"
+                            }`}
+                            aria-hidden
+                          />
+                          {item.isActive ? "Actif" : "Inactif"}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2">

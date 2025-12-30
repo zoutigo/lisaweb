@@ -21,6 +21,7 @@ const baseCase = {
   description: "Une description très complète",
   url: "https://exemple.com",
   createdAt: new Date("2024-01-01").toISOString(),
+  isActive: true,
 };
 
 describe("CustomersCasesClient actions", () => {

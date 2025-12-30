@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { CustomerCaseForm } from "@/app/dashboard/customers-cases/customer-case-form";
 
 const pushMock = jest.fn();
@@ -104,6 +105,7 @@ describe("CustomerCaseForm interactions", () => {
       imageUrl: "https://exemple.com/img.png",
       results: [{ label: "Résultat 1", slug: "res-1" }],
       features: [{ label: "Feature 1", slug: "feat-1" }],
+      isActive: true,
       isFeatured: true,
     };
 
@@ -155,6 +157,7 @@ describe("CustomerCaseForm interactions", () => {
           imageUrl: "",
           results: [{ label: "R1", slug: "r1" }],
           features: [{ label: "F1", slug: "f1" }],
+          isActive: true,
           isFeatured: false,
         }}
         availableResults={[]}
@@ -166,5 +169,23 @@ describe("CustomerCaseForm interactions", () => {
       name: /Mettre à jour/i,
     });
     await waitFor(() => expect(submitButton).not.toBeDisabled());
+  });
+
+  it("affiche la case Actif cochée par défaut et peut la décocher", async () => {
+    const user = userEvent.setup();
+    render(
+      <CustomerCaseForm
+        mode="create"
+        availableResults={[]}
+        availableFeatures={[]}
+      />,
+    );
+
+    const activeCheckbox = screen.getByLabelText(
+      /afficher sur la page réalisations/i,
+    );
+    expect(activeCheckbox).toBeChecked();
+    await user.click(activeCheckbox);
+    expect(activeCheckbox).not.toBeChecked();
   });
 });

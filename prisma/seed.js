@@ -380,6 +380,7 @@ const customerCases = [
       "Refonte complète du site : navigation simplifiée, contenus parent, design clair.",
     url: "https://www.ecole-st-augustin.fr",
     imageUrl: "/images/st-augustin.png",
+    isActive: true,
     resultSlugs: ["nav-parents", "info-rapides", "seo-local", "mobile-rapide"],
     featureSlugs: ["mobile-first", "design-epure", "seo-local"],
   },
@@ -390,6 +391,7 @@ const customerCases = [
       "Site vitrine avec agenda d’événements et formulaire de contact clair.",
     url: "https://www.association-exemple.fr",
     imageUrl: "/images/placeholder-case.png",
+    isActive: true,
     resultSlugs: ["agenda-lisible", "contact-facile", "conversion-plus"],
     featureSlugs: ["formulaires-cibles", "performance", "design-contemporain"],
   },
@@ -400,6 +402,7 @@ const customerCases = [
       "Modernisation d’un site obsolète avec mise en avant des réalisations.",
     url: "https://www.artisan-exemple.fr",
     imageUrl: "/images/placeholder-case.png",
+    isActive: true,
     resultSlugs: ["portfolio-clair", "demandes-en-hausse"],
     featureSlugs: ["accessibilite", "cms-simple", "support", "securite"],
   },
@@ -410,6 +413,7 @@ const customerCases = [
       "Application mobile pour réservations, notifications et suivi des membres.",
     url: "https://www.coachfit-app.fr",
     imageUrl: "/images/placeholder-mobile-app.png",
+    isActive: true,
     resultSlugs: [
       "engagement-mobile",
       "notifications",
@@ -914,7 +918,7 @@ async function main() {
     for (const item of customerCases) {
       const { resultSlugs = [], featureSlugs = [], ...data } = item;
       const createdCase = await prisma.customerCase.create({
-        data: { ...data, isFeatured: false },
+        data: { ...data, isFeatured: false, isActive: data.isActive ?? true },
       });
       if (resultSlugs.length) {
         await prisma.customerCase.update({

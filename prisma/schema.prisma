@@ -74,6 +74,7 @@ model CustomerCase {
   description String
   url         String?
   imageUrl    String?
+  isActive    Boolean               @default(true)
   isFeatured  Boolean               @default(false)
   createdAt   DateTime              @default(now())
   results     CustomerCaseResult[]  @relation("CustomerCaseToResults")

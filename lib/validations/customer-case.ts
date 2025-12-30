@@ -32,6 +32,7 @@ export const customerCaseSchema = z.object({
     )
     .optional()
     .default([]),
+  isActive: z.boolean().optional().default(true),
   isFeatured: z.boolean().optional().default(false),
 });
 

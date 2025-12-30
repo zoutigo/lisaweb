@@ -20,6 +20,15 @@ type LandingCustomerCase = {
   description: string;
   url?: string | null;
   imageUrl?: string | null;
+  isActive?: boolean;
+  results?: { id: string; label: string; slug: string }[];
+  features?: { id: string; label: string; slug: string }[];
+};
+
+type LandingCaseRaw = Awaited<
+  ReturnType<typeof prisma.customerCase.findFirst>
+> & {
+  isActive?: boolean;
   results?: { id: string; label: string; slug: string }[];
   features?: { id: string; label: string; slug: string }[];
 };
@@ -101,22 +110,23 @@ export default async function Home() {
   } | null = null;
   if (process.env.DATABASE_URL) {
     try {
-      const landingCaseRaw =
+      const landingCaseRaw: LandingCaseRaw | null =
         (await prisma.customerCase.findFirst({
-          where: { isFeatured: true },
+          where: { isFeatured: true, isActive: true },
           orderBy: { createdAt: "desc" as const },
           include: {
             results: { orderBy: { order: "asc" as const } },
             features: { orderBy: { order: "asc" as const } },
           },
-        })) ??
+        } as unknown as Parameters<typeof prisma.customerCase.findFirst>[0])) ??
         (await prisma.customerCase.findFirst({
+          where: { isActive: true },
           orderBy: { createdAt: "desc" as const },
           include: {
             results: { orderBy: { order: "asc" as const } },
             features: { orderBy: { order: "asc" as const } },
           },
-        })) ??
+        } as unknown as Parameters<typeof prisma.customerCase.findFirst>[0])) ??
         null;
 
       if (landingCaseRaw) {
@@ -128,21 +138,17 @@ export default async function Home() {
           url: landingCaseRaw.url ?? null,
           imageUrl: landingCaseRaw.imageUrl ?? null,
           results:
-            landingCaseRaw.results?.map(
-              (r: { id: string; label: string; slug: string }) => ({
-                id: r.id,
-                label: r.label,
-                slug: r.slug,
-              }),
-            ) ?? [],
+            landingCaseRaw.results?.map((r) => ({
+              id: r.id,
+              label: r.label,
+              slug: r.slug,
+            })) ?? [],
           features:
-            landingCaseRaw.features?.map(
-              (f: { id: string; label: string; slug: string }) => ({
-                id: f.id,
-                label: f.label,
-                slug: f.slug,
-              }),
-            ) ?? [],
+            landingCaseRaw.features?.map((f) => ({
+              id: f.id,
+              label: f.label,
+              slug: f.slug,
+            })) ?? [],
         };
       }
 
@@ -169,11 +175,13 @@ export default async function Home() {
           features: offer.features,
           steps: offer.steps,
           offerOptions:
-            offer.offerOptions?.map((o) => ({
-              id: o.id,
-              title: o.title,
-              slug: o.slug,
-            })) ?? [],
+            offer.offerOptions?.map(
+              (o: { id: string; title: string; slug: string }) => ({
+                id: o.id,
+                title: o.title,
+                slug: o.slug,
+              }),
+            ) ?? [],
         };
       }
 

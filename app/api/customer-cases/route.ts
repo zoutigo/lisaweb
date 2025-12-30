@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export async function GET() {
   try {
     const cases = await prisma.customerCase.findMany({
+      where: { isActive: true },
       orderBy: { createdAt: "desc" },
       include: {
         results: { orderBy: { order: "asc" } },

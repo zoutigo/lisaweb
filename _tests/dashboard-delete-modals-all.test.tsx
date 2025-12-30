@@ -111,6 +111,7 @@ describe("ConfirmModal delete flows across dashboard lists", () => {
             description: "Desc",
             customer: "Client",
             createdAt: new Date().toISOString(),
+            isActive: true,
           },
         ]}
       />,

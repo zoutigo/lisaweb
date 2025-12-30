@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const featured =
       (await prisma.customerCase.findFirst({
-        where: { isFeatured: true },
+        where: { isFeatured: true, isActive: true },
         orderBy: { createdAt: "desc" },
         include: {
           results: { orderBy: { order: "asc" } },
@@ -15,6 +15,7 @@ export async function GET() {
         },
       })) ??
       (await prisma.customerCase.findFirst({
+        where: { isActive: true },
         orderBy: { createdAt: "desc" },
         include: {
           results: { orderBy: { order: "asc" } },

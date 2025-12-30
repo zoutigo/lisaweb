@@ -47,6 +47,11 @@ describe("API /api/customer-cases/featured", () => {
     expect(res.status).toBe(200);
     expect(json?.results?.[0]?.label).toBe("Resultat");
     expect(json?.features?.[0]?.label).toBe("Feature");
+    expect(prismaMock.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: true }),
+      }),
+    );
   });
 
   it("retourne null en cas d'erreur", async () => {
@@ -56,5 +61,26 @@ describe("API /api/customer-cases/featured", () => {
 
     expect(res.status).toBe(200);
     expect(json).toBeNull();
+  });
+
+  it("utilise le fallback actif si aucun cas mis en avant", async () => {
+    prismaMock.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: "fallback", title: "Fallback case" });
+    const res = await GET();
+    const json = await res.json();
+    expect(json?.id).toBe("fallback");
+    expect(prismaMock.findFirst).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: expect.objectContaining({ isFeatured: true, isActive: true }),
+      }),
+    );
+    expect(prismaMock.findFirst).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        where: expect.objectContaining({ isActive: true }),
+      }),
+    );
   });
 });
