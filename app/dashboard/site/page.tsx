@@ -43,6 +43,10 @@ export default function SiteAdminPage() {
       postalCode: "",
       country: "",
       phone: "",
+      siret: "",
+      codeApe: "",
+      statut: "",
+      responsable: "",
     },
     mode: "onChange",
   });
@@ -97,43 +101,71 @@ export default function SiteAdminPage() {
           <p className="text-xs text-red-600">{errors.email.message}</p>
         ) : null}
       </div>
-      {(["address", "city", "postalCode", "country", "phone"] as const).map(
-        (field) => (
-          <div key={field} className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-800">
-              {field === "postalCode"
-                ? "Code postal"
-                : field === "phone"
-                  ? "Téléphone"
-                  : field === "address"
-                    ? "Adresse"
-                    : field === "city"
-                      ? "Ville"
-                      : "Pays"}
-            </label>
-            <input
-              {...register(field)}
-              placeholder={
-                field === "address"
-                  ? "123 rue Principale"
+      {(
+        [
+          "address",
+          "city",
+          "postalCode",
+          "country",
+          "phone",
+          "siret",
+          "codeApe",
+          "statut",
+          "responsable",
+        ] as const
+      ).map((field) => (
+        <div key={field} className="flex flex-col gap-1.5">
+          <label className="text-sm font-semibold text-gray-800">
+            {field === "postalCode"
+              ? "Code postal"
+              : field === "phone"
+                ? "Téléphone"
+                : field === "address"
+                  ? "Adresse"
                   : field === "city"
-                    ? "Paris"
-                    : field === "postalCode"
-                      ? "75000"
-                      : field === "country"
-                        ? "France"
-                        : "+33 1 23 45 67 89"
-              }
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
-            />
-            {errors[field]?.message ? (
-              <p className="text-xs text-red-600">
-                {errors[field]?.message as string}
-              </p>
-            ) : null}
-          </div>
-        ),
-      )}
+                    ? "Ville"
+                    : field === "country"
+                      ? "Pays"
+                      : field === "siret"
+                        ? "SIRET (optionnel)"
+                        : field === "codeApe"
+                          ? "Code APE (optionnel)"
+                          : field === "statut"
+                            ? "Statut (optionnel)"
+                            : "Responsable (optionnel)"}
+          </label>
+          <input
+            {...register(field)}
+            placeholder={
+              field === "address"
+                ? "123 rue Principale"
+                : field === "city"
+                  ? "Paris"
+                  : field === "postalCode"
+                    ? "75000"
+                    : field === "country"
+                      ? "France"
+                      : field === "phone"
+                        ? "+33 1 23 45 67 89"
+                        : field === "siret"
+                          ? "SIRET (optionnel)"
+                          : field === "codeApe"
+                            ? "Code APE (optionnel)"
+                            : field === "statut"
+                              ? "Statut (auto-entrepreneur, etc.)"
+                              : field === "responsable"
+                                ? "Responsable (optionnel)"
+                                : ""
+            }
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-blue-400 focus:bg-white focus:outline-none"
+          />
+          {errors[field]?.message ? (
+            <p className="text-xs text-red-600">
+              {errors[field]?.message as string}
+            </p>
+          ) : null}
+        </div>
+      ))}
 
       {status ? (
         <FormStatus type={status.type} message={status.msg} className="mt-1" />
@@ -197,6 +229,10 @@ export default function SiteAdminPage() {
                   ["Code postal", "postalCode"],
                   ["Pays", "country"],
                   ["Téléphone", "phone"],
+                  ["SIRET", "siret"],
+                  ["Code APE", "codeApe"],
+                  ["Statut", "statut"],
+                  ["Responsable", "responsable"],
                 ].map(([label, key]) => (
                   <div key={key} className="rounded-xl bg-gray-50 px-4 py-3">
                     <p className="text-xs uppercase tracking-wide text-gray-500">
@@ -219,6 +255,14 @@ export default function SiteAdminPage() {
                             return values.country || "—";
                           case "phone":
                             return values.phone || "—";
+                          case "siret":
+                            return values.siret || "—";
+                          case "codeApe":
+                            return values.codeApe || "—";
+                          case "statut":
+                            return values.statut || "—";
+                          case "responsable":
+                            return values.responsable || "—";
                           default:
                             return "—";
                         }

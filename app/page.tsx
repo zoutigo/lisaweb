@@ -12,6 +12,11 @@ import {
   LandingFeaturedOffer,
   type LandingServiceOffer,
 } from "@/components/landing-featured-offer";
+import { fallbackSiteInfo } from "@/lib/data/fallback-site-info";
+import {
+  fallbackFeaturedCase,
+  fallbackFeaturedOffer,
+} from "@/lib/data/fallback-landing";
 
 type LandingCustomerCase = {
   id: string;
@@ -20,6 +25,15 @@ type LandingCustomerCase = {
   description: string;
   url?: string | null;
   imageUrl?: string | null;
+  isActive?: boolean;
+  results?: { id: string; label: string; slug: string }[];
+  features?: { id: string; label: string; slug: string }[];
+};
+
+type LandingCaseRaw = Awaited<
+  ReturnType<typeof prisma.customerCase.findFirst>
+> & {
+  isActive?: boolean;
   results?: { id: string; label: string; slug: string }[];
   features?: { id: string; label: string; slug: string }[];
 };
@@ -98,25 +112,31 @@ export default async function Home() {
     city?: string | null;
     postalCode?: string | null;
     country?: string | null;
+    siret?: string | null;
+    codeApe?: string | null;
+    statut?: string | null;
+    responsable?: string | null;
+    imageUrl?: string | null;
   } | null = null;
   if (process.env.DATABASE_URL) {
     try {
-      const landingCaseRaw =
+      const landingCaseRaw: LandingCaseRaw | null =
         (await prisma.customerCase.findFirst({
-          where: { isFeatured: true },
+          where: { isFeatured: true, isActive: true },
           orderBy: { createdAt: "desc" as const },
           include: {
             results: { orderBy: { order: "asc" as const } },
             features: { orderBy: { order: "asc" as const } },
           },
-        })) ??
+        } as unknown as Parameters<typeof prisma.customerCase.findFirst>[0])) ??
         (await prisma.customerCase.findFirst({
+          where: { isActive: true },
           orderBy: { createdAt: "desc" as const },
           include: {
             results: { orderBy: { order: "asc" as const } },
             features: { orderBy: { order: "asc" as const } },
           },
-        })) ??
+        } as unknown as Parameters<typeof prisma.customerCase.findFirst>[0])) ??
         null;
 
       if (landingCaseRaw) {
@@ -128,21 +148,17 @@ export default async function Home() {
           url: landingCaseRaw.url ?? null,
           imageUrl: landingCaseRaw.imageUrl ?? null,
           results:
-            landingCaseRaw.results?.map(
-              (r: { id: string; label: string; slug: string }) => ({
-                id: r.id,
-                label: r.label,
-                slug: r.slug,
-              }),
-            ) ?? [],
+            landingCaseRaw.results?.map((r) => ({
+              id: r.id,
+              label: r.label,
+              slug: r.slug,
+            })) ?? [],
           features:
-            landingCaseRaw.features?.map(
-              (f: { id: string; label: string; slug: string }) => ({
-                id: f.id,
-                label: f.label,
-                slug: f.slug,
-              }),
-            ) ?? [],
+            landingCaseRaw.features?.map((f) => ({
+              id: f.id,
+              label: f.label,
+              slug: f.slug,
+            })) ?? [],
         };
       }
 
@@ -169,11 +185,13 @@ export default async function Home() {
           features: offer.features,
           steps: offer.steps,
           offerOptions:
-            offer.offerOptions?.map((o) => ({
-              id: o.id,
-              title: o.title,
-              slug: o.slug,
-            })) ?? [],
+            offer.offerOptions?.map(
+              (o: { id: string; title: string; slug: string }) => ({
+                id: o.id,
+                title: o.title,
+                slug: o.slug,
+              }),
+            ) ?? [],
         };
       }
 
@@ -189,59 +207,26 @@ export default async function Home() {
   }
 
   if (!featuredOffer) {
-    featuredOffer = {
-      title: "Site vitrine clé en main",
-      subtitle: "Un site moderne, rapide et prêt à l’emploi",
-      shortDescription:
-        "Structure claire, design soigné, SEO local et prise en main simple pour écoles, associations, artisans et TPE.",
-      targetAudience: "Écoles, associations, artisans, TPE",
-      priceLabel: "À partir de 800 €",
-      durationLabel: "2 à 4 semaines",
-      engagementLabel: "Forfait, sans engagement long terme",
-      ctaLabel: "Demander un devis",
-      ctaLink: "/demande-devis",
-      features: [
-        { label: "Design moderne & responsive", icon: "🖥️" },
-        { label: "SEO local inclus", icon: "📍" },
-        { label: "Sécurité & performance", icon: "🔒" },
-        { label: "Interface simple à gérer", icon: "✅" },
-      ],
-      steps: [
-        { title: "Analyse des besoins", description: "Objectifs et publics." },
-        { title: "Structure & maquette", description: "Parcours clairs." },
-        { title: "Développement", description: "Site rapide, mobile, SEO." },
-        { title: "Mise en ligne", description: "Handover et suivi." },
-      ],
-      offerOptions: [
-        {
-          id: "opt-fallback-1",
-          title: "Formulaire avancé",
-          slug: "advanced-form",
-        },
-        {
-          id: "opt-fallback-2",
-          title: "SEO local avancé",
-          slug: "seo-local-advanced",
-        },
-      ],
-    };
+    featuredOffer = fallbackFeaturedOffer as LandingServiceOffer;
   }
+
+  const currentSiteInfo = siteInfo ?? fallbackSiteInfo;
 
   const ldJson = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: siteInfo?.name ?? "LISAWEB",
+    name: currentSiteInfo.name ?? "LISAWEB",
     url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lisaweb.fr",
-    email: siteInfo?.email ?? "contact@lisaweb.fr",
-    telephone: siteInfo?.phone ?? "+33650597839",
+    email: currentSiteInfo.email ?? "contact@lisaweb.fr",
+    telephone: currentSiteInfo.phone ?? "+33650597839",
     image:
       (process.env.NEXT_PUBLIC_SITE_URL ?? "https://lisaweb.fr") + "/logo.svg",
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteInfo?.address ?? "89C rue du travail",
-      postalCode: siteInfo?.postalCode ?? "38230",
-      addressLocality: siteInfo?.city ?? "Pont-de-Chéruy",
-      addressCountry: siteInfo?.country ?? "France",
+      streetAddress: currentSiteInfo.address ?? "89C rue du travail",
+      postalCode: currentSiteInfo.postalCode ?? "38230",
+      addressLocality: currentSiteInfo.city ?? "Pont-de-Chéruy",
+      addressCountry: currentSiteInfo.country ?? "France",
     },
     areaServed: [
       "Pont-de-Chéruy",
@@ -255,34 +240,7 @@ export default async function Home() {
   };
 
   if (!featuredCase) {
-    featuredCase = {
-      id: "fallback-case",
-      title: "Site vitrine moderne pour une école",
-      customer: "École locale",
-      description:
-        "Navigation simplifiée, contenus parent clairs, design moderne et optimisé mobile.",
-      url: "https://www.ecole-st-augustin.fr",
-      imageUrl: "/images/st-augustin.png",
-      results: [
-        {
-          id: "res-f1",
-          label: "Navigation claire pour les parents",
-          slug: "nav-parents",
-        },
-        {
-          id: "res-f2",
-          label: "Informations accessibles rapidement",
-          slug: "info-rapides",
-        },
-        { id: "res-f3", label: "SEO local optimisé", slug: "seo-local" },
-        { id: "res-f4", label: "Site rapide et mobile", slug: "mobile-rapide" },
-      ],
-      features: [
-        { id: "feat-f1", label: "Mobile first", slug: "mobile-first" },
-        { id: "feat-f2", label: "Design épuré", slug: "design-epure" },
-        { id: "feat-f3", label: "SEO local", slug: "seo-local" },
-      ],
-    };
+    featuredCase = fallbackFeaturedCase;
   }
   return (
     <div className="min-h-screen bg-linear-to-b from-[#f7f9fc] via-white to-[#edf1ff] text-[#111827]">
@@ -501,6 +459,14 @@ export default async function Home() {
                 <span className="rounded-full border border-white/30 px-3 py-1">
                   Rendez-vous possible sur Pont-de-Chéruy / Lyon Est
                 </span>
+              </div>
+              <div className="text-sm text-white/80">
+                <Link
+                  className="underline-offset-4 hover:underline"
+                  href="/mentions-legales"
+                >
+                  Mentions légales
+                </Link>
               </div>
             </div>
           </div>

@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { BackLink } from "@/components/back-link";
 import { CustomerCaseForm } from "../../customer-case-form";
 
+type CaseOption = { id: string; label: string; slug: string };
+
 export default async function EditCustomerCasePage({
   params,
 }: {
@@ -44,29 +46,30 @@ export default async function EditCustomerCasePage({
           id: caseItem.id,
           title: caseItem.title,
           description: caseItem.description,
+          isActive: caseItem.isActive ?? true,
           isFeatured: caseItem.isFeatured ?? false,
           customer: caseItem.customer ?? undefined,
           url: caseItem.url ?? undefined,
           imageUrl: caseItem.imageUrl ?? undefined,
           results:
-            caseItem.results?.map((r) => ({
+            caseItem.results?.map((r: CaseOption) => ({
               id: r.id,
               label: r.label,
               slug: r.slug,
             })) ?? [],
           features:
-            caseItem.features?.map((f) => ({
+            caseItem.features?.map((f: CaseOption) => ({
               id: f.id,
               label: f.label,
               slug: f.slug,
             })) ?? [],
         }}
-        availableResults={allResults.map((r) => ({
+        availableResults={allResults.map((r: CaseOption) => ({
           id: r.id,
           label: r.label,
           slug: r.slug,
         }))}
-        availableFeatures={allFeatures.map((f) => ({
+        availableFeatures={allFeatures.map((f: CaseOption) => ({
           id: f.id,
           label: f.label,
           slug: f.slug,

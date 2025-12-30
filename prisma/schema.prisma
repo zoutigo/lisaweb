@@ -64,6 +64,10 @@ model SiteInfo {
   postalCode String?
   country    String?
   phone      String?
+  siret      String?
+  codeApe    String?
+  statut     String?
+  responsable String?
   updatedAt  DateTime @updatedAt
 }
 
@@ -74,6 +78,7 @@ model CustomerCase {
   description String
   url         String?
   imageUrl    String?
+  isActive    Boolean               @default(true)
   isFeatured  Boolean               @default(false)
   createdAt   DateTime              @default(now())
   results     CustomerCaseResult[]  @relation("CustomerCaseToResults")

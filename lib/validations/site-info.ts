@@ -21,6 +21,30 @@ export const siteInfoSchema = z.object({
     .string()
     .trim()
     .regex(frenchPhoneRegex, "Téléphone français invalide"),
+  siret: z
+    .string()
+    .trim()
+    .max(50, "SIRET trop long")
+    .optional()
+    .or(z.literal("")),
+  codeApe: z
+    .string()
+    .trim()
+    .max(50, "Code APE trop long")
+    .optional()
+    .or(z.literal("")),
+  statut: z
+    .string()
+    .trim()
+    .max(100, "Statut trop long")
+    .optional()
+    .or(z.literal("")),
+  responsable: z
+    .string()
+    .trim()
+    .max(150, "Responsable trop long")
+    .optional()
+    .or(z.literal("")),
 });
 
 export type SiteInfoInput = z.infer<typeof siteInfoSchema>;

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `SiteInfo` ADD COLUMN `codeApe` VARCHAR(191) NULL,
+    ADD COLUMN `responsable` VARCHAR(191) NULL,
+    ADD COLUMN `siret` VARCHAR(191) NULL,
+    ADD COLUMN `statut` VARCHAR(191) NULL;

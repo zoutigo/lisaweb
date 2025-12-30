@@ -9,6 +9,8 @@ import Link from "next/link";
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 
+type CaseOption = { id: string; label: string; slug: string };
+
 export default async function CustomerCaseDetailPage({
   params,
 }: {
@@ -49,6 +51,28 @@ export default async function CustomerCaseDetailPage({
         <h1 className="mt-2 text-2xl font-bold text-gray-900">
           {customerCase.title}
         </h1>
+        <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
+          <span
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
+              customerCase.isActive
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-red-50 text-red-700"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                customerCase.isActive ? "bg-emerald-500" : "bg-red-500"
+              }`}
+              aria-hidden
+            />
+            {customerCase.isActive ? "Actif" : "Inactif"}
+          </span>
+          {customerCase.isFeatured ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-blue-700">
+              ⭐ Mis en avant
+            </span>
+          ) : null}
+        </div>
         {customerCase.customer ? (
           <p className="text-sm text-gray-700">{customerCase.customer}</p>
         ) : null}
@@ -77,7 +101,7 @@ export default async function CustomerCaseDetailPage({
               Résultats
             </p>
             <ul className="space-y-1.5">
-              {results.map((res) => (
+              {results.map((res: CaseOption) => (
                 <li key={res.id} className="flex gap-2">
                   <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#3b5bff] text-[9px] font-bold text-white">
                     ✓
@@ -91,7 +115,7 @@ export default async function CustomerCaseDetailPage({
 
         {features.length ? (
           <div className="mt-4 flex flex-wrap gap-2 text-sm text-[#1b2653]">
-            {features.map((f) => (
+            {features.map((f: CaseOption) => (
               <span
                 key={f.id}
                 className="rounded-full bg-[#f0f4ff] px-3 py-1 shadow-[0_8px_18px_-16px_rgba(0,0,0,0.4)]"

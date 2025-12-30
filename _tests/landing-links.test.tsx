@@ -35,5 +35,10 @@ describe("Landing internal links", () => {
     expect(
       screen.getByRole("link", { name: /demander un devis gratuit/i }),
     ).toHaveAttribute("href", "/demande-devis");
+
+    // Mentions légales accessible
+    expect(
+      screen.getByRole("link", { name: /mentions légales/i }),
+    ).toHaveAttribute("href", "/mentions-legales");
   });
 });

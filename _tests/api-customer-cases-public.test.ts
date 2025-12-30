@@ -34,7 +34,9 @@ describe("API /api/customer-cases (public)", () => {
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json[0].title).toBe("Case");
-    expect(prismaMock.findMany).toHaveBeenCalled();
+    expect(prismaMock.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isActive: true } }),
+    );
   });
 
   it("retourne un fallback [] en cas d'erreur", async () => {

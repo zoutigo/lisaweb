@@ -16,6 +16,7 @@ type CustomerCase = {
   features: { id: string; label: string; slug: string }[];
   imageUrl: string | null;
   createdAt: Date;
+  isActive: boolean;
   isFeatured: boolean;
 };
 
@@ -31,13 +32,14 @@ export default async function CustomersCasesPage() {
       results: true,
       features: true,
     },
-  })) as CustomerCase[];
+  })) as unknown as CustomerCase[];
 
   return (
     <CustomersCasesClient
       initialCases={cases.map((c) => ({
         ...c,
         isFeatured: c.isFeatured ?? false,
+        isActive: c.isActive ?? true,
         customer: c.customer ?? undefined,
         url: c.url ?? undefined,
         imageUrl: c.imageUrl ?? undefined,

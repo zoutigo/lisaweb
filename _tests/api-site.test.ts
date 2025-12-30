@@ -92,10 +92,12 @@ describe("API /api/dashboard/site", () => {
       new Request("http://x", { method: "PUT", body: JSON.stringify(payload) }),
     );
     expect(res.status).toBe(200);
-    expect(prismaSiteInfo.update).toHaveBeenCalledWith({
-      where: { id: 1 },
-      data: payload,
-    });
+    expect(prismaSiteInfo.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 1 },
+        data: expect.objectContaining(payload),
+      }),
+    );
   });
 
   it("PUT creates site info when none exists", async () => {
@@ -117,6 +119,10 @@ describe("API /api/dashboard/site", () => {
       new Request("http://x", { method: "PUT", body: JSON.stringify(payload) }),
     );
     expect(res.status).toBe(200);
-    expect(prismaSiteInfo.create).toHaveBeenCalledWith({ data: payload });
+    expect(prismaSiteInfo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining(payload),
+      }),
+    );
   });
 });

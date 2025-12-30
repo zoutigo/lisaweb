@@ -62,6 +62,9 @@ describe("Page /realisations", () => {
     expect(
       screen.getByRole("button", { name: /voir la réalisation/i }),
     ).toBeInTheDocument();
+    expect(prisma.customerCase.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { isActive: true } }),
+    );
   });
 
   it("rafraîchit avec de nouvelles données (pas de cache figé)", async () => {

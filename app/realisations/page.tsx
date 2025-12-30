@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import RealisationsClient from "./realisations-client";
 
@@ -18,24 +17,24 @@ export const metadata = {
   ],
 };
 
-type CustomerCasePayload = Prisma.CustomerCaseGetPayload<{
-  select: {
-    id: true;
-    title: true;
-    customer: true;
-    description: true;
-    url: true;
-    imageUrl: true;
-    results: true;
-    features: true;
-    createdAt: true;
-  };
-}>;
+type CustomerCasePayload = {
+  id: string;
+  title: string;
+  customer: string | null;
+  description: string;
+  url: string | null;
+  imageUrl: string | null;
+  results: { id: string; label: string; slug: string }[];
+  features: { id: string; label: string; slug: string }[];
+  createdAt: Date;
+  isActive?: boolean;
+};
 
 export default async function RealisationsPage() {
   let customerCases: CustomerCasePayload[] = [];
   try {
     customerCases = await prisma.customerCase.findMany({
+      where: { isActive: true },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -44,8 +43,8 @@ export default async function RealisationsPage() {
         description: true,
         url: true,
         imageUrl: true,
-        results: true,
-        features: true,
+        results: { select: { id: true, label: true, slug: true } },
+        features: { select: { id: true, label: true, slug: true } },
         createdAt: true,
       },
     });

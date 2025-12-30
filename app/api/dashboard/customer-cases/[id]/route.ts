@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { customerCaseSchema } from "@/lib/validations/customer-case";
 import { getServerSession } from "next-auth";
@@ -48,6 +49,7 @@ export async function PUT(
 
   const data = {
     ...parsed.data,
+    isActive: parsed.data.isActive ?? true,
     isFeatured: parsed.data.isFeatured ?? false,
     customer: parsed.data.customer || null,
     url: parsed.data.url || null,
@@ -56,53 +58,56 @@ export async function PUT(
     features: parsed.data.features ?? [],
   };
 
-  const updated = await prisma.$transaction(async (tx) => {
-    if (data.isFeatured) {
-      await tx.customerCase.updateMany({
-        data: { isFeatured: false },
-        where: { isFeatured: true, NOT: { id: rawId } },
+  const updated = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      if (data.isFeatured) {
+        await tx.customerCase.updateMany({
+          data: { isFeatured: false },
+          where: { isFeatured: true, NOT: { id: rawId } },
+        });
+      }
+      const updatedCase = await tx.customerCase.update({
+        where: { id: rawId },
+        data: {
+          title: data.title,
+          customer: data.customer,
+          description: data.description,
+          url: data.url,
+          imageUrl: data.imageUrl,
+          isActive: data.isActive,
+          isFeatured: data.isFeatured,
+          results: {
+            set: [],
+            connectOrCreate: data.results.map((r, idx) => ({
+              where: { slug: r.slug ?? slugifyLabel(r.label) },
+              create: {
+                slug: r.slug ?? slugifyLabel(r.label),
+                label: r.label,
+                order: idx,
+              },
+            })),
+          },
+          features: {
+            set: [],
+            connectOrCreate: data.features.map((f, idx) => ({
+              where: { slug: f.slug ?? slugifyLabel(f.label) },
+              create: {
+                slug: f.slug ?? slugifyLabel(f.label),
+                label: f.label,
+                order: idx,
+              },
+            })),
+          },
+        },
+        include: {
+          results: { orderBy: { order: "asc" } },
+          features: { orderBy: { order: "asc" } },
+        },
       });
-    }
-    const updatedCase = await tx.customerCase.update({
-      where: { id: rawId },
-      data: {
-        title: data.title,
-        customer: data.customer,
-        description: data.description,
-        url: data.url,
-        imageUrl: data.imageUrl,
-        isFeatured: data.isFeatured,
-        results: {
-          set: [],
-          connectOrCreate: data.results.map((r, idx) => ({
-            where: { slug: r.slug ?? slugifyLabel(r.label) },
-            create: {
-              slug: r.slug ?? slugifyLabel(r.label),
-              label: r.label,
-              order: idx,
-            },
-          })),
-        },
-        features: {
-          set: [],
-          connectOrCreate: data.features.map((f, idx) => ({
-            where: { slug: f.slug ?? slugifyLabel(f.label) },
-            create: {
-              slug: f.slug ?? slugifyLabel(f.label),
-              label: f.label,
-              order: idx,
-            },
-          })),
-        },
-      },
-      include: {
-        results: { orderBy: { order: "asc" } },
-        features: { orderBy: { order: "asc" } },
-      },
-    });
 
-    return updatedCase;
-  });
+      return updatedCase;
+    },
+  );
   return NextResponse.json(updated);
 }
 
