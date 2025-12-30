@@ -25,20 +25,55 @@ export async function PUT(request: Request) {
   if (!parsed.success)
     return NextResponse.json({ message: "Invalid" }, { status: 422 });
 
-  const { name, email, address, city, postalCode, country, phone } =
-    parsed.data;
+  const {
+    name,
+    email,
+    address,
+    city,
+    postalCode,
+    country,
+    phone,
+    siret,
+    codeApe,
+    statut,
+    responsable,
+  } = parsed.data;
 
   const existing = await prisma.siteInfo.findFirst();
   if (existing) {
     const updated = await prisma.siteInfo.update({
       where: { id: existing.id },
-      data: { name, email, address, city, postalCode, country, phone },
+      data: {
+        name,
+        email,
+        address,
+        city,
+        postalCode,
+        country,
+        phone,
+        siret: siret || null,
+        codeApe: codeApe || null,
+        statut: statut || null,
+        responsable: responsable || null,
+      },
     });
     return NextResponse.json(updated);
   }
 
   const created = await prisma.siteInfo.create({
-    data: { name, email, address, city, postalCode, country, phone },
+    data: {
+      name,
+      email,
+      address,
+      city,
+      postalCode,
+      country,
+      phone,
+      siret: siret || null,
+      codeApe: codeApe || null,
+      statut: statut || null,
+      responsable: responsable || null,
+    },
   });
   return NextResponse.json(created);
 }

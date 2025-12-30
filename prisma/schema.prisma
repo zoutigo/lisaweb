@@ -64,6 +64,10 @@ model SiteInfo {
   postalCode String?
   country    String?
   phone      String?
+  siret      String?
+  codeApe    String?
+  statut     String?
+  responsable String?
   updatedAt  DateTime @updatedAt
 }
 

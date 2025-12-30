@@ -42,6 +42,10 @@ describe("Dashboard site page", () => {
             postalCode: "75000",
             country: "France",
             phone: "+33123456789",
+            siret: "123 456 789 00011",
+            codeApe: "6201Z",
+            statut: "Indépendant",
+            responsable: "Valery Mbele",
           }),
       })
       // PUT
@@ -60,15 +64,34 @@ describe("Dashboard site page", () => {
       expect(screen.getByText("Mon Site")).toBeInTheDocument(),
     );
 
+    expect(screen.getByText(/SIRET/i)).toBeInTheDocument();
+    expect(screen.getByText(/123 456 789 00011/)).toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: /modifier/i }));
 
     await user.clear(screen.getByPlaceholderText("Nom du site"));
     await user.type(screen.getByPlaceholderText("Nom du site"), "Nouveau");
+    await user.clear(screen.getByPlaceholderText("SIRET (optionnel)"));
+    await user.type(
+      screen.getByPlaceholderText("SIRET (optionnel)"),
+      "987 654 321 00022",
+    );
 
     await user.click(screen.getByRole("button", { name: /Enregistrer/i }));
 
     expect((global.fetch as jest.Mock).mock.calls[1][0]).toBe(
       "/api/dashboard/site",
     );
+    expect(
+      (global.fetch as jest.Mock).mock.calls[1][1] as Record<string, unknown>,
+    ).toMatchObject({
+      method: "PUT",
+    });
+    expect(
+      String(
+        (global.fetch as jest.Mock).mock.calls[1][1] &&
+          (global.fetch as jest.Mock).mock.calls[1][1].body,
+      ),
+    ).toContain("987 654 321 00022");
   });
 });

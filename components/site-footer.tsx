@@ -148,12 +148,15 @@ export function SiteFooter() {
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-[#6b7280]">
         <span>© {new Date().getFullYear()} LISAWEB. Tous droits réservés.</span>
         <div className="flex gap-4">
-          <a className="hover:text-[#1b2653]" href="#">
+          <Link className="hover:text-[#1b2653]" href="/mentions-legales">
             Mentions légales
-          </a>
-          <a className="hover:text-[#1b2653]" href="#">
+          </Link>
+          <Link
+            className="hover:text-[#1b2653]"
+            href="/politique-confidentialite"
+          >
             Politique de confidentialité
-          </a>
+          </Link>
         </div>
       </div>
     </Section>

@@ -4,15 +4,11 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import type { Session } from "next-auth";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 
-type CaseDetail = Prisma.CustomerCaseGetPayload<{
-  include: { results: true; features: true };
-}>;
 type CaseOption = { id: string; label: string; slug: string };
 
 export default async function CustomerCaseDetailPage({

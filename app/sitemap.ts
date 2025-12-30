@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/demande-devis",
     "/contact",
     "/faq",
-    "rendezvous",
+    "/rendezvous",
   ];
 
   const now = new Date();
